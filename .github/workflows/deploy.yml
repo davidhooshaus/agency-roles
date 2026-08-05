@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write               # to commit refreshed data
+  contents: read
   pages: write                  # to publish
   id-token: write
 
@@ -28,16 +28,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Carry first-seen dates across runs (powers "New" badges) without
+      # committing anything back to the repo — avoids history divergence.
+      - name: Restore first-seen history
+        uses: actions/cache@v4
+        with:
+          path: data/history.json
+          key: history-${{ github.run_id }}
+          restore-keys: |
+            history-
+
       - name: Crawl agencies and build the site
         run: python3 crawl_and_build.py
-
-      - name: Commit refreshed listings
-        run: |
-          git config user.name "agency-roles-bot"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data site
-          git commit -m "Refresh listings ($(date -u +%F))" || echo "no changes to commit"
-          git push || echo "nothing to push"
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

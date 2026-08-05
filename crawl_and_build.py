@@ -212,6 +212,10 @@ render();
 
 def build_site(jobs, brand, errors):
     os.makedirs(SITE, exist_ok=True)
+    domain = brand.get("domain")
+    if domain:  # keeps the custom domain attached across daily Actions rebuilds
+        with open(os.path.join(SITE, "CNAME"), "w", encoding="utf-8") as f:
+            f.write(domain + "\n")
     name = brand.get("site_name", "Agency Roles")
     tag = brand.get("tagline", "Open roles at the world's best agencies.")
     credit_name = brand.get("credit_name", "Haus Advisors")
