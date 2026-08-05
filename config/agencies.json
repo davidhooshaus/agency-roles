@@ -1,0 +1,11 @@
+[
+  {
+    "_HOW_TO_ADD": "Each entry: name, provider (greenhouse|lever|ashby), slug. The slug is the company token in their public board URL. Greenhouse: boards.greenhouse.io/SLUG. Lever: jobs.lever.co/SLUG. Ashby: jobs.ashbyhq.com/SLUG. Set \"skip\": true to disable an entry without deleting it. The entries below are FORMAT EXAMPLES and must be verified/replaced with real agency slugs before the board has content.",
+    "name": "EXAMPLE — verify or replace",
+    "provider": "greenhouse",
+    "slug": "example",
+    "skip": true
+  },
+  { "name": "Example Agency (Lever)", "provider": "lever", "slug": "example", "skip": true },
+  { "name": "Example Agency (Ashby)", "provider": "ashby", "slug": "example", "skip": true }
+]

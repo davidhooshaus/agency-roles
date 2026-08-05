@@ -1,0 +1,25 @@
+{
+  "_comment": "Public board filter + branding. Category matching is first-match-wins in listed order. To make this a TECHNICAL-ONLY board, set enabled_categories to [\"Engineering\",\"Data/AI\",\"Product\"]. To go broad, list all.",
+  "brand": {
+    "site_name": "Agency Roles",
+    "tagline": "Open roles at the world's best agencies.",
+    "credit_name": "Haus Advisors",
+    "credit_url": "https://www.hausadvisors.com"
+  },
+  "enabled_categories": [
+    "Engineering", "Data/AI", "Product", "Design/Creative",
+    "Growth/Marketing", "BizDev/Sales", "Strategy/Account", "Operations/Leadership"
+  ],
+  "exclude_seniority": ["Junior"],
+  "exclude_title_keywords": ["intern", "internship", "apprentice", "work experience", "co-op"],
+  "categories": {
+    "Engineering": [" engineer", "developer", "full stack", "full-stack", "frontend", "front-end", "backend", "back-end", "devops", "software", "platform", " sre", "architect", " qa "],
+    "Data/AI": ["data scientist", "data engineer", "machine learning", " ml ", " ai ", "analytics", "data analyst"],
+    "Product": ["product manager", "product owner", "product lead", "technical product", "product designer"],
+    "Design/Creative": ["designer", " design ", "creative", "art director", "copywriter", " ux", " ui ", "motion", "illustrator"],
+    "Growth/Marketing": ["marketing", "growth", " seo", " ppc", "paid media", "paid search", "performance marketing", "demand gen", "content marketing", "social media", "email marketing", "lifecycle", " crm "],
+    "BizDev/Sales": ["business development", "biz dev", " sales", "account executive", "new business", "partnerships", "revenue"],
+    "Strategy/Account": ["strategist", "strategy", "account director", "account manager", "account lead", "client partner", "engagement manager", "planner"],
+    "Operations/Leadership": ["operations", " ops ", "project manager", "program manager", "delivery", "resource manager", "people ", "talent", "recruit", "finance", "chief", " coo", " ceo", " cto", " cfo", "managing director", "general manager", "president", "head of"]
+  }
+}

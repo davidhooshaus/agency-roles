@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agency Roles — jobs at top agencies</title>
+<meta name="description" content="Open roles at the world's best agencies. A curated, always-fresh board of open roles at leading agencies.">
+<meta property="og:title" content="Agency Roles">
+<meta property="og:description" content="Open roles at the world's best agencies. A curated, always-fresh board of open roles at leading agencies.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": []}</script>
+<style>
+
+:root{--bg:#0f2a20;--card:#14342a;--ink:#f4f1e8;--muted:#a9b6ac;--accent:#c9a24b;--line:#25453a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:inherit}.wrap{max-width:940px;margin:0 auto;padding:32px 20px 80px}
+header h1{font:700 40px/1.1 Georgia,"Times New Roman",serif;margin:0 0 6px}
+header p.tag{color:var(--muted);margin:0 0 4px;font-size:18px}
+.meta{color:var(--muted);font-size:13px;margin-top:8px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 8px;align-items:center}
+#q{flex:1;min-width:200px;padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+background:#0c221a;color:var(--ink);font-size:15px}
+.chip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;
+color:var(--muted);cursor:pointer;font-size:13px}.chip.on{background:var(--accent);color:#1a1205;
+border-color:var(--accent);font-weight:600}
+.count{color:var(--muted);font-size:13px;margin:14px 0}
+.card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);
+border-radius:12px;padding:16px 18px;margin:10px 0;transition:border-color .15s,transform .15s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card h2{margin:0 0 4px;font-size:18px}.card .co{color:var(--accent);font-size:14px;font-weight:600}
+.card .loc{color:var(--muted);font-size:14px}
+.tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:11px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.tag.new{color:#1a1205;background:var(--accent);border-color:var(--accent);font-weight:700}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+footer a{color:var(--accent);text-decoration:none}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Agency Roles</h1><p class="tag">Open roles at the world's best agencies.</p><div class="meta">Updated August 05, 2026 · 0 open roles · we link you straight to the source</div></header>
+<div class="controls"><input id="q" placeholder="Search title, company, location…"></div>
+<div class="controls" id="chips"></div>
+<div class="count" id="count"></div>
+<div id="list"></div>
+<footer>Built by <a href="https://www.hausadvisors.com">Haus Advisors</a> — we curate open roles at agencies and link out to each source. Hiring? Roles are pulled from public job boards; email us to get listed.</footer>
+</div>
+<script>window.JOBS=[];</script>
+<script>
+
+const J=window.JOBS||[],state={cat:"All",q:"",remote:false};
+const cats=["All",...Array.from(new Set(J.map(j=>j.category))).sort()];
+const elChips=document.getElementById("chips"),elList=document.getElementById("list"),
+      elCount=document.getElementById("count"),elQ=document.getElementById("q");
+function isNew(d){return (Date.now()-new Date(d).getTime())/864e5<=7;}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+cats.forEach(c=>{const b=document.createElement("button");b.className="chip"+(c==="All"?" on":"");
+ b.textContent=c;b.onclick=()=>{state.cat=c;[...elChips.children].forEach(x=>x.classList.toggle("on",x===b));render();};
+ elChips.appendChild(b);});
+const rt=document.createElement("button");rt.className="chip";rt.textContent="Remote only";
+rt.onclick=()=>{state.remote=!state.remote;rt.classList.toggle("on",state.remote);render();};
+elChips.appendChild(rt);
+elQ.oninput=()=>{state.q=elQ.value.toLowerCase();render();};
+function render(){
+ const f=J.filter(j=>(state.cat==="All"||j.category===state.cat)
+   &&(!state.remote||j.remote)
+   &&(!state.q||(j.title+" "+j.company+" "+j.location).toLowerCase().includes(state.q)));
+ elCount.textContent=f.length+" open role"+(f.length===1?"":"s");
+ elList.innerHTML=f.length?f.map(j=>`<a class="card" href="${esc(j.url)}" target="_blank" rel="noopener">
+   <h2>${esc(j.title)}</h2><div class="co">${esc(j.company)}</div>
+   <div class="loc">${esc(j.location||"Location n/a")}</div>
+   <div class="tags"><span class="tag">${esc(j.category)}</span>
+   <span class="tag">${esc(j.seniority)}</span>${j.remote?'<span class="tag">Remote</span>':""}
+   ${isNew(j.first_seen)?'<span class="tag new">New</span>':""}</div></a>`).join("")
+   :'<div class="empty">No roles match yet — check back soon.</div>';
+}
+render();
+
+</script>
+</body>
+</html>
