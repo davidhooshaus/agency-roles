@@ -5,14 +5,15 @@
     "tagline": "Open roles at the world's best agencies.",
     "credit_name": "Haus Advisors",
     "credit_url": "https://www.hausadvisors.com",
-    "domain": "agencyroles.com"
+    "domain": "agencyroles.com",
+    "list_form_url": "https://tally.so/r/gDVZkK"
   },
   "enabled_categories": [
     "Engineering", "Data/AI", "Product", "Design/Creative",
     "Growth/Marketing", "BizDev/Sales", "Strategy/Account", "Operations/Leadership"
   ],
-  "exclude_seniority": ["Junior"],
-  "exclude_title_keywords": ["intern", "internship", "apprentice", "work experience", "co-op"],
+  "exclude_seniority": [],
+  "exclude_title_keywords": [],
   "categories": {
     "Engineering": [" engineer", "developer", "full stack", "full-stack", "frontend", "front-end", "backend", "back-end", "devops", "software", "platform", " sre", "architect", " qa "],
     "Data/AI": ["data scientist", "data engineer", "machine learning", " ml ", " ai ", "analytics", "data analyst"],
