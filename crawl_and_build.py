@@ -454,26 +454,26 @@ def main():
 
 # ---------- static site ----------
 CSS = """
-:root{--g:#0f2a20;--g2:#14342a;--cream:#f4f1e8;--gold:#c9a24b;--gline:#25453a;
---bg:#f6f4ee;--ink:#18271f;--sub:#5c6b62;--cardline:#e6e1d4;--goldd:#8f6410}
+:root{--g:#263B28;--green:#416644;--mustard:#F0A202;--cream:#E7E5D9;--gline:#3a563d;
+--bg:#ede9df;--ink:#292929;--sub:#5f6357;--cardline:#d9d3c4;--card2:#E2E3DD}
 *{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 a{color:inherit;text-decoration:none}
 .dark{background:var(--g);color:var(--cream)}
 .topnav{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:16px 22px}
-.brand{font:700 20px Georgia,"Times New Roman",serif;letter-spacing:-.3px}
+.brand{font:700 20px Merriweather,Georgia,serif;letter-spacing:-.2px}
 .topnav nav{display:flex;gap:18px;align-items:center;font-size:14px}
 .topnav nav a{color:var(--cream);opacity:.8;cursor:pointer}
-.topnav nav a:hover,.topnav nav a.on{opacity:1;color:var(--gold)}
-.topnav nav a.apply{opacity:1;color:var(--gold);border:1px solid var(--gold);padding:6px 12px;border-radius:8px}
-.topnav nav a.apply:hover{background:var(--gold);color:var(--g)}
+.topnav nav a:hover,.topnav nav a.on{opacity:1;color:var(--mustard)}
+.topnav nav a.apply{opacity:1;color:var(--mustard);border:1px solid var(--mustard);padding:6px 12px;border-radius:8px}
+.topnav nav a.apply:hover{background:var(--mustard);color:var(--g)}
 .hero{max-width:1120px;margin:0 auto;padding:14px 22px 22px}
-.hero h1{font:700 37px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.4px;margin:0 0 12px;max-width:900px}
+.hero h1{font:700 34px/1.28 Merriweather,Georgia,serif;margin:0 0 12px;max-width:880px}
 .hero .lede{font-size:22px;margin:0 0 8px}
 .hero .sub{font-size:15.5px;opacity:.85;max-width:660px;margin:0 0 14px}
 .hero .stat{font-size:13.5px;opacity:.82;margin:0}
-.hero .stat b{color:var(--gold)}
-.hero .stat a{color:var(--gold)}
+.hero .stat b{color:var(--mustard)}
+.hero .stat a{color:var(--mustard)}
 .searchband{max-width:1120px;margin:0 auto;padding:0 22px 26px}
 #q{width:100%;max-width:660px;padding:13px 16px;border-radius:10px;border:0;font-size:16px;background:#fff;color:var(--ink)}
 .results{max-width:1120px;margin:0 auto;padding:26px 22px 70px;display:grid;grid-template-columns:250px 1fr;gap:34px}
@@ -481,7 +481,7 @@ a{color:inherit;text-decoration:none}
 .fgroup{margin:0 0 22px}
 .fgroup h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);margin:0 0 10px}
 .cb{display:flex;align-items:center;gap:9px;font-size:14.5px;padding:7px 0;cursor:pointer;min-height:34px}
-.cb input{accent-color:var(--goldd);width:17px;height:17px;flex:0 0 auto;cursor:pointer}
+.cb input{accent-color:var(--green);width:17px;height:17px;flex:0 0 auto;cursor:pointer}
 .cb .c{margin-left:auto;color:var(--sub);font-size:13px}
 .sidebar select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--cardline);background:#fff;font-size:14px;color:var(--ink)}
 .reshead{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-wrap:wrap}
@@ -491,38 +491,38 @@ a{color:inherit;text-decoration:none}
 .filtbtn{display:none}
 .active{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
 .pill{display:inline-flex;align-items:center;gap:5px;background:#efece2;border:1px solid var(--cardline);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink)}
-.pill:hover{border-color:var(--goldd)}.pill.clear{background:none;border:0;color:var(--goldd);font-weight:600}
+.pill:hover{border-color:var(--green)}.pill.clear{background:none;border:0;color:var(--green);font-weight:600}
 .gwrap{margin:0 0 10px}
 .jcard{display:flex;gap:16px;justify-content:space-between;background:#fff;border:1px solid var(--cardline);border-radius:12px;padding:15px 18px;transition:border-color .12s,box-shadow .12s;cursor:pointer}
 .gwrap .jcard{margin:0}a.jcard{margin:0 0 10px}
-.jcard:hover{border-color:var(--goldd);box-shadow:0 2px 14px rgba(20,40,30,.07)}
+.jcard:hover{border-color:var(--green);box-shadow:0 2px 14px rgba(20,40,30,.07)}
 .jmain{min-width:0}
 .jtitle{font-size:17px;font-weight:650;margin:0 0 2px}
 .jco{font-size:14.5px;font-weight:600}
-.ftag{display:inline-block;font-size:11px;font-weight:700;color:#1a1205;background:var(--gold);border-radius:5px;padding:1px 7px;margin-top:4px}
+.ftag{display:inline-block;font-size:11px;font-weight:700;color:#1a1205;background:var(--mustard);border-radius:5px;padding:1px 7px;margin-top:4px}
 .jloc{color:var(--sub);font-size:14px;margin-top:2px}
 .jaside{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;gap:3px;min-width:130px}
-.jpay{font-size:14.5px;font-weight:700;color:var(--goldd)}.jpay.none{color:var(--sub);font-weight:400;font-size:13px}
+.jpay{font-size:14.5px;font-weight:700;color:var(--green)}.jpay.none{color:var(--sub);font-weight:400;font-size:13px}
 .jlvl{font-size:13px;color:var(--ink)}
 .jdate{font-size:12px;color:var(--sub)}
-.jview{font-size:13px;color:var(--goldd);font-weight:600;margin-top:4px;white-space:nowrap}
+.jview{font-size:13px;color:var(--green);font-weight:600;margin-top:4px;white-space:nowrap}
 .gsub{background:#fbfaf6;border:1px solid var(--cardline);border-top:0;border-radius:0 0 12px 12px;margin-top:-6px;padding:6px 18px 12px}
 .gsub a{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-top:1px solid var(--cardline)}
-.gsub a:hover{color:var(--goldd)}.gsub .rl{color:var(--ink)}.gsub .ra{color:var(--goldd);white-space:nowrap}
+.gsub a:hover{color:var(--green)}.gsub .rl{color:var(--ink)}.gsub .ra{color:var(--green);white-space:nowrap}
 .more{width:100%;padding:12px;background:#fff;border:1px solid var(--cardline);border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;margin:8px 0 0;color:var(--ink)}
-.more:hover{border-color:var(--goldd)}
+.more:hover{border-color:var(--green)}
 .empty{color:var(--sub);padding:40px 0;text-align:center}
 .agencies{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px}
 .acard{display:flex;gap:11px;align-items:center;background:#fff;border:1px solid var(--cardline);border-radius:12px;padding:13px;cursor:pointer}
-.acard:hover{border-color:var(--goldd)}
-.mono{flex:0 0 auto;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff}
+.acard:hover{border-color:var(--green)}
+.mono{flex:0 0 auto;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--cream);background:var(--green)}
 .an{font-weight:600;font-size:14.5px}.ac{color:var(--sub);font-size:12.5px}
 .curate{padding:44px 22px;background:#edefe6;border-top:1px solid #dfe2d6}
 .curate .in{max-width:760px;margin:0 auto}
-.curate h3{font:700 25px Georgia,"Times New Roman",serif;margin:0 0 14px}
+.curate h3{font:700 24px Merriweather,Georgia,serif;margin:0 0 14px}
 .curate p{font-size:15px;margin:0 0 11px;color:#2c3a32}
 footer{max-width:1120px;margin:0 auto;padding:26px 22px 50px;color:var(--sub);font-size:13px}
-footer a{color:var(--goldd)}
+footer a{color:var(--green)}
 @media(max-width:820px){
  .results{grid-template-columns:1fr;gap:0}
  .sidebar{position:fixed;top:0;left:0;bottom:0;width:288px;max-height:none;background:var(--bg);z-index:40;padding:22px;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.35)}
@@ -544,7 +544,7 @@ function ago(d){if(!d)return"";const n=Math.floor((bt-Date.parse(d))/864e5);
 const isNew=d=>d&&(bt-Date.parse(d))/864e5<=7;
 function hue(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h;}
 function mono(n){const i=n.replace(/[^A-Za-z0-9 ]/g,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
-  return `<div class="mono" style="background:hsl(${hue(n)} 40% 44%)">${i}</div>`;}
+  return `<div class="mono">${i}</div>`;}
 
 const cnt={cat:{},sen:{},work:{},pay:{}},ccount={},agSize={};
 J.forEach(g=>{cnt.cat[g.category]=(cnt.cat[g.category]||0)+1;cnt.sen[g.seniority]=(cnt.sen[g.seniority]||0)+1;
@@ -633,7 +633,7 @@ function card(g){
   const single=g.count<=1;
   const loc=g.locations.length<=1?(g.locations[0]||g.countries[0]||"Location not listed"):`${g.locations.length} locations`;
   const work=g.workplaces.length===1?g.workplaces[0]:"Multiple";
-  const main=`<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?' <span style="color:var(--goldd);font-size:12px">· New</span>':""}</div>
+  const main=`<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?' <span style="color:var(--green);font-size:12px">· New</span>':""}</div>
     <div class="jco">${esc(g.company)}</div>${g.focus?'<div><span class="ftag">Grows the agency</span></div>':""}<div class="jloc">${esc(loc)} · ${esc(work)}</div></div>`;
   if(single)return `<a class="jcard" href="${esc(g.url)}" target="_blank" rel="noopener">${main}${aside(g,"View role →")}</a>`;
   const sub=g.roles.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
@@ -697,6 +697,9 @@ def build_site(groups, brand):
         f'<meta property="og:title" content="{name}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         '<meta property="og:type" content="website">\n'
+        '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">\n'
         f'<script type="application/ld+json">{json.dumps(itemlist)}</script>\n'
         "<style>\n" + CSS + "\n</style>\n</head>\n<body>\n"
     )
