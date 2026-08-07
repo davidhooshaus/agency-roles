@@ -512,7 +512,8 @@ POSTHOG = (
     'o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),'
     'n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);\n'
     'posthog.init("phc_hfsvpYP21P7urmVNZTQc2UOiMSStd8JcYFX5OCR0igu",'
-    '{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",defaults:"2025-05-24"});\n'
+    '{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",'
+    'capture_pageview:true,capture_pageleave:true});\n'
     '</script>\n'
 )
 
