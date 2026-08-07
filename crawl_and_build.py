@@ -5,7 +5,7 @@ Stdlib only (no pip installs) so it runs anywhere, including a bare GitHub Actio
 Run locally:  python3 crawl_and_build.py
 Outputs:      data/jobs.jsonl, data/history.json, site/index.html, site/CNAME
 """
-import json, os, re, html, hashlib, urllib.request
+import json, os, re, html, hashlib, urllib.request, urllib.error, concurrent.futures
 from datetime import date, datetime
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +29,55 @@ def http_get(url, timeout=20):
     })
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode("utf-8", "replace")
+
+
+# ---------- link liveness ----------
+# ATS feeds are not trustworthy on their own: Lever (and occasionally the
+# others) keep "phantom" postings in the JSON API for a window after the role
+# has been unpublished, so the public apply page 404s while the feed still
+# lists it. We refuse to publish a dead link under a "Verified today" label,
+# so every posting URL is checked before the site is built.
+#   live    -> resolves (2xx/3xx). Marked "Verified today".
+#   dead    -> 404/410. Dropped from the board entirely.
+#   unknown -> bot-wall (403), rate-limit (429), 5xx, or a network timeout.
+#              Kept (we won't punish a role for a flaky host) but NOT labelled
+#              verified.
+VERIFY_UA = ("Mozilla/5.0 (compatible; AgencyRolesBot/1.0; "
+             "+https://agencyroles.com/#curate)")
+
+
+def _liveness(url):
+    """Classify a single posting URL as 'live' | 'dead' | 'unknown'."""
+    for method in ("HEAD", "GET"):  # many boards refuse HEAD; fall back to GET
+        try:
+            req = urllib.request.Request(
+                url, method=method,
+                headers={"User-Agent": VERIFY_UA, "Accept": "text/html,*/*"})
+            with urllib.request.urlopen(req, timeout=12) as r:
+                return "live" if r.status < 400 else (
+                    "dead" if r.status in (404, 410) else "unknown")
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 410):
+                return "dead"
+            if e.code in (403, 405) and method == "HEAD":
+                continue  # host blocks HEAD; retry the same URL with GET
+            return "unknown"  # 403/429/5xx after a real GET -> ambiguous, keep
+        except Exception:
+            if method == "HEAD":
+                continue  # transient on HEAD; give GET one shot
+            return "unknown"
+    return "unknown"
+
+
+def verify_liveness(urls):
+    """Return {url: status} for every distinct URL, checked concurrently."""
+    uniq = list(dict.fromkeys(urls))
+    out = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=24) as ex:
+        futs = {ex.submit(_liveness, u): u for u in uniq}
+        for fut in concurrent.futures.as_completed(futs):
+            out[futs[fut]] = fut.result()
+    return out
 
 
 def job_id(url):
@@ -260,8 +309,9 @@ def group_roles(jobs):
                  "workplaces": set(), "employments": set(), "countries": set(), "locations": [],
                  "comp": None, "comp_min": None, "comp_max": None, "comp_bucket": None,
                  "first_seen": j["first_seen"], "posted": j.get("posted") or "",
-                 "focus": "", "roles": []}
+                 "focus": "", "verified": True, "roles": []}
             groups[key] = g
+        g["verified"] = g["verified"] and bool(j.get("verified"))
         g["workplaces"].add(j["workplace"])
         g["employments"].add(j.get("employment") or "Full-time")
         if j.get("focus"):
@@ -499,6 +549,35 @@ def main():
                 "posted": r.get("posted") or "",
                 "first_seen": history[jid], "source": a["provider"]})
 
+    # Every posting URL is checked before publishing, and any that returns a
+    # hard 404/410 is dropped - this is what keeps a dead link off the board
+    # (the bug that put one at the top was a Lever "phantom": a role that 404s
+    # while the feed still lists it). Guard: if an implausible share looks dead,
+    # assume the verifier/network broke, not the board, and keep everything.
+    status = verify_liveness([j["url"] for j in jobs])
+    n_dead_raw = sum(1 for j in jobs if status.get(j["url"]) == "dead")
+    dead_share = n_dead_raw / (len(jobs) or 1)
+    meltdown = dead_share > 0.40
+    if meltdown:
+        errors.append(f"liveness check distrusted: {n_dead_raw}/{len(jobs)} "
+                      f"({dead_share:.0%}) looked dead - keeping all")
+    # The "Verified today" badge is decided per source. Greenhouse's public
+    # pages bot-wall us (403/406), so an HTTP "unknown" there is a wall, not a
+    # doubt - but every Greenhouse job was just pulled from the employer's live
+    # board API this build, so it is confirmed live at the source of record.
+    # Lever/Ashby resolve cleanly, so they earn the badge only on a real 200.
+    n_dead = n_verified = 0
+    live = []
+    for j in jobs:
+        s = status.get(j["url"])
+        if s == "dead" and not meltdown:
+            n_dead += 1
+            continue
+        j["verified"] = True if j["source"] == "greenhouse" else (s == "live")
+        n_verified += j["verified"]
+        live.append(j)
+    jobs = live
+
     jobs.sort(key=lambda j: (j["first_seen"], j["company"]), reverse=True)
 
     os.makedirs(DATA, exist_ok=True)
@@ -515,6 +594,7 @@ def main():
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
     print(f"Built {len(jobs)} listings from {len(agencies)} sources. "
+          f"{n_verified} verified live, {n_dead} dead links dropped, "
           f"{n_comp} with pay, {n_ctry} countries, {len(errors)} error(s).")
     for e in errors:
         print("  -", e)
@@ -716,7 +796,7 @@ function activeChips(){const box=$("#active"),chips=[];const add=(l,cb)=>chips.p
 
 function clearAll(){st.disc.clear();st.sen.clear();st.work.clear();st.emp.clear();st.pay.clear();st.country="";st.payOnly=false;st.growthOnly=false;st.company="";st.q="";$("#q").value="";st.shown=PAGE;render();}
 
-function dateline(g){const d=g.posted?"Posted "+ago(g.posted):"Added "+ago(g.first_seen);return d+" · Verified today";}
+function dateline(g){const d=g.posted?"Posted "+ago(g.posted):"Added "+ago(g.first_seen);return g.verified?d+" · Verified today":d;}
 function aside(g,action){const pay=g.comp?`<div class="jpay">${esc(g.comp)}</div>`:`<div class="jpay none">Pay not listed</div>`;
   return `<div class="jaside">${pay}<div class="jlvl">${esc(g.seniority)}</div><div class="jdate">${dateline(g)}</div><div class="jview">${action}</div></div>`;}
 
@@ -846,7 +926,8 @@ def build_site(groups, brand):
         'view and signs of real momentum, not simply the biggest name or the largest headcount.</p>'
         '<p>We deliberately feature independent, specialist and rising agencies alongside a smaller '
         'group of standout global shops. Agencies cannot pay to be included.</p>'
-        '<p>We link directly to each employer’s original careers page and check listings regularly. '
+        '<p>We link directly to each employer’s original careers page and verify every listing still '
+        'resolves before each build; dead links are dropped, not shown. '
         'Inclusion means we believe the agency is worth knowing; it is not a guarantee about every '
         'role, manager or workplace experience.</p></div></section>\n'
     )
