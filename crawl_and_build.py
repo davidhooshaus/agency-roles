@@ -620,7 +620,7 @@ POSTHOG = (
 )
 
 CSS = """
-:root{--g:#263B28;--green:#416644;--mustard:#F0A202;--cream:#E7E5D9;--gline:#3a563d;
+:root{--g:#263B28;--green:#416644;--mustard:#F0A202;--goldd:#8a5e12;--cream:#E7E5D9;--gline:#3a563d;
 --bg:#ede9df;--ink:#292929;--sub:#5f6357;--cardline:#d9d3c4;--card2:#E2E3DD}
 *{box-sizing:border-box}html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
@@ -684,6 +684,25 @@ a{color:inherit;text-decoration:none}
 .acard:hover{border-color:var(--green)}
 .mono{flex:0 0 auto;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--cream);background:var(--green)}
 .an{font-weight:600;font-size:14.5px}.ac{color:var(--sub);font-size:12.5px}
+.featband{max-width:1120px;margin:0 auto;padding:24px 22px 2px}
+.fhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.feyebrow{font:700 12.5px Inter;text-transform:uppercase;letter-spacing:.08em;color:var(--goldd)}
+.fsub{color:var(--sub);font-size:14px}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.fcard{position:relative;display:flex;flex-direction:column;gap:7px;background:#fff;border:1px solid var(--cardline);border-radius:14px;padding:15px 17px;transition:border-color .12s,box-shadow .12s;cursor:pointer}
+.fcard:hover{border-color:var(--green);box-shadow:0 3px 18px rgba(20,40,30,.09)}
+.fcard.spon{border-color:#cbb98a;background:linear-gradient(#fff,#fffdf6)}
+.fcard .tag{align-self:flex-start;font:700 10px Inter;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:#efece2;color:var(--goldd)}
+.fcard .tag.spon{background:var(--g);color:var(--mustard)}
+.fcard .ft{font-size:16px;font-weight:650;line-height:1.32}
+.fcard .fco{font-size:14px;font-weight:600;color:var(--green)}
+.fcard .fnote{font-size:12.5px;color:#54594d;font-style:italic}
+.fcard .fmeta{color:var(--sub);font-size:12.5px;margin-top:auto;padding-top:2px}
+.fcard .fmeta b{color:var(--green);font-weight:700}
+.browsehead{max-width:1120px;margin:0 auto;padding:22px 22px 0;font:700 15px Inter;color:var(--ink)}
+.browsehead.hide{display:none}
+@media(max-width:820px){.fgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.fgrid{grid-template-columns:1fr}}
 .curate{padding:44px 22px;background:#edefe6;border-top:1px solid #dfe2d6}
 .curate .in{max-width:760px;margin:0 auto}
 .curate h3{font:700 24px Merriweather,Georgia,serif;margin:0 0 14px}
@@ -816,7 +835,30 @@ function renderAgencies(){const list=AGENCIES.map(a=>({...a,n:agSize[a.name]||0}
   $("#agencies").innerHTML=list.map(a=>`<div class="acard" data-co="${esc(a.name)}">${mono(a.name)}<div><div class="an">${esc(a.name)}</div><div class="ac">${a.n} open role${a.n===1?"":"s"}</div></div></div>`).join("");
   $$("#agencies .acard").forEach(el=>el.onclick=()=>{st.company=el.dataset.co;st.view="roles";st.shown=PAGE;render();});}
 
+const FEAT=(window.FEATURED||[]);
+function isLanding(){return st.view==="roles"&&st.sort==="rec"&&!st.q&&!st.disc.size&&!st.sen.size
+  &&!st.work.size&&!st.emp.size&&!st.pay.size&&!st.country&&!st.payOnly&&!st.growthOnly&&!st.company;}
+const LOCPLACE={"Unspecified":"","Other":"","Remote / Global":"Remote"};
+function fcard(g){
+  let loc=g.locations&&g.locations.length?(g.locations.length===1?g.locations[0]:g.locations.length+" locations"):(g.countries&&g.countries[0]||"");
+  if(loc in LOCPLACE)loc=LOCPLACE[loc];
+  const bits=[];
+  if(g.comp)bits.push(`<span class="fpay"><b>${esc(g.comp)}</b></span>`);
+  if(loc)bits.push(esc(loc));
+  if(!bits.length)bits.push("Location not listed");
+  const tag=g.sponsored?'<span class="tag spon">Sponsored</span>':'<span class="tag">Featured</span>';
+  const note=g.note?`<div class="fnote">${esc(g.note)}</div>`:"";
+  return `<a class="fcard${g.sponsored?" spon":""}" href="${esc(g.url)}" target="_blank" rel="noopener">${tag}
+    <div class="ft">${esc(g.title)}</div><div class="fco">${esc(g.company)}</div>${note}
+    <div class="fmeta">${bits.join(" · ")}</div></a>`;}
+function renderFeatured(){
+  const show=isLanding()&&FEAT.length;
+  $("#featband").hidden=!show;
+  $("#browsehead").classList.toggle("hide",!show);
+  if(show)$("#featured").innerHTML=FEAT.map(fcard).join("");}
+
 function render(){
+  renderFeatured();
   $("#agencies").style.display=st.view==="agencies"?"grid":"none";
   $("#list").style.display=st.view==="agencies"?"none":"block";
   $("#more").style.display="none";
@@ -850,6 +892,61 @@ render();
 """
 
 
+def pick_featured(groups, cfg):
+    """Choose the homepage 'Featured' band.
+
+    Editorial picks (config/featured.json) come first and are matched by company
+    plus an optional title substring; each may carry sponsored:true (a clearly
+    labelled paid slot, kept visually distinct from editorial curation) and a
+    short note. Any remaining slots auto-fill with the most desirable *verified*
+    roles so the band is never thin, capped at one role per agency for variety.
+    """
+    max_n = cfg.get("max", 6)
+    picks = cfg.get("picks", []) or []
+    chosen, used = [], set()
+
+    def take(g, sponsored=False, note=""):
+        gg = dict(g)
+        gg["sponsored"], gg["note"] = bool(sponsored), note or ""
+        chosen.append(gg)
+        used.add(g["company"])
+
+    for p in picks:
+        co, ti = p.get("company"), (p.get("title") or "").lower()
+        m = next((g for g in groups if g["company"] == co
+                  and (not ti or ti in g["title"].lower())), None)
+        if m and m["company"] not in used:
+            take(m, p.get("sponsored"), p.get("note"))
+
+    def desirability(g):
+        s = 0.0
+        if g.get("comp_max"):            # disclosed pay is the strongest signal
+            s += 5 + min(g["comp_max"] / 50000, 6)
+        elif g.get("comp"):
+            s += 3
+        if g.get("focus"):               # "Grows the agency" roles
+            s += 2
+        try:
+            age = (date.today() - date.fromisoformat(g["first_seen"])).days
+            if age <= 14:
+                s += 1.5
+        except Exception:
+            pass
+        return s
+
+    seen_cat = set()
+    for g in sorted(groups, key=desirability, reverse=True):
+        if len(chosen) >= max_n:
+            break
+        if g["company"] in used:
+            continue
+        if g["category"] in seen_cat and len(seen_cat) < 5:
+            continue  # spread disciplines while we still can
+        take(g)
+        seen_cat.add(g["category"])
+    return chosen[:max_n]
+
+
 def build_site(groups, brand):
     os.makedirs(SITE, exist_ok=True)
     domain = brand.get("domain")
@@ -861,6 +958,7 @@ def build_site(groups, brand):
     credit_name = brand.get("credit_name", "Haus Advisors")
     credit_url = brand.get("credit_url", "https://www.hausadvisors.com")
     list_url = brand.get("list_form_url", "https://tally.so/r/gDVZkK")
+    featured = pick_featured(groups, load_json(os.path.join(CFG, "featured.json"), {}) or {})
     build_date = datetime.utcnow().date().isoformat()
     n_ag = len({g["company"] for g in groups})
     n_roles = len(groups)
@@ -906,9 +1004,17 @@ def build_site(groups, brand):
         '<div class="searchband"><input id="q" placeholder="Search roles, agencies, or locations…"></div>\n'
         '</div>\n'
     )
+    featband = (
+        '<section class="featband" id="featband" hidden><div class="in">\n'
+        '<div class="fhead"><span class="feyebrow">Featured roles</span>'
+        '<span class="fsub">A hand-picked handful worth a closer look — the full board is below.</span></div>\n'
+        '<div class="fgrid" id="featured"></div>\n'
+        '</div></section>\n'
+    )
     body = (
         '<main class="results"><aside class="sidebar" id="sidebar"></aside>\n'
-        '<section class="col"><div class="reshead">'
+        '<section class="col"><div class="browsehead hide" id="browsehead">Browse all roles</div>'
+        '<div class="reshead">'
         '<button class="filtbtn" id="filtbtn">Filters</button>'
         '<span class="count" id="count"></span>'
         '<span class="sortwrap" id="sortrow">Sort<select id="sort">'
@@ -938,13 +1044,14 @@ def build_site(groups, brand):
     )
     scripts = (
         "<script>window.JOBS=" + json.dumps(groups, ensure_ascii=False) + ";\n"
+        "window.FEATURED=" + json.dumps(featured, ensure_ascii=False) + ";\n"
         "window.AGENCIES=" + json.dumps(agencies, ensure_ascii=False) + ";\n"
         "window.LIST_URL=" + json.dumps(list_url) + ";\n"
         "window.BUILD=" + json.dumps(build_date) + ";</script>\n"
         "<script>\n" + JS + "\n</script>\n</body>\n</html>\n"
     )
     with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
-        f.write(head + top + body + curate + footer + scripts)
+        f.write(head + top + featband + body + curate + footer + scripts)
 
 
 # ---------- insights (SEO stats pages) ----------

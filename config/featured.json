@@ -1,0 +1,6 @@
+{
+  "_comment": "Homepage 'Featured roles' band. Editorial picks listed in 'picks' come first; any unfilled slots auto-fill with the most desirable VERIFIED roles (disclosed pay, growth-focused, recent), one per agency. Inclusion on the board stays free and editorial — only this band's sponsored slots are ever paid.",
+  "_format": "Each pick: {company: exact agency name, title: optional substring to disambiguate, sponsored: true for a labelled paid slot, note: optional one-line editor's note}. Example: {\"company\": \"Anomaly\", \"title\": \"creative\", \"sponsored\": false, \"note\": \"Rare in-house brand role.\"}",
+  "max": 6,
+  "picks": []
+}
