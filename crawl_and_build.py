@@ -48,12 +48,18 @@ def dedash(s):
 
 
 # ---------- compensation parsing ----------
-def _to_annual(num, k, had_k):
+HOURS_PER_YEAR = 2080  # 40 hrs/wk * 52 wks; used to annualize hourly rates
+
+
+def _to_annual(num, k, had_k, hourly=False):
     n = float(num.replace(",", ""))
     if k:
         n *= 1000
     elif "," in num:
         pass
+    elif hourly:
+        # Hourly rates are small by nature ($75/hr); annualize instead of rejecting.
+        return n * HOURS_PER_YEAR
     elif n < 1000:
         if had_k:
             n *= 1000
@@ -62,9 +68,19 @@ def _to_annual(num, k, had_k):
     return n
 
 
+# Matches a "$A - $B" range. Each amount is comma-grouped (130,000), bare
+# (up to 6 digits, so 100000 works), or "K"-suffixed (130K), optionally with
+# cents (62.50, dropped). An optional per-unit token (/hr, /hour, per hour...)
+# may sit right after the first amount so "$75/hr - $95/hr" still matches.
 _RANGE_RE = re.compile(
-    r"\$\s?(\d{1,3}(?:,\d{3})+|\d{1,3})\s?([kK])?\s*(?:-|–|—|to)\s*"
-    r"\$?\s?(\d{1,3}(?:,\d{3})+|\d{1,3})\s?([kK])?")
+    r"\$\s?(\d{1,3}(?:,\d{3})+|\d{1,6})(?:\.\d+)?\s?([kK])?"
+    r"(?:\s?(?:/\s?h(?:ou)?r|per\s+hour|hourly|/\s?yr|/\s?year))?"
+    r"\s*(?:-|–|—|to)\s*"
+    r"\$?\s?(\d{1,3}(?:,\d{3})+|\d{1,6})(?:\.\d+)?\s?([kK])?")
+
+# Signals that a matched range is an hourly rate (checked in a tight window
+# around the match), so it can be annualized rather than dropped.
+_HOURLY_RE = re.compile(r"(?i)(?:/\s?h(?:ou)?r|per\s+hour|\ban?\s+hour\b|hourly|\bhr\b)")
 
 # Non-USD currency markers. Many currencies use the "$" sign (CAD, AUD, MXN, BRL...),
 # so a bare "$" range near one of these is NOT dollars and must not be bucketed as USD.
@@ -82,8 +98,11 @@ def _fmt_range(a, b):
 def parse_money_range(text):
     """Best-effort: pull the first plausible USD annual salary range from text.
 
-    Ranges written in a non-USD currency (pesos, CAD, euros, etc.) are skipped so
-    local-currency numbers never get compared as if they were dollars.
+    Annual ranges are read directly; hourly ranges (common on contract roles,
+    e.g. "$75 - $95/hr") are annualized at HOURS_PER_YEAR so they land in the
+    same buckets as salaried roles. Ranges written in a non-USD currency
+    (pesos, CAD, euros, etc.) are skipped so local-currency numbers never get
+    compared as if they were dollars.
     """
     if not text:
         return None, None, None
@@ -94,9 +113,12 @@ def parse_money_range(text):
         # "CAD software" elsewhere in the sentence)
         if _NONUSD_RE.search(text[max(0, m.start() - 8):m.end() + 6]):
             continue
+        # hourly guard: a per-hour marker inside or just after the match means
+        # the numbers are hourly rates, which _to_annual scales to a yearly figure.
+        hourly = bool(_HOURLY_RE.search(text[m.start():m.end() + 12]))
         had_k = bool(m.group(2) or m.group(4))
-        a = _to_annual(m.group(1), m.group(2), had_k)
-        b = _to_annual(m.group(3), m.group(4), had_k)
+        a = _to_annual(m.group(1), m.group(2), had_k, hourly)
+        b = _to_annual(m.group(3), m.group(4), had_k, hourly)
         if a and b and a <= b and 15000 <= a and b <= 2000000:
             return int(a), int(b), _fmt_range(a, b)
     return None, None, None
@@ -301,7 +323,7 @@ def fetch_lever(slug):
         if sr.get("min") and sr.get("max"):
             mn, mx = float(sr["min"]), float(sr["max"])
             if "hour" in (sr.get("interval") or "").lower():
-                mn, mx = mn * 2080, mx * 2080
+                mn, mx = mn * HOURS_PER_YEAR, mx * HOURS_PER_YEAR
             if (sr.get("currency") or "USD").upper() == "USD" and 15000 <= mn and mx <= 2000000:
                 comp = {"comp_min": int(mn), "comp_max": int(mx), "comp_display": _fmt_range(mn, mx)}
         out.append({"title": j.get("text", ""), "url": j.get("hostedUrl", ""),
