@@ -1048,7 +1048,8 @@ def build_site(groups, brand):
     footer = (
         f'<footer>Built by <a href="{credit_url}">{credit_name}</a>. We curate open roles at '
         f'agencies worth knowing and link out to each source. '
-        f'Run an agency? <a href="{list_url}" target="_blank" rel="noopener">Apply for inclusion →</a></footer>\n'
+        f'Run an agency? <a href="{list_url}" target="_blank" rel="noopener">Apply for inclusion →</a>'
+        f' · Interested in sponsoring? <a href="/sponsor">Learn more →</a></footer>\n'
     )
     scripts = (
         "<script>window.JOBS=" + json.dumps(groups, ensure_ascii=False) + ";\n"
