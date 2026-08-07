@@ -549,31 +549,39 @@ def main():
                 "posted": r.get("posted") or "",
                 "first_seen": history[jid], "source": a["provider"]})
 
-    # Every posting URL is checked before publishing, and any that returns a
-    # hard 404/410 is dropped - this is what keeps a dead link off the board
-    # (the bug that put one at the top was a Lever "phantom": a role that 404s
-    # while the feed still lists it). Guard: if an implausible share looks dead,
-    # assume the verifier/network broke, not the board, and keep everything.
-    status = verify_liveness([j["url"] for j in jobs])
-    n_dead_raw = sum(1 for j in jobs if status.get(j["url"]) == "dead")
-    dead_share = n_dead_raw / (len(jobs) or 1)
+    # Verify liveness for Lever/Ashby only. Their public pages resolve cleanly,
+    # and Lever especially serves "phantom" postings that 404 while still in the
+    # feed - the bug that put a dead link on the board. A hard 404/410 is dropped.
+    #
+    # Greenhouse is deliberately NOT hit here. Its public pages sit behind a
+    # Cloudflare wall that returns 406 to automated or rate-limited traffic, so an
+    # HTTP check can't actually verify them - and hammering ~3k Greenhouse URLs
+    # every build is what gets the runner's IP rate-limited (which then makes the
+    # live pages 406 for anyone sharing that IP). Instead we trust the employer's
+    # Greenhouse board API, which we just crawled this build and which drops
+    # unpublished roles - the authoritative "is this live" signal for Greenhouse.
+    #
+    # Guard: if an implausible share of the checked set looks dead, assume the
+    # verifier/network broke, not the board, and keep everything.
+    http_jobs = [j for j in jobs if j["source"] in ("lever", "ashby")]
+    status = verify_liveness([j["url"] for j in http_jobs])
+    n_dead_raw = sum(1 for j in http_jobs if status.get(j["url"]) == "dead")
+    dead_share = n_dead_raw / (len(http_jobs) or 1)
     meltdown = dead_share > 0.40
     if meltdown:
-        errors.append(f"liveness check distrusted: {n_dead_raw}/{len(jobs)} "
-                      f"({dead_share:.0%}) looked dead - keeping all")
-    # The "Verified today" badge is decided per source. Greenhouse's public
-    # pages bot-wall us (403/406), so an HTTP "unknown" there is a wall, not a
-    # doubt - but every Greenhouse job was just pulled from the employer's live
-    # board API this build, so it is confirmed live at the source of record.
-    # Lever/Ashby resolve cleanly, so they earn the badge only on a real 200.
+        errors.append(f"Lever/Ashby liveness check distrusted: {n_dead_raw}/"
+                      f"{len(http_jobs)} ({dead_share:.0%}) looked dead - keeping all")
     n_dead = n_verified = 0
     live = []
     for j in jobs:
-        s = status.get(j["url"])
-        if s == "dead" and not meltdown:
-            n_dead += 1
-            continue
-        j["verified"] = True if j["source"] == "greenhouse" else (s == "live")
+        if j["source"] == "greenhouse":
+            j["verified"] = True
+        else:
+            s = status.get(j["url"])
+            if s == "dead" and not meltdown:
+                n_dead += 1
+                continue
+            j["verified"] = (s == "live")
         n_verified += j["verified"]
         live.append(j)
     jobs = live
