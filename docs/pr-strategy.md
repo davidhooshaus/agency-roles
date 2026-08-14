@@ -6,6 +6,11 @@ This document exists because of a claim going around: an agency ran one press re
 week for a quarter and went from ~40 AI citations to 1,058. The question is whether to
 copy it. Short answer: not as described, and not first.
 
+> **See also: [`link-acquisition.md`](./link-acquisition.md)** — the earned-link playbook for
+> hausadvisors.com, which is the higher priority. It supersedes this document wherever the
+> two overlap; this one remains the record of the press-release analysis and the AI-citation
+> baseline.
+
 ---
 
 ## 1. What the claim actually shows
