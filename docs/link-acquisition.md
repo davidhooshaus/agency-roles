@@ -124,13 +124,67 @@ outreach list, not a one-off.
   the dataset."
 - The ask is a citation with attribution, which is a low-friction yes.
 
-### 3.4 Podcast guesting
+### 3.4 Writer relationships — a narrow version, not a CRM
+
+Worth doing, but not the way it is usually framed. Three findings from the author-level data
+(34 non-spam dofollow in-content links, examined 2026-08-14):
+
+**No writer has ever cited us twice.** Zero repeats across the whole profile. There is no
+existing "frequent citer" list to discover — the job is *creating* repeat citers, not
+identifying them.
+
+**Author metadata is too sparse to systematize.** Only 11 of 34 referring pages expose an
+author at all, and three of those are org names rather than people. Any writer list has to
+be built and enriched by hand, which caps how big it can sensibly get.
+
+**The anchor text shows what is actually driving the link.** People are quoting numbers:
+
+> "Haus Advisors Agency Sales Maturity Benchmark, 2025" · "a study by Haus Advisors" ·
+> "77.2% of agencies' offerings" · "55% of first sales hires last less than one year, and
+> only 9% meet or exceed their revenue quota" · "New service lines must target 50%+ gross
+> margin to be viable" · "83% of satisfied customers are willing to refer… yet only 29%
+> actually do"
+
+Nobody is linking because they know David. They are linking because they needed a
+statistic and ours was findable. **That is a supply relationship, not a social one** — which
+means the scalable fix is making the data easier to find and cite, not befriending writers
+one at a time. Twenty-three of the thirty-four links came from people we will never meet.
+
+**Where the relationship play does pay:** freelance B2B content writers write for many
+brands. Land one and you can earn links across five to ten martech domains. That is the only
+version of this with real leverage.
+
+So: keep the list to roughly 10–15 names, weighted toward (a) people who already cited us,
+since a warm second ask converts far better than a cold first, and (b) freelancers with
+multiple bylines in the agency/martech space.
+
+Highest-value names currently in the data:
+
+| Writer | Outlet | DR | What they cited |
+|---|---|---|---|
+| **Ryan Spillane** | growthgoaled.substack.com | 94 | Agency Sales Maturity Benchmark, in a piece on first sales hires |
+| Alex Thompson | WhatConverts | 72 | Revenue retainer piece |
+| Yuma Heymans | HeroHunt | 60 | Recruiting content |
+| Jenny Mills | 3MediaWeb | 48 | Referral statistics |
+| David Hoos | Ravetree | 47 | Relevance Engineering |
+| Bradley Jones | FoundryCRO | 42 | Service-line margin stat |
+
+Ryan Spillane is the standout: a DR 94 newsletter, writing about the exact thesis (first
+sales hires failing), citing our benchmark by name, reaching our exact ICP. That is one
+relationship worth real effort.
+
+**Also worth noting:** we are being picked up in Polish, Spanish, and Portuguese
+("El Ecosistema Startup", "LBC", "Thunder Mustard", "Propaganda Oca"). The statistics travel
+across languages without any promotion at all, which suggests the data kit is the asset —
+not the outreach.
+
+### 3.5 Podcast guesting
 
 You already run *Behind the Agency*. Guesting on other agency and B2B-services podcasts
 produces show-notes links reliably, and they are nearly always dofollow. Every guest
 appearance is one editorial link plus a durable brand mention. Target one a month.
 
-### 3.5 Trade press, once the data series has history
+### 3.6 Trade press, once the data series has history
 
 Digiday, Ad Age, Campaign, AdExchanger, The Drum. Hold this until the monthly index has
 three or four data points, because the story is the *trend*, not the snapshot. One earned
