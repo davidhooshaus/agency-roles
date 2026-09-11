@@ -1006,9 +1006,47 @@ def pick_featured(groups, cfg):
     return chosen[:max_n]
 
 
+def _slim(groups):
+    """Strip what the client never reads, so the homepage stays under the 2 MB crawl limit.
+
+    Crawlers (Google and most AI bots) truncate a document at ~2 MB. The jobs array is
+    ~97% of this page, so anything past the cutoff is simply invisible. Every field
+    dropped here is either unused by the front-end or read through a falsy guard, which
+    treats an absent key exactly like the null it replaces:
+
+      id                      never referenced client-side (build-time dedup only)
+      comp/comp_min/comp_max  `g.comp?`, `g.comp_min||1e9`, `g.comp_max||-1`
+      comp_bucket             `if(g.comp_bucket)`
+      posted                  `g.posted?"Posted "...:"Added "...`
+      focus                   `g.focus?` and `g.focus==="Agency growth"`
+      verified                `g.verified?`
+      employments             `g.employments||[]`
+      roles                   only read on the multi-role branch (`g.count>1`)
+
+    `count` is deliberately kept: card() does `g.count<=1`, and `undefined<=1` is false,
+    which would render single-role jobs as expandable groups.
+    """
+    NULLABLE = ("comp", "comp_min", "comp_max", "comp_bucket", "posted")
+    out = []
+    for g in groups:
+        j = {}
+        for k, v in g.items():
+            if k == "id":
+                continue
+            if k in NULLABLE and v is None:
+                continue
+            if k in ("focus", "verified", "employments") and not v:
+                continue
+            if k == "roles" and g.get("count", 1) <= 1:
+                continue
+            j[k] = v
+        out.append(j)
+    return out
+
+
 def build_site(groups, brand):
     os.makedirs(SITE, exist_ok=True)
-    domain = brand.get("domain")
+    domain = brand.get("domain", "agencyroles.com")
     if domain:
         with open(os.path.join(SITE, "CNAME"), "w", encoding="utf-8") as f:
             f.write(domain + "\n")
@@ -1035,6 +1073,7 @@ def build_site(groups, brand):
         '<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         f"<title>{name}: jobs at agencies worth knowing</title>\n"
         f'<meta name="description" content="{desc}">\n'
+        f'<link rel="canonical" href="https://{domain}/">\n'
         f'<meta property="og:title" content="{name}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         '<meta property="og:type" content="website">\n'
@@ -1104,7 +1143,7 @@ def build_site(groups, brand):
         f' · Interested in sponsoring? <a href="/sponsor">Learn more →</a></footer>\n'
     )
     scripts = (
-        "<script>window.JOBS=" + json.dumps(groups, ensure_ascii=False) + ";\n"
+        "<script>window.JOBS=" + json.dumps(_slim(groups), ensure_ascii=False, separators=(",", ":")) + ";\n"
         "window.FEATURED=" + json.dumps(featured, ensure_ascii=False) + ";\n"
         "window.AGENCIES=" + json.dumps(agencies, ensure_ascii=False) + ";\n"
         "window.LIST_URL=" + json.dumps(list_url) + ";\n"
@@ -1602,7 +1641,14 @@ tells you something about how it treats people before you ever apply.</p>
     with open(os.path.join(SITE, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write("\n".join(sm))
 
-    print(f"Built insights: {len(hub_items)} pages + hub + sitemap")
+    # robots.txt — mainly to point crawlers at the sitemap. The filtered homepage
+    # views (/?q=, /?location=, /?discipline=) are handled by the self-referencing
+    # canonical on the homepage, not disallowed here: a blocked URL is never read,
+    # so the crawler would never see the canonical that consolidates it.
+    with open(os.path.join(SITE, "robots.txt"), "w", encoding="utf-8") as f:
+        f.write("User-agent: *\nAllow: /\n\nSitemap: https://%s/sitemap.xml\n" % domain)
+
+    print(f"Built insights: {len(hub_items)} pages + hub + sitemap + robots.txt")
 
 
 if __name__ == "__main__":
