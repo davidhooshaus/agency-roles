@@ -598,7 +598,8 @@ def main():
 
     groups = group_roles(jobs)
     build_site(groups, brand)
-    build_insights(jobs, groups, brand)
+    agency_urls = build_agencies(jobs, groups, agencies, brand)
+    build_insights(jobs, groups, brand, agency_urls)
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
     print(f"Built {len(jobs)} listings from {len(agencies)} sources. "
@@ -688,7 +689,7 @@ a{color:inherit;text-decoration:none}
 .more:hover{border-color:var(--green)}
 .empty{color:var(--sub);padding:40px 0;text-align:center}
 .agencies{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px}
-.acard{display:flex;gap:11px;align-items:center;background:#fff;border:1px solid var(--cardline);border-radius:12px;padding:13px;cursor:pointer}
+.acard{display:flex;gap:11px;align-items:center;background:#fff;text-decoration:none;color:inherit;border:1px solid var(--cardline);border-radius:12px;padding:13px;cursor:pointer}
 .acard:hover{border-color:var(--green)}
 .mono{flex:0 0 auto;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--cream);background:var(--green)}
 .an{font-weight:600;font-size:14.5px}.ac{color:var(--sub);font-size:12.5px}
@@ -886,8 +887,7 @@ function card(g){
   return `<div class="gwrap"><div class="jcard grp">${main}${aside(g,`View ${g.count} openings ▾`)}</div><div class="gsub" style="display:none">${sub}</div></div>`;}
 
 function renderAgencies(){const list=AGENCIES.map(a=>({...a,n:agSize[a.name]||0})).filter(a=>a.n).sort((x,y)=>y.n-x.n);
-  $("#agencies").innerHTML=list.map(a=>`<div class="acard" data-co="${esc(a.name)}">${mono(a.name)}<div><div class="an">${esc(a.name)}</div><div class="ac">${a.n} open role${a.n===1?"":"s"}</div></div></div>`).join("");
-  $$("#agencies .acard").forEach(el=>el.onclick=()=>{st.company=el.dataset.co;st.view="roles";st.shown=PAGE;render();});}
+  $("#agencies").innerHTML=list.map(a=>`<a class="acard" href="/agencies/${esc(a.slug)}/">${mono(a.name)}<div><div class="an">${esc(a.name)}</div><div class="ac">${a.n} open role${a.n===1?"":"s"}</div></div></a>`).join("");}
 
 const FEAT=(window.FEATURED||[]);
 function isLanding(){return st.view==="roles"&&st.sort==="rec"&&!st.q&&!st.disc.size&&!st.sen.size
@@ -946,6 +946,7 @@ addEventListener("keydown",e=>{if(e.key==="Escape")drawer(false);});
   if(p.get("pay")==="1")st.payOnly=true;
   if(p.get("growth")==="1")st.growthOnly=true;
   if(p.get("view")==="agencies")st.view="agencies";
+  const co=p.get("company");if(co)st.company=co;
 })();
 render();
 """
@@ -1062,7 +1063,7 @@ def build_site(groups, brand):
     desc = (f"Hand-picked openings at {n_ag} agencies worth knowing: independent, specialist and "
             "rising shops plus a few standout global names. No reposts, no recruiters. Updated daily.")
 
-    agencies = [{"name": c} for c in sorted({g["company"] for g in groups})]
+    agencies = [{"name": c, "slug": agency_slug(c)} for c in sorted({g["company"] for g in groups})]
     itemlist = {"@context": "https://schema.org", "@type": "ItemList",
                 "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": g["url"],
                                      "name": f'{g["title"]} at {g["company"]}'}
@@ -1227,19 +1228,29 @@ img{max-width:100%;height:auto}
 """
 
 
-def _page(brand, slug, title, description, body, build_date, is_hub=False):
+def _page(brand, slug, title, description, body, build_date, is_hub=False,
+          section="insights", ld=None):
+    """Shared article shell. `section` is the top-level folder ("insights" or
+    "agencies"); `ld` overrides the default Article JSON-LD."""
     name = brand.get("site_name", "Agency Roles")
     credit_url = brand.get("credit_url", "https://www.hausadvisors.com")
     list_url = brand.get("list_form_url", "https://tally.so/r/gDVZkK")
     domain = brand.get("domain", "agencyroles.com")
-    canonical = f"https://{domain}/insights/" + (f"{slug}/" if slug else "")
-    ld = {"@context": "https://schema.org", "@type": "Article", "headline": title,
-          "description": description, "datePublished": SITE_PUBLISHED, "dateModified": build_date,
-          "author": {"@type": "Organization", "name": "Haus Advisors", "url": credit_url},
-          "publisher": {"@type": "Organization", "name": name, "url": f"https://{domain}/"},
-          "mainEntityOfPage": canonical}
+    canonical = f"https://{domain}/{section}/" + (f"{slug}/" if slug else "")
+    if ld is None:
+        ld = {"@context": "https://schema.org", "@type": "Article", "headline": title,
+              "description": description, "datePublished": SITE_PUBLISHED, "dateModified": build_date,
+              "author": {"@type": "Organization", "name": "Haus Advisors", "url": credit_url},
+              "publisher": {"@type": "Organization", "name": name, "url": f"https://{domain}/"},
+              "mainEntityOfPage": canonical}
+    title = html.escape(title, quote=True)
+    description = html.escape(description, quote=True)
     root = "../../" if slug else "../"
-    hub = "../" if slug else "./"
+    up = "../" if slug else "./"
+    hub = up if section == "insights" else root + "insights/"
+    ag_hub = up if section == "agencies" else root + "agencies/"
+    on_ag = ' class="on"' if section == "agencies" else ""
+    on_in = ' class="on"' if section == "insights" else ""
     return (
         '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
@@ -1254,7 +1265,7 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False):
         "<style>\n" + ARTICLE_CSS + "\n</style>\n</head>\n<body>\n"
         '<div class="dark"><div class="topnav">'
         f'<a class="brand" href="{root}">{name}<span class="byline">by Haus Advisors</span></a>'
-        f'<nav><a href="{root}">Jobs</a><a href="{hub}">Insights</a>'
+        f'<nav><a href="{root}">Jobs</a><a href="{ag_hub}"{on_ag}>Agencies</a><a href="{hub}"{on_in}>Insights</a>'
         f'<a class="apply" href="{list_url}" target="_blank" rel="noopener">Apply for inclusion</a></nav>'
         '</div></div>\n<div class="wrap">\n' + body + "\n</div>\n"
         f'<footer>Built by <a href="{credit_url}">Haus Advisors</a>. Data compiled from the '
@@ -1263,7 +1274,7 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False):
     )
 
 
-def build_insights(jobs, groups, brand):
+def build_insights(jobs, groups, brand, extra_urls=()):
     outdir = os.path.join(SITE, "insights")
     os.makedirs(outdir, exist_ok=True)
     build_date = datetime.utcnow().date().isoformat()
@@ -1292,13 +1303,18 @@ def build_insights(jobs, groups, brand):
     def rows(counter, n=8, link=None):
         out = []
         for k, v in counter.most_common(n):
-            cell = f'<a href="../../?{link}={quote(str(k))}">{html.escape(str(k))}</a>' if link else html.escape(str(k))
+            if link == "agency":
+                cell = f'<a href="../../agencies/{agency_slug(str(k))}/">{html.escape(str(k))}</a>'
+            elif link:
+                cell = f'<a href="../../?{link}={quote(str(k))}">{html.escape(str(k))}</a>'
+            else:
+                cell = html.escape(str(k))
             out.append(f"<tr><td>{cell}</td><td class='n'>{v:,}</td></tr>")
         return "\n".join(out)
 
     board = "../"  # from /insights/<slug>/ up two = site root via ../../; but links below use ../../
     # ---------- flagship report ----------
-    top_ag_rows = rows(companies, 12, link="q")
+    top_ag_rows = rows(companies, 12, link="agency")
     disc_rows = rows(disc, 8, link="discipline")
     ctry_rows = rows(ctry, 8, link="location")
     band_order = ["<$100k", "$100-150k", "$150-200k", "$200k+"]
@@ -1493,7 +1509,7 @@ either direction, it is worth knowing why.</p>
 <p>We help agency founders fix the thing this data keeps pointing at: a growth engine that runs on the
 founder and no one else. The Bottleneck diagnostic finds where the pipeline actually leaks, whether that
 is the positioning or the offer itself, before anyone gets hired to patch it.</p>
-<a class="cta" href="https://www.hausadvisors.com/#howwefixit">See how we fix it →</a>
+<a class="cta" href="https://www.hausadvisors.com/score">Get your free Bottleneck Score →</a>
 </div>
 
 <div class="method"><b>How this is compiled.</b> Agency Roles tracks every open role posted to the
@@ -1518,7 +1534,7 @@ and analysts are welcome to cite it with a link back.</p>
     def kw(slug, title, desc, body):
         return slug, _page(brand, slug, title, desc, body, build_date)
 
-    remote_top = rows(collections.Counter(j["company"] for j in jobs if j["workplace"] == "Remote"), 10, link="q")
+    remote_top = rows(collections.Counter(j["company"] for j in jobs if j["workplace"] == "Remote"), 10, link="agency")
     remote_disc = rows(collections.Counter(j["category"] for j in jobs if j["workplace"] == "Remote"), 6, link="discipline")
     p_remote = f"""
 <p class="kicker">Data · {month}</p>
@@ -1537,7 +1553,7 @@ name. Here is where they actually are.</p>
 """
 
     n_entry = sen.get("Entry/Junior", 0) + sen.get("Internship", 0)
-    entry_top = rows(collections.Counter(j["company"] for j in jobs if j["seniority"] in ("Entry/Junior", "Internship")), 10, link="q")
+    entry_top = rows(collections.Counter(j["company"] for j in jobs if j["seniority"] in ("Entry/Junior", "Internship")), 10, link="agency")
     p_entry = f"""
 <p class="kicker">Data · {month}</p>
 <h1>Entry-level agency jobs and internships: {n_entry:,} open</h1>
@@ -1559,7 +1575,7 @@ open across {n_ag} agencies.</p>
 <p class="lead">{n_ag} hand-picked agencies have <b>{n_open:,}</b> roles open today. These are the ones
 posting the most.</p>
 <a class="cta" href="../../?view=agencies">Browse the full agency directory →</a>
-<table><thead><tr><th>Agency</th><th class="n">Open roles</th></tr></thead><tbody>{rows(companies, 25, link='q')}</tbody></table>
+<table><thead><tr><th>Agency</th><th class="n">Open roles</th></tr></thead><tbody>{rows(companies, 25, link='agency')}</tbody></table>
 <p>Full analysis in the <a href="../state-of-agency-hiring/">State of Agency Hiring report</a>.</p>
 """
 
@@ -1632,7 +1648,7 @@ tells you something about how it treats people before you ever apply.</p>
     # sitemap
     domain = brand.get("domain", "agencyroles.com")
     urls = [f"https://{domain}/", f"https://{domain}/insights/"] + \
-           [f"https://{domain}/insights/{s}/" for s, _t, _d in hub_items]
+           [f"https://{domain}/insights/{s}/" for s, _t, _d in hub_items] + list(extra_urls)
     sm = ['<?xml version="1.0" encoding="UTF-8"?>',
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for u in urls:
@@ -1649,6 +1665,203 @@ tells you something about how it treats people before you ever apply.</p>
         f.write("User-agent: *\nAllow: /\n\nSitemap: https://%s/sitemap.xml\n" % domain)
 
     print(f"Built insights: {len(hub_items)} pages + hub + sitemap + robots.txt")
+
+
+# ---------- agency pages (one per rostered agency + directory) ----------
+
+def agency_slug(name):
+    """URL slug for an agency page. Stable across builds: derived from the name only."""
+    s = re.sub(r"[^a-z0-9]+", "-", dedash(name).lower().replace("&", " and ")).strip("-")
+    return s or "agency"
+
+
+AGENCY_CSS = """
+.rolelist{list-style:none;padding:0;margin:14px 0 26px}
+.rolelist li{background:#fff;border:1px solid var(--cardline);border-radius:12px;margin:0 0 10px}
+.rolelist a{display:flex;justify-content:space-between;gap:14px;padding:14px 16px;text-decoration:none;color:var(--ink)}
+.rolelist a:hover{border-color:var(--green)}
+.rt{font-weight:600;font-size:16px}.rm{color:var(--sub);font-size:14px;margin-top:2px}
+.rp{font-weight:600;font-size:14px;color:var(--green);white-space:nowrap;text-align:right}
+.rp.none{color:var(--sub);font-weight:400}
+.owner{border:1px solid var(--cardline);border-radius:12px;padding:16px 18px;font-size:15px;margin:34px 0}
+.owner p{margin:0 0 8px}
+.azlist{columns:3 200px;column-gap:24px;margin:18px 0 30px;padding:0;list-style:none}
+.azlist li{break-inside:avoid;margin:0 0 8px;font-size:15px}
+.azlist .c{color:var(--sub);font-size:13px}
+@media(max-width:560px){.rolelist a{flex-direction:column;gap:4px}.rp{text-align:left}}
+"""
+
+
+def build_agencies(jobs, groups, agencies_cfg, brand):
+    """Write /agencies/<slug>/ for every rostered agency, plus an /agencies/ directory.
+
+    Every agency on the roster gets a page, including ones with no open roles today,
+    so URLs stay stable as hiring comes and goes (a page that 404s whenever an
+    agency pauses hiring loses its search history). No JobPosting markup: Google
+    wants that on one-job leaf pages with a full description, and we link out
+    instead of copying descriptions. Returns the URLs written, for the sitemap.
+    """
+    outdir = os.path.join(SITE, "agencies")
+    os.makedirs(outdir, exist_ok=True)
+    build_date = datetime.utcnow().date().isoformat()
+    domain = brand.get("domain", "agencyroles.com")
+    list_url = brand.get("list_form_url", "https://tally.so/r/gDVZkK")
+    roster = sorted({a.get("name") or a.get("slug", "") for a in agencies_cfg if not a.get("skip")},
+                    key=str.lower)
+    by_ag_jobs = collections.defaultdict(list)
+    for j in jobs:
+        by_ag_jobs[j["company"]].append(j)
+    by_ag_groups = collections.defaultdict(list)
+    for g in groups:
+        by_ag_groups[g["company"]].append(g)
+    slugs = {n: agency_slug(n) for n in roster}
+
+    # top discipline per agency, used for the "similar agencies" links
+    top_disc = {}
+    for n in roster:
+        c = collections.Counter(j["category"] for j in by_ag_jobs[n])
+        top_disc[n] = c.most_common(1)[0][0] if c else ""
+
+    def pct(a, b):
+        return round(100 * a / b) if b else 0
+
+    def median(xs):
+        s = sorted(xs)
+        if not s:
+            return 0
+        m = len(s) // 2
+        return s[m] if len(s) % 2 else (s[m - 1] + s[m]) // 2
+
+    def money(v):
+        return f"${round(v / 1000):,}k"
+
+    urls = [f"https://{domain}/agencies/"]
+    for n in roster:
+        slug, js, gs = slugs[n], by_ag_jobs[n], by_ag_groups[n]
+        en = html.escape(n)
+        board = "../../?company=" + quote(n)
+        # Counts use grouped listings (same company + title merged), matching the board.
+        n_open = len(gs)
+        if n_open:
+            n_remote = sum(1 for g in gs if "Remote" in g["workplaces"])
+            n_pay = sum(1 for g in gs if g["comp"])
+            us_mid = [(j["comp_min"] + j["comp_max"]) / 2 for j in js
+                      if j["country"] == "United States" and j["comp_min"] and j["comp_max"]]
+            disc = collections.Counter(g["category"] for g in gs)
+            locs = collections.Counter(j["country"] for j in js if j["country"] not in ("", "Unspecified"))
+            week_ago = date.fromordinal(date.today().toordinal() - 7).isoformat()
+            n_new = sum(1 for g in gs if g["first_seen"] >= week_ago)
+            cards = [
+                f'<div class="card"><p class="bignum">{n_open:,}<span>open role{"s" if n_open != 1 else ""}</span></p></div>',
+                f'<div class="card"><p class="bignum">{pct(n_remote, n_open)}%<span>remote</span></p></div>',
+                f'<div class="card"><p class="bignum">{pct(n_pay, n_open)}%<span>list pay</span></p></div>',
+            ]
+            if len(us_mid) >= 3:
+                cards.append(f'<div class="card"><p class="bignum">{money(median(us_mid))}'
+                             '<span>median listed pay (US)</span></p></div>')
+            else:
+                cards.append(f'<div class="card"><p class="bignum">{n_new:,}<span>new this week</span></p></div>')
+            lead = (f'<p class="lead"><b>{en}</b> has <b>{n_open:,} open role{"s" if n_open != 1 else ""}</b> '
+                    f'right now, mostly in {html.escape(disc.most_common(1)[0][0])}. '
+                    f'{pct(n_remote, n_open)}% are remote and {pct(n_pay, n_open)}% list a salary range. '
+                    'Every link goes straight to the agency’s own careers page.</p>')
+            gs_sorted = sorted(gs, key=lambda g: (g["category"], g["title"].lower()))
+            items = []
+            for g in gs_sorted:
+                loc = g["locations"][0] if len(g["locations"]) == 1 else (
+                    f'{len(g["locations"])} locations' if g["locations"] else (g["countries"][0] if g["countries"] else "Location not listed"))
+                work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple"
+                level = g["seniority"] if g["seniority"] != "Not specified" else g["category"]
+                parts = [loc] + ([work] if work.lower() != loc.lower() else []) + [level]
+                meta = " · ".join(html.escape(x) for x in parts)
+                pay = (f'<span class="rp">{html.escape(g["comp"])}</span>' if g["comp"]
+                       else '<span class="rp none">Pay not listed</span>')
+                items.append(f'<li><a href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow">'
+                             f'<span><span class="rt">{html.escape(g["title"])}</span>'
+                             f'<span class="rm" style="display:block">{meta}</span></span>{pay}</a></li>')
+            disc_rows = "".join(f"<tr><td>{html.escape(k)}</td><td class='n'>{v:,}</td></tr>"
+                                for k, v in disc.most_common())
+            loc_rows = "".join(f"<tr><td>{html.escape(k)}</td><td class='n'>{v:,}</td></tr>"
+                               for k, v in locs.most_common(8))
+            roles_html = (
+                f'<div class="grid">{"".join(cards)}</div>'
+                f'<a class="cta" href="{board}">Filter and sort these roles on the board →</a>'
+                f'<h2>Open roles at {en}</h2><ul class="rolelist">{"".join(items)}</ul>'
+                '<h2>What they are hiring for</h2>'
+                f'<table><thead><tr><th>Discipline</th><th class="n">Roles</th></tr></thead><tbody>{disc_rows}</tbody></table>'
+                + (f'<h2>Where the roles are</h2><table><thead><tr><th>Location</th><th class="n">Roles</th></tr></thead><tbody>{loc_rows}</tbody></table>'
+                   if loc_rows else ""))
+            desc = (f"{n_open:,} open jobs at {n} right now: {', '.join(k for k, _ in disc.most_common(3))}. "
+                    f"{pct(n_remote, n_open)}% remote, {pct(n_pay, n_open)}% list pay. Updated daily.")
+            title = f"{n} Jobs: {n_open:,} Open Roles | Agency Roles"
+        else:
+            lead = (f'<p class="lead"><b>{en}</b> has no open roles posted right now. We check its careers '
+                    'board every day, so new openings show up here as soon as they are posted.</p>')
+            roles_html = '<a class="cta" href="../../">Browse open roles at other agencies →</a>'
+            desc = f"Jobs at {n}. No open roles today; Agency Roles checks {n}'s careers board daily."
+            title = f"{n} Jobs | Agency Roles"
+
+        sim = [m for m in roster if m != n and top_disc[n] and top_disc[m] == top_disc[n]]
+        sim.sort(key=lambda m: -len(by_ag_groups[m]))
+        sim_html = ""
+        if sim[:8]:
+            sim_html = (f'<div class="related"><h3>Other agencies hiring in {html.escape(top_disc[n])}</h3>'
+                        + "".join(f'<a href="../{slugs[m]}/">{html.escape(m)} '
+                                  f'<span class="meta">({len(by_ag_groups[m])} open)</span></a>' for m in sim[:8])
+                        + '<a href="../">All agencies →</a></div>')
+        owner = ('<div class="owner"><p><b>Run this agency?</b> This page updates from your public careers '
+                 'board every day. To fix a detail or feature a role, '
+                 f'<a href="{html.escape(list_url)}" target="_blank" rel="noopener">get in touch</a>.</p>'
+                 '<p>Wondering whether growth still depends on you? '
+                 '<a href="https://www.hausadvisors.com/score">Get your free Bottleneck Score →</a></p></div>')
+        body = (f'<p class="kicker"><a href="../">Agencies</a> · Updated {build_date}</p>'
+                f'<h1>Jobs at {en}</h1>{lead}{roles_html}{owner}{sim_html}')
+        canonical = f"https://{domain}/agencies/{slug}/"
+        ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": f"Jobs at {n}",
+              "description": desc, "url": canonical, "dateModified": build_date,
+              "about": {"@type": "Organization", "name": n},
+              "isPartOf": {"@type": "WebSite", "name": brand.get("site_name", "Agency Roles"),
+                           "url": f"https://{domain}/"}}
+        if n_open:
+            ld["mainEntity"] = {"@type": "ItemList", "numberOfItems": len(gs),
+                                "itemListElement": [{"@type": "ListItem", "position": i + 1,
+                                                     "url": g["url"], "name": g["title"]}
+                                                    for i, g in enumerate(gs[:50])]}
+        d = os.path.join(outdir, slug)
+        os.makedirs(d, exist_ok=True)
+        page = _page(brand, slug, title, desc, body, build_date, section="agencies", ld=ld)
+        page = page.replace("</style>", AGENCY_CSS + "</style>", 1)
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(page)
+        urls.append(canonical)
+
+    # directory: hiring now (by size), then A-Z of everyone
+    hiring = sorted((n for n in roster if by_ag_jobs[n]), key=lambda n: (-len(by_ag_groups[n]), n.lower()))
+    az = "".join(f'<li><a href="{slugs[n]}/">{html.escape(n)}</a> '
+                 f'<span class="c">{len(by_ag_groups[n]) or "no"} open</span></li>' for n in roster)
+    top_rows = "".join(f'<tr><td><a href="{slugs[n]}/">{html.escape(n)}</a></td>'
+                       f'<td>{html.escape(top_disc[n])}</td><td class="n">{len(by_ag_groups[n]):,}</td></tr>'
+                       for n in hiring[:25])
+    body = ('<p class="kicker">Agency Roles</p><h1>Agencies worth knowing</h1>'
+            f'<p class="lead">{len(roster)} hand-picked agencies, {len(hiring)} of them hiring today. '
+            'Each page lists every open role, what the agency hires for, how much is remote, and whether it '
+            'publishes pay. Updated daily.</p>'
+            '<h2>Hiring the most right now</h2>'
+            '<table><thead><tr><th>Agency</th><th>Hires most for</th><th class="n">Open roles</th></tr></thead>'
+            f'<tbody>{top_rows}</tbody></table>'
+            f'<h2>All agencies, A to Z</h2><ul class="azlist">{az}</ul>'
+            '<a class="cta" href="../">Browse all open roles →</a>')
+    ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Agencies on Agency Roles",
+          "url": f"https://{domain}/agencies/", "dateModified": build_date}
+    page = _page(brand, "", "Agencies Hiring Now: Directory of Agencies Worth Knowing | Agency Roles",
+                 f"{len(roster)} hand-picked agencies and their open roles, updated daily. See who is hiring, "
+                 "for what, how much is remote, and who publishes pay.",
+                 body, build_date, is_hub=True, section="agencies", ld=ld)
+    page = page.replace("</style>", AGENCY_CSS + "</style>", 1)
+    with open(os.path.join(outdir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"Built agencies: {len(roster)} agency pages + directory")
+    return urls
 
 
 if __name__ == "__main__":
