@@ -1,0 +1,44 @@
+name: Weekly digest
+
+# Builds the board, then creates the weekly digest broadcast in Kit.
+# Until the KIT_API_KEY secret exists this run does nothing.
+# DIGEST_MODE (repo variable): "draft" = lands in Kit for review; "send" = sends itself.
+
+on:
+  schedule:
+    - cron: "0 13 * * 2"      # Tuesdays 13:00 UTC (6am PT / 9am ET)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Same first-seen history the daily deploy carries, so "new this week" is real.
+      - name: Restore first-seen history
+        uses: actions/cache/restore@v4
+        with:
+          path: data/history.json
+          key: history-${{ github.run_id }}
+          restore-keys: |
+            history-
+
+      - name: Crawl and build (writes data/digest.json)
+        run: python3 crawl_and_build.py
+
+      - name: Create the Kit broadcast
+        env:
+          KIT_API_KEY: ${{ secrets.KIT_API_KEY }}
+          DIGEST_MODE: ${{ vars.DIGEST_MODE || 'draft' }}
+        run: python3 send_digest.py

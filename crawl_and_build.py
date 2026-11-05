@@ -501,6 +501,7 @@ def main():
     excl_titles = [k.lower() for k in settings.get("exclude_title_keywords", [])]
     excl_seniority = set(settings.get("exclude_seniority", []))
     brand = settings.get("brand", {})
+    DIGEST_CFG.update(settings.get("digest", {}) or {})
 
     history = load_json(os.path.join(DATA, "history.json"), {}) or {}
     jobs, errors = [], []
@@ -599,6 +600,7 @@ def main():
     groups = group_roles(jobs)
     build_site(groups, brand)
     agency_urls = build_agencies(jobs, groups, agencies, brand)
+    agency_urls += build_digest(groups, brand)
     build_insights(jobs, groups, brand, agency_urls)
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
@@ -1083,7 +1085,7 @@ def build_site(groups, brand):
         '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">\n'
         f'<script type="application/ld+json">{json.dumps(itemlist)}</script>\n'
         + POSTHOG +
-        "<style>\n" + CSS + "\n</style>\n</head>\n<body>\n"
+        "<style>\n" + CSS + SIGNUP_CSS + "\n</style>\n</head>\n<body>\n"
     )
     top = (
         '<div class="dark">\n'
@@ -1152,7 +1154,7 @@ def build_site(groups, brand):
         "<script>\n" + JS + "\n</script>\n</body>\n</html>\n"
     )
     with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
-        f.write(head + top + featband + body + curate + footer + scripts)
+        f.write(head + top + featband + body + signup_box("home") + curate + footer + scripts)
 
 
 # ---------- insights (SEO stats pages) ----------
@@ -1163,6 +1165,44 @@ from urllib.parse import quote
 # daily rebuild; datePublished stays fixed so search engines and citing writers
 # see a consistent original publish date.
 SITE_PUBLISHED = "2026-08-05"
+
+# ---------- weekly digest signup ----------
+# Filled from settings.json "digest" in main(). The signup box renders only once
+# a Kit form id is set, so the site never shows a form that goes nowhere.
+DIGEST_CFG = {}
+
+SIGNUP_CSS = """
+.dsign{background:var(--g);color:var(--cream);padding:30px 22px;margin:0}
+.dsign .in{max-width:720px;margin:0 auto}
+.dsign h3{font:700 22px Merriweather,Georgia,serif;margin:0 0 6px;color:#fff}
+.dsign p{margin:0 0 14px;font-size:15px;color:var(--cream);opacity:.9}
+.dsign form{display:flex;gap:10px;flex-wrap:wrap}
+.dsign input{flex:1 1 220px;min-width:0;font:16px Inter,system-ui,sans-serif;padding:11px 13px;border-radius:9px;border:1px solid var(--cardline);background:#fff;color:#292929}
+.dsign button{font:700 15px Inter,system-ui,sans-serif;padding:11px 18px;border-radius:9px;border:0;background:var(--mustard);color:#1a1205;cursor:pointer}
+.dsign button:hover{filter:brightness(1.06)}
+.dsign .fine{font-size:12.5px;opacity:.7;margin:10px 0 0}
+@media(max-width:560px){.dsign{padding:26px 18px}.dsign h3{font-size:19px}}
+"""
+
+
+def signup_box(where):
+    """Weekly digest signup (Kit form POST). Empty until a form id is configured."""
+    form_id = str(DIGEST_CFG.get("kit_form_id") or "").strip()
+    if not form_id:
+        return ""
+    day = DIGEST_CFG.get("send_day", "Tuesday")
+    return (
+        '<section class="dsign" id="digest-signup"><div class="in">'
+        '<h3>The best new agency jobs, every ' + html.escape(day) + '</h3>'
+        '<p>One short email with hand-picked new roles from the agencies we track. '
+        'Pay shown where it is listed. No recruiters, no spam.</p>'
+        f'<form action="https://app.kit.com/forms/{html.escape(form_id)}/subscriptions" method="post" '
+        f'onsubmit="window.posthog&&posthog.capture(\'digest_signup\',{{where:\'{where}\'}})">'
+        '<input type="email" name="email_address" required placeholder="you@email.com" '
+        'aria-label="Email address" autocomplete="email">'
+        '<button type="submit">Get the digest</button></form>'
+        '<p class="fine">Free. Unsubscribe in one click.</p>'
+        '</div></section>\n')
 
 ARTICLE_CSS = """
 :root{--g:#263B28;--cream:#E7E5D9;--mustard:#F0A202;--green:#416644;--bg:#ede9df;
@@ -1262,12 +1302,13 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False,
         '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">\n'
         f'<script type="application/ld+json">{json.dumps(ld)}</script>\n'
         + POSTHOG +
-        "<style>\n" + ARTICLE_CSS + "\n</style>\n</head>\n<body>\n"
+        "<style>\n" + ARTICLE_CSS + SIGNUP_CSS + "\n</style>\n</head>\n<body>\n"
         '<div class="dark"><div class="topnav">'
         f'<a class="brand" href="{root}">{name}<span class="byline">by Haus Advisors</span></a>'
         f'<nav><a href="{root}">Jobs</a><a href="{ag_hub}"{on_ag}>Agencies</a><a href="{hub}"{on_in}>Insights</a>'
         f'<a class="apply" href="{list_url}" target="_blank" rel="noopener">Apply for inclusion</a></nav>'
         '</div></div>\n<div class="wrap">\n' + body + "\n</div>\n"
+        + signup_box(section) +
         f'<footer>Built by <a href="{credit_url}">Haus Advisors</a>. Data compiled from the '
         f'<a href="{root}">Agency Roles</a> board. Open roles at hand-picked agencies, updated daily.</footer>\n'
         "</body>\n</html>\n"
@@ -1769,7 +1810,7 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
             items = []
             for g in gs_sorted:
                 loc = g["locations"][0] if len(g["locations"]) == 1 else (
-                    f'{len(g["locations"])} locations' if g["locations"] else (g["countries"][0] if g["countries"] else "Location not listed"))
+                    f'{len(g["locations"])} locations' if g["locations"] else next((c for c in g["countries"] if c != "Unspecified"), "Location not listed"))
                 work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple"
                 level = g["seniority"] if g["seniority"] != "Not specified" else g["category"]
                 parts = [loc] + ([work] if work.lower() != loc.lower() else []) + [level]
@@ -1862,6 +1903,127 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
         f.write(page)
     print(f"Built agencies: {len(roster)} agency pages + directory")
     return urls
+
+
+# ---------- weekly digest (email + web copy) ----------
+
+def build_digest(groups, brand):
+    """Write data/digest.json (subject, preview, email HTML) and /digest/ (web copy).
+
+    "New" means first seen in the last 7 days. first_seen comes from the history
+    cache the Action carries between runs; if that cache was lost, nearly every role
+    looks new, so past 60% we fall back to the ATS posted date instead of claiming
+    the whole board is new this week. send_digest.py sends what this writes.
+    """
+    domain = brand.get("domain", "agencyroles.com")
+    site = f"https://{domain}"
+    today = date.today()
+    week_ago = date.fromordinal(today.toordinal() - 7).isoformat()
+    week_key = f"{today.isocalendar()[0]}-W{today.isocalendar()[1]:02d}"
+    utm = f"utm_source=digest&utm_medium=email&utm_campaign={week_key}"
+
+    new = [g for g in groups if g["first_seen"] >= week_ago]
+    basis = "first_seen"
+    if groups and len(new) > 0.6 * len(groups):
+        new = [g for g in groups if (g.get("posted") or "") >= week_ago]
+        basis = "posted"
+    n_new = len(new)
+    n_ag_new = len({g["company"] for g in new})
+
+    picks = pick_featured(new, {"max": 10, "picks": (load_json(os.path.join(CFG, "featured.json"), {}) or {}).get("picks", [])})
+    by_ag = collections.Counter(g["company"] for g in new)
+    by_disc = collections.Counter(g["category"] for g in new)
+
+    # one rotating stat, so the email teaches something new each week
+    n_all = len(groups) or 1
+    n_pay = sum(1 for g in groups if g.get("comp"))
+    n_remote = sum(1 for g in groups if "Remote" in g["workplaces"])
+    n_growth = sum(1 for g in groups if g.get("focus"))
+    stats = [
+        (f"Only {round(100 * n_pay / n_all)}% of open agency roles list pay.",
+         "If an agency names a number up front, that tells you something.",
+         f"{site}/?pay=1&{utm}", "See roles that list pay"),
+        (f"{round(100 * n_remote / n_all)}% of open agency roles are remote.",
+         "Remote is the minority now. Here is where it still is.",
+         f"{site}/insights/remote-agency-jobs/?{utm}", "See remote agency jobs"),
+        (f"About 1 in {round(n_all / n_growth) if n_growth else 0} agency roles is about growing the agency itself.",
+         "Most agency hiring is for client delivery. A few roles win the new business.",
+         f"{site}/?growth=1&{utm}", "See roles that grow the agency"),
+    ]
+    stat = stats[today.isocalendar()[1] % len(stats)]
+
+    E = html.escape
+    ink, sub, green, gold, line = "#292929", "#5f6357", "#416644", "#8a5e12", "#d9d4c6"
+    font = "font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"
+
+    def role_row(g):
+        loc = g["locations"][0] if len(g["locations"]) == 1 else (
+            f'{len(g["locations"])} locations' if g["locations"] else next((c for c in g["countries"] if c != "Unspecified"), ""))
+        work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple"
+        meta = " · ".join(E(x) for x in ([loc] if loc else []) + ([work] if work.lower() != loc.lower() else []))
+        pay = (f'<div style="{font}font-size:14px;font-weight:600;color:{green};margin-top:2px">{E(g["comp"])}</div>'
+               if g.get("comp") else "")
+        spon = (f'<span style="{font}font-size:11px;font-weight:700;color:{gold};text-transform:uppercase;'
+                'letter-spacing:.06em">Sponsored · </span>' if g.get("sponsored") else "")
+        agency = (f'<a href="{site}/agencies/{agency_slug(g["company"])}/?{utm}" '
+                  f'style="color:{sub};text-decoration:underline">{E(g["company"])}</a>')
+        return (f'<tr><td style="padding:14px 0;border-bottom:1px solid {line}">'
+                f'<div style="{font}font-size:13px;color:{sub}">{spon}{agency}</div>'
+                f'<a href="{E(g["url"])}" style="{font}font-size:17px;font-weight:700;color:{ink};text-decoration:none">{E(g["title"])}</a>'
+                f'<div style="{font}font-size:14px;color:{sub};margin-top:2px">{meta}</div>{pay}</td></tr>')
+
+    top_ag = "".join(
+        f'<li style="margin:0 0 6px"><a href="{site}/agencies/{agency_slug(c)}/?{utm}" style="color:{green}">{E(c)}</a>'
+        f' <span style="color:{sub}">({v} new)</span></li>' for c, v in by_ag.most_common(5))
+    disc_links = " · ".join(
+        f'<a href="{site}/?discipline={quote(d)}&{utm}" style="color:{green}">{E(d)} ({v})</a>'
+        for d, v in by_disc.most_common(6))
+    body = (
+        f'<div style="{font}color:{ink};max-width:600px;margin:0 auto">'
+        f'<p style="font-size:16px;line-height:1.55;margin:0 0 6px"><b>{n_new:,} new roles</b> opened this week '
+        f'at {n_ag_new} of the agencies we track. Here are the ones worth a look.</p>'
+        f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse">'
+        + "".join(role_row(g) for g in picks) + '</table>'
+        f'<p style="font-size:15px;line-height:1.6;margin:22px 0 6px"><b>Browse the rest by discipline:</b><br>{disc_links}</p>'
+        f'<p style="font-size:15px;margin:22px 0 6px"><b>Hiring the most this week</b></p>'
+        f'<ul style="font-size:15px;line-height:1.5;padding-left:18px;margin:0 0 20px">{top_ag}</ul>'
+        f'<div style="background:#E2E3DD;border-radius:10px;padding:16px 18px;margin:24px 0">'
+        f'<p style="font-size:17px;font-weight:700;margin:0 0 4px">{E(stat[0])}</p>'
+        f'<p style="font-size:15px;color:#3a3a3a;margin:0 0 8px">{E(stat[1])}</p>'
+        f'<a href="{stat[2]}" style="color:{green};font-weight:600">{E(stat[3])} →</a></div>'
+        f'<p style="margin:26px 0 8px"><a href="{site}/?{utm}" style="display:inline-block;background:#F0A202;'
+        f'color:#1a1205;font-weight:700;text-decoration:none;padding:11px 18px;border-radius:9px">'
+        f'See all {len(groups):,} open roles →</a></p>'
+        f'<p style="font-size:13px;color:{sub};line-height:1.5;margin:22px 0 0">Agency Roles tracks open roles at '
+        f'hand-picked agencies and links straight to each agency’s own careers page. '
+        f'Run an agency? <a href="{E(brand.get("list_form_url", "https://tally.so/r/gDVZkK"))}" style="color:{green}">'
+        f'Apply for inclusion</a>.</p></div>')
+
+    lead = picks[0] if picks else None
+    subject = f"{n_new:,} new agency jobs this week"
+    preview = (f"Including {lead['title']} at {lead['company']}" + (f" ({lead['comp']})" if lead.get("comp") else "")
+               + ", plus where the hiring is.") if lead else "This week's new roles at the agencies we track."
+    os.makedirs(DATA, exist_ok=True)
+    with open(os.path.join(DATA, "digest.json"), "w", encoding="utf-8") as f:
+        json.dump({"week": week_key, "built": today.isoformat(), "subject": subject, "preview": preview,
+                   "n_new": n_new, "n_agencies": n_ag_new, "basis": basis, "html": body},
+                  f, ensure_ascii=False, indent=1)
+
+    # web copy: same content, so a subscriber's forward or a search visitor sees it
+    outdir = os.path.join(SITE, "digest")
+    os.makedirs(outdir, exist_ok=True)
+    web = (f'<p class="kicker">Weekly digest · {today.strftime("%B %-d, %Y")}</p>'
+           f'<h1>New agency jobs this week</h1>{body}')
+    page = _page(brand, "", f"New Agency Jobs This Week: {n_new:,} Roles | Agency Roles",
+                 f"{n_new:,} new roles opened this week at {n_ag_new} hand-picked agencies. The weekly Agency Roles digest.",
+                 web, today.isoformat(), is_hub=True, section="digest",
+                 ld={"@context": "https://schema.org", "@type": "CollectionPage",
+                     "name": "New agency jobs this week", "url": f"{site}/digest/",
+                     "dateModified": today.isoformat()})
+    with open(os.path.join(outdir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"Built digest {week_key}: {n_new} new roles ({basis}), {len(picks)} picks")
+    return [f"{site}/digest/"]
 
 
 if __name__ == "__main__":

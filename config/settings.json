@@ -8,6 +8,11 @@
     "domain": "agencyroles.com",
     "list_form_url": "https://tally.so/r/gDVZkK"
   },
+  "digest": {
+    "_comment": "Weekly email digest. kit_form_id = the numeric id of the signup form in the Agency Roles Kit account (blank hides the signup box). Sending is controlled by the KIT_API_KEY secret and DIGEST_MODE repo variable, see send_digest.py.",
+    "kit_form_id": "",
+    "send_day": "Tuesday"
+  },
   "enabled_categories": [
     "Engineering", "Data/AI", "Product", "Design/Creative",
     "Growth/Marketing", "BizDev/Sales", "Strategy/Account", "Operations/Leadership"
