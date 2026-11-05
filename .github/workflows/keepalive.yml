@@ -1,0 +1,25 @@
+name: Keep scheduled builds alive
+
+# GitHub disables cron workflows in a repo with no activity for 60 days.
+# Re-enabling the deploy workflow through the API resets that timer,
+# without making commits to the repo.
+
+on:
+  schedule:
+    - cron: "0 15 1 * *"      # 1st of every month
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-enable the deploy workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X PUT "repos/${{ github.repository }}/actions/workflows/deploy.yml/enable"
+          gh api -X PUT "repos/${{ github.repository }}/actions/workflows/keepalive.yml/enable"
+          echo "Workflows re-enabled; 60-day inactivity timer reset."
