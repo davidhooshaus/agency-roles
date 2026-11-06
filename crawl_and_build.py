@@ -601,6 +601,7 @@ def main():
     build_site(groups, brand)
     agency_urls = build_agencies(jobs, groups, agencies, brand)
     agency_urls += build_digest(groups, brand)
+    agency_urls += build_listings(groups, brand)
     build_insights(jobs, groups, brand, agency_urls)
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
@@ -718,6 +719,7 @@ a{color:inherit;text-decoration:none}
 .curate .in{max-width:760px;margin:0 auto}
 .curate h3{font:700 24px Merriweather,Georgia,serif;margin:0 0 14px}
 .curate p{font-size:15px;margin:0 0 11px;color:#2c3a32}
+.browse{background:#f4f2ea}.browse a{color:#416644}
 footer{max-width:1120px;margin:0 auto;padding:26px 22px 50px;color:var(--sub);font-size:13px}
 footer a{color:var(--green)}
 img,table{max-width:100%}
@@ -1154,7 +1156,7 @@ def build_site(groups, brand):
         "<script>\n" + JS + "\n</script>\n</body>\n</html>\n"
     )
     with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
-        f.write(head + top + featband + body + signup_box("home") + curate + footer + scripts)
+        f.write(head + top + featband + body + signup_box("home") + browse_html(groups) + curate + footer + scripts)
 
 
 # ---------- insights (SEO stats pages) ----------
@@ -1902,6 +1904,342 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
     with open(os.path.join(outdir, "index.html"), "w", encoding="utf-8") as f:
         f.write(page)
     print(f"Built agencies: {len(roster)} agency pages + directory")
+    return urls
+
+
+# ---------- listing pages: /roles/<discipline>/, /remote/<discipline>/, /city/<city>/, /pay-disclosed/ ----------
+
+# Discipline -> (url slug, human name used in titles). Slugs are fixed so URLs never move.
+DISC_PAGES = {
+    "Design/Creative": ("design", "Design & Creative"),
+    "Strategy/Account": ("strategy-account", "Strategy & Account"),
+    "Engineering": ("engineering", "Engineering"),
+    "Growth/Marketing": ("marketing", "Marketing & Growth"),
+    "Operations/Leadership": ("operations", "Operations & Leadership"),
+    "BizDev/Sales": ("business-development", "Business Development & Sales"),
+    "Data/AI": ("data-ai", "Data & AI"),
+    "Product": ("product", "Product"),
+}
+
+# City pages: slug -> (display name, lowercase patterns matched against a location string).
+# Fixed list so URLs stay stable. A city below MIN_INDEX roles still gets a page (no 404
+# when hiring dips) but it is noindex and left out of the sitemap and links.
+CITY_PAGES = {
+    "new-york": ("New York", ["new york", "nyc", "brooklyn", "manhattan", "new york, ny", "ny, dc"]),
+    "london": ("London", ["london"]),
+    "toronto": ("Toronto", ["toronto"]),
+    "san-francisco": ("San Francisco", ["san francisco", "sf bay", "bay area", "oakland"]),
+    "los-angeles": ("Los Angeles", ["los angeles", "santa monica", "culver city"]),
+    "chicago": ("Chicago", ["chicago"]),
+    "austin": ("Austin", ["austin"]),
+    "dallas": ("Dallas", ["dallas"]),
+    "boston": ("Boston", ["boston"]),
+    "seattle": ("Seattle", ["seattle"]),
+    "denver": ("Denver", ["denver"]),
+    "atlanta": ("Atlanta", ["atlanta"]),
+    "washington-dc": ("Washington, DC", ["washington, dc", "washington dc", "washington, d.c", ", dc", "ny, dc"]),
+    "mexico-city": ("Mexico City", ["mexico city", "ciudad de méxico", "cdmx"]),
+    "buenos-aires": ("Buenos Aires", ["buenos aires"]),
+    "sao-paulo": ("São Paulo", ["são paulo", "sao paulo"]),
+    "bogota": ("Bogotá", ["bogotá", "bogota"]),
+    "madrid": ("Madrid", ["madrid"]),
+    "barcelona": ("Barcelona", ["barcelona"]),
+    "paris": ("Paris", ["paris"]),
+    "amsterdam": ("Amsterdam", ["amsterdam"]),
+    "berlin": ("Berlin", ["berlin"]),
+    "munich": ("Munich", ["munich", "münchen"]),
+    "mumbai": ("Mumbai", ["mumbai"]),
+    "bengaluru": ("Bengaluru", ["bengaluru", "bangalore"]),
+    "gurugram": ("Gurugram", ["gurgaon", "gurugram"]),
+    "singapore": ("Singapore", ["singapore"]),
+    "sydney": ("Sydney", ["sydney"]),
+    "melbourne": ("Melbourne", ["melbourne"]),
+    "kuala-lumpur": ("Kuala Lumpur", ["kuala lumpur"]),
+    "manila": ("Manila", ["manila", "makati", "taguig", "pasig"]),
+    "ho-chi-minh-city": ("Ho Chi Minh City", ["ho chi minh"]),
+    "johannesburg": ("Johannesburg", ["johannesburg"]),
+}
+
+LISTING_MIN_INDEX = 10   # fewer grouped roles than this = noindex, not in sitemap
+LISTING_MAX_ITEMS = 120  # cap the on-page list; the board link shows the rest
+
+
+def role_li(g, show_company=True, root="../../"):
+    """One role row (shared look with agency pages). Links out to the agency's own page."""
+    loc = g["locations"][0] if len(g["locations"]) == 1 else (
+        f'{len(g["locations"])} locations' if g["locations"] else
+        next((c for c in g["countries"] if c != "Unspecified"), "Location not listed"))
+    work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple"
+    level = g["seniority"] if g["seniority"] != "Not specified" else g["category"]
+    parts = [loc] + ([work] if work.lower() != loc.lower() else []) + [level]
+    meta = " · ".join(html.escape(x) for x in parts)
+    co = ""
+    if show_company:
+        co = (f'<a class="rc" href="{root}agencies/{agency_slug(g["company"])}/">'
+              f'{html.escape(g["company"])}</a>')
+    pay = (f'<span class="rp">{html.escape(g["comp"])}</span>' if g["comp"]
+           else '<span class="rp none">Pay not listed</span>')
+    return (f'<li>{co}<a href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow">'
+            f'<span><span class="rt">{html.escape(g["title"])}</span>'
+            f'<span class="rm" style="display:block">{meta}</span></span>{pay}</a></li>')
+
+
+def browse_html(groups):
+    """Homepage 'Browse' block: crawlable links to the indexable listing pages."""
+    by_disc = collections.Counter(g["category"] for g in groups)
+    rem = collections.Counter(g["category"] for g in groups if "Remote" in g["workplaces"])
+    cities = collections.Counter()
+    for g in groups:
+        hit = set()
+        for loc in g["locations"]:
+            hit.update(city_of(loc))
+        cities.update(hit)
+    E = html.escape
+    def links(items):
+        return " · ".join(f'<a href="{h}">{E(t)}</a>' for h, t in items)
+    d = [(f"/roles/{s}/", n) for k, (s, n) in DISC_PAGES.items() if by_disc[k] >= LISTING_MIN_INDEX]
+    r = [(f"/remote/{s}/", n) for k, (s, n) in DISC_PAGES.items() if rem[k] >= LISTING_MIN_INDEX]
+    c = [(f"/city/{s}/", CITY_PAGES[s][0]) for s, v in cities.most_common() if v >= LISTING_MIN_INDEX]
+    return ('<section class="curate browse"><div class="in"><h3>Browse agency jobs</h3>'
+            f'<p><b>By discipline:</b> {links(d)}</p>'
+            f'<p><b>Remote:</b> {links(r)}</p>'
+            f'<p><b>By city:</b> {links(c)}</p>'
+            '<p><a href="/pay-disclosed/">Jobs that list pay</a> · <a href="/agencies/">All agencies</a> · '
+            '<a href="/digest/">This week\'s new roles</a> · <a href="/insights/">Hiring data</a></p>'
+            '</div></section>\n')
+
+
+LISTING_CSS = """
+.rolelist li{position:relative}
+.rolelist .rc{display:block;padding:12px 16px 0;font-size:13px;font-weight:600;color:var(--goldd);text-decoration:none}
+.rolelist .rc+a{padding-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 24px;padding:0;list-style:none}
+.chips a{display:inline-block;border:1px solid var(--cardline);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px;text-decoration:none;color:var(--ink)}
+.chips a:hover,.chips a.on{border-color:var(--green);color:var(--green)}
+"""
+
+
+def city_of(loc):
+    """Return the CITY_PAGES slugs a location string mentions (can be several: 'NY, DC, Oakland')."""
+    l = " " + (loc or "").lower() + " "
+    return [slug for slug, (_n, pats) in CITY_PAGES.items() if any(p in l for p in pats)]
+
+
+def build_listings(groups, brand):
+    """Programmatic listing pages generated from data we already have.
+
+    Every URL in DISC_PAGES / CITY_PAGES is always written so it never 404s; pages
+    with too few roles carry noindex and stay out of the sitemap and the cross-links,
+    so search engines only see pages with real substance. No JobPosting markup (same
+    reason as agency pages). Returns indexable URLs for the sitemap.
+    """
+    domain = brand.get("domain", "agencyroles.com")
+    build_date = datetime.utcnow().date().isoformat()
+    month = datetime.utcnow().strftime("%B %Y")
+    E = html.escape
+
+    def pct(a, b):
+        return round(100 * a / b) if b else 0
+
+    def median(xs):
+        s = sorted(xs)
+        if not s:
+            return 0
+        m = len(s) // 2
+        return s[m] if len(s) % 2 else (s[m - 1] + s[m]) // 2
+
+    def is_remote(g):
+        return "Remote" in g["workplaces"]
+
+    by_disc = collections.defaultdict(list)
+    for g in groups:
+        by_disc[g["category"]].append(g)
+    by_city = collections.defaultdict(list)
+    for g in groups:
+        hit = set()
+        for loc in g["locations"]:
+            hit.update(city_of(loc))
+        for s in hit:
+            by_city[s].append(g)
+
+    # which pages are big enough to index (decided up front so cross-links skip thin ones)
+    idx_roles = {DISC_PAGES[d][0] for d in DISC_PAGES if len(by_disc[d]) >= LISTING_MIN_INDEX}
+    idx_remote = {DISC_PAGES[d][0] for d in DISC_PAGES
+                  if sum(1 for g in by_disc[d] if is_remote(g)) >= LISTING_MIN_INDEX}
+    idx_city = {s for s in CITY_PAGES if len(by_city[s]) >= LISTING_MIN_INDEX}
+
+    def chips(items, current=None):
+        return ('<ul class="chips">' + "".join(
+            f'<li><a href="{href}"{" class=on" if key == current else ""}>{E(label)}</a></li>'
+            for key, href, label in items) + "</ul>")
+
+    disc_chips = [(DISC_PAGES[d][0], f"../../roles/{DISC_PAGES[d][0]}/", DISC_PAGES[d][1])
+                  for d in DISC_PAGES if DISC_PAGES[d][0] in idx_roles]
+    remote_chips = [(DISC_PAGES[d][0], f"../../remote/{DISC_PAGES[d][0]}/", f"Remote {DISC_PAGES[d][1]}")
+                    for d in DISC_PAGES if DISC_PAGES[d][0] in idx_remote]
+    city_sorted = sorted(idx_city, key=lambda s: -len(by_city[s]))
+    city_chips = [(s, f"../../city/{s}/", CITY_PAGES[s][0]) for s in city_sorted]
+
+    def body_for(kicker, h1, lead, gs, board_href, extra_sections=""):
+        n = len(gs)
+        n_remote = sum(1 for g in gs if is_remote(g))
+        n_pay = sum(1 for g in gs if g["comp"])
+        us_mid = [(g["comp_min"] + g["comp_max"]) / 2 for g in gs
+                  if g["comp_min"] and g["comp_max"] and "United States" in g["countries"]]
+        n_ag = len({g["company"] for g in gs})
+        cards = [f'<div class="card"><p class="bignum">{n:,}<span>open roles</span></p></div>',
+                 f'<div class="card"><p class="bignum">{n_ag:,}<span>agencies hiring</span></p></div>',
+                 f'<div class="card"><p class="bignum">{pct(n_pay, n)}%<span>list pay</span></p></div>']
+        if len(us_mid) >= 5:
+            cards.append(f'<div class="card"><p class="bignum">${round(median(us_mid) / 1000):,}k'
+                         '<span>median listed pay (US)</span></p></div>')
+        else:
+            cards.append(f'<div class="card"><p class="bignum">{pct(n_remote, n)}%<span>remote</span></p></div>')
+        top_ag = collections.Counter(g["company"] for g in gs).most_common(10)
+        ag_rows = "".join(f'<tr><td><a href="../../agencies/{agency_slug(c)}/">{E(c)}</a></td>'
+                          f'<td class="n">{v:,}</td></tr>' for c, v in top_ag)
+        newest = sorted(gs, key=lambda g: (g["first_seen"], g["company"]), reverse=True)
+        shown = newest[:LISTING_MAX_ITEMS]
+        more = (f'<p><a class="cta" href="{board_href}">See all {n:,} on the board, with filters →</a></p>'
+                if n > len(shown) else "")
+        empty = ('<p>No open roles match right now. We check every agency’s careers board daily, '
+                 'so this page fills back up as soon as roles are posted.</p>') if not n else ""
+        return (f'<p class="kicker">{kicker} · Updated {build_date}</p><h1>{h1}</h1>'
+                f'<p class="lead">{lead}</p>'
+                + (f'<div class="grid">{"".join(cards)}</div>' if n else "")
+                + f'<a class="cta" href="{board_href}">Filter and sort these on the board →</a>'
+                + (f'<h2>Newest first</h2><ul class="rolelist">{"".join(role_li(g) for g in shown)}</ul>{more}' if n else empty)
+                + (f'<h2>Agencies hiring the most</h2><table><thead><tr><th>Agency</th><th class="n">Roles</th></tr>'
+                   f'</thead><tbody>{ag_rows}</tbody></table>' if n else "")
+                + extra_sections)
+
+    def write(section, slug, title, desc, body, n, indexable, name):
+        canonical = f"https://{domain}/{section}/" + (f"{slug}/" if slug else "")
+        ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": name,
+              "description": desc, "url": canonical, "dateModified": build_date,
+              "isPartOf": {"@type": "WebSite", "name": brand.get("site_name", "Agency Roles"),
+                           "url": f"https://{domain}/"}}
+        page = _page(brand, slug, title, desc, body, build_date, section=section, ld=ld)
+        page = page.replace("</style>", AGENCY_CSS + LISTING_CSS + "</style>", 1)
+        if not indexable:
+            page = page.replace('<link rel="canonical"', '<meta name="robots" content="noindex,follow">\n<link rel="canonical"', 1)
+        d = os.path.join(SITE, section, slug) if slug else os.path.join(SITE, section)
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(page)
+        return canonical if indexable else None
+
+    urls = []
+    nav = ('<div class="related"><h3>Browse by discipline</h3>' + chips(disc_chips)
+           + '<h3>Remote roles by discipline</h3>' + chips(remote_chips)
+           + '<h3>Agency jobs by city</h3>' + chips(city_chips)
+           + '<p><a href="../../pay-disclosed/">Agency jobs that list pay →</a> · '
+             '<a href="../../agencies/">All agencies →</a> · <a href="../../insights/">Hiring data →</a></p></div>')
+
+    # /roles/<discipline>/
+    for d, (slug, name) in DISC_PAGES.items():
+        gs = by_disc[d]
+        n = len(gs)
+        n_remote = sum(1 for g in gs if is_remote(g))
+        n_ag = len({g["company"] for g in gs})
+        sen = collections.Counter(g["seniority"] for g in gs if g["seniority"] != "Not specified")
+        sen_rows = "".join(f"<tr><td>{E(k)}</td><td class='n'>{v:,}</td></tr>" for k, v in sen.most_common(6))
+        city_counts = sorted(((s, sum(1 for g in by_city[s] if g["category"] == d)) for s in idx_city),
+                             key=lambda x: -x[1])
+        city_rows = "".join(f'<tr><td><a href="../../city/{s}/">{E(CITY_PAGES[s][0])}</a></td><td class="n">{v:,}</td></tr>'
+                            for s, v in city_counts[:8] if v)
+        extra = ((f'<h2>By level</h2><table><thead><tr><th>Level</th><th class="n">Roles</th></tr></thead><tbody>{sen_rows}</tbody></table>' if sen_rows else "")
+                 + (f'<h2>Top cities</h2><table><thead><tr><th>City</th><th class="n">Roles</th></tr></thead><tbody>{city_rows}</tbody></table>' if city_rows else "")
+                 + (f'<p><a href="../../remote/{slug}/">See only the {n_remote:,} remote {E(name.lower())} roles →</a></p>' if slug in idx_remote else "")
+                 + nav.replace(f'href="../../roles/{slug}/"', f'href="../../roles/{slug}/" class="on"'))
+        lead = (f'<b>{n:,} open {E(name.lower())} roles</b> at {n_ag} hand-picked agencies, updated daily. '
+                f'{pct(n_remote, n)}% are remote. Every link goes straight to the agency’s own careers page.')
+        title = f"Agency {name} Jobs: {n:,} Open Roles ({month}) | Agency Roles"
+        desc = (f"{n:,} open {name.lower()} jobs at {n_ag} agencies, updated daily. "
+                f"{pct(n_remote, n)}% remote. See who is hiring, levels, cities, and pay where listed.")
+        body = body_for("Jobs by discipline", f"Agency {E(name)} jobs", lead, gs,
+                        "../../?discipline=" + quote(d), extra)
+        u = write("roles", slug, title, desc, body, n, slug in idx_roles, f"Agency {name} jobs")
+        if u:
+            urls.append(u)
+
+    # /remote/<discipline>/
+    for d, (slug, name) in DISC_PAGES.items():
+        gs = [g for g in by_disc[d] if is_remote(g)]
+        n = len(gs)
+        n_ag = len({g["company"] for g in gs})
+        ctry = collections.Counter(c for g in gs for c in g["countries"] if c not in ("Unspecified", "Remote / Global"))
+        ctry_rows = "".join(f"<tr><td>{E(k)}</td><td class='n'>{v:,}</td></tr>" for k, v in ctry.most_common(8))
+        extra = ((f'<h2>Where remote means</h2><p>Many remote roles are remote within one country. '
+                  f'These are the countries named most.</p><table><thead><tr><th>Country</th><th class="n">Roles</th>'
+                  f'</tr></thead><tbody>{ctry_rows}</tbody></table>' if ctry_rows else "")
+                 + (f'<p><a href="../../roles/{slug}/">All {E(name.lower())} roles, remote or not →</a> · '
+                    '<a href="../../insights/remote-agency-jobs/">Remote agency hiring data →</a></p>')
+                 + nav.replace(f'href="../../remote/{slug}/"', f'href="../../remote/{slug}/" class="on"'))
+        lead = (f'<b>{n:,} remote {E(name.lower())} roles</b> open at {n_ag} hand-picked agencies, '
+                'updated daily. Check each listing for which countries it covers.')
+        title = f"Remote Agency {name} Jobs: {n:,} Open ({month}) | Agency Roles"
+        desc = (f"{n:,} remote {name.lower()} jobs at {n_ag} agencies, updated daily. "
+                "See who hires remotely, where, and pay where listed.")
+        body = body_for("Remote jobs", f"Remote agency {E(name.lower())} jobs", lead, gs,
+                        "../../?work=Remote&discipline=" + quote(d), extra)
+        u = write("remote", slug, title, desc, body, n, slug in idx_remote, f"Remote agency {name} jobs")
+        if u:
+            urls.append(u)
+
+    # /city/<city>/
+    for slug, (cname, _p) in CITY_PAGES.items():
+        gs = by_city[slug]
+        n = len(gs)
+        n_ag = len({g["company"] for g in gs})
+        disc = collections.Counter(g["category"] for g in gs)
+        disc_rows = "".join(
+            f'<tr><td><a href="../../roles/{DISC_PAGES[k][0]}/">{E(DISC_PAGES[k][1])}</a></td><td class="n">{v:,}</td></tr>'
+            if k in DISC_PAGES else f"<tr><td>{E(k)}</td><td class='n'>{v:,}</td></tr>"
+            for k, v in disc.most_common())
+        extra = ((f'<h2>What agencies in {E(cname)} hire for</h2><table><thead><tr><th>Discipline</th>'
+                  f'<th class="n">Roles</th></tr></thead><tbody>{disc_rows}</tbody></table>' if disc_rows else "")
+                 + nav.replace(f'href="../../city/{slug}/"', f'href="../../city/{slug}/" class="on"'))
+        top = ", ".join(DISC_PAGES.get(k, (k, k))[1].lower() for k, _ in disc.most_common(2)) or "client work"
+        lead = (f'<b>{n:,} open agency roles in {E(cname)}</b> at {n_ag} hand-picked agencies, mostly in {E(top)}. '
+                'Updated daily, and every link goes to the agency’s own careers page.')
+        title = f"Agency Jobs in {cname}: {n:,} Open Roles ({month}) | Agency Roles"
+        desc = (f"{n:,} open agency jobs in {cname} at {n_ag} agencies, updated daily: "
+                f"{top}. See who is hiring and pay where listed.")
+        body = body_for("Jobs by city", f"Agency jobs in {E(cname)}", lead, gs,
+                        "../../?q=" + quote(cname), extra)
+        u = write("city", slug, title, desc, body, n, slug in idx_city, f"Agency jobs in {cname}")
+        if u:
+            urls.append(u)
+
+    # /pay-disclosed/  (job listings; the analysis lives at /insights/agency-salary-transparency/)
+    gs = [g for g in groups if g["comp"]]
+    n = len(gs)
+    bands = collections.Counter(g["comp_bucket"] for g in gs if g["comp_bucket"] and "United States" in g["countries"])
+    band_rows = "".join(f"<tr><td>{b}</td><td class='n'>{bands[b]:,}</td></tr>"
+                        for b in ["<$100k", "$100-150k", "$150-200k", "$200k+"] if bands.get(b))
+    disc = collections.Counter(g["category"] for g in gs)
+    disc_rows = "".join(f'<tr><td>{E(DISC_PAGES.get(k, (k, k))[1])}</td><td class="n">{v:,}</td></tr>'
+                        for k, v in disc.most_common())
+    extra = ((f'<h2>Listed pay bands (US roles)</h2><table><thead><tr><th>Band (annual)</th><th class="n">Roles</th>'
+              f'</tr></thead><tbody>{band_rows}</tbody></table>' if band_rows else "")
+             + (f'<h2>By discipline</h2><table><thead><tr><th>Discipline</th><th class="n">Roles with pay</th></tr>'
+                f'</thead><tbody>{disc_rows}</tbody></table>' if disc_rows else "")
+             + '<p><a href="../insights/agency-salary-transparency/">How many agencies publish pay, and who →</a></p>'
+             + nav.replace("../../", "../"))
+    pct_all = pct(n, len(groups))
+    lead = (f'<b>{n:,} open agency roles list a salary range</b>, about {pct_all}% of the board. '
+            'If an agency names a number up front, that tells you something. Updated daily.')
+    body = body_for("Pay listed", "Agency jobs that list pay", lead, gs, "../?pay=1", extra)
+    body = body.replace('href="../../', 'href="../')
+    u = write("pay-disclosed", "", f"Agency Jobs With Salary Listed: {n:,} Roles ({month}) | Agency Roles",
+              f"{n:,} open agency jobs that publish a salary range, updated daily. Pay bands, disciplines, and who is hiring.",
+              body, n, n >= LISTING_MIN_INDEX, "Agency jobs that list pay")
+    if u:
+        urls.append(u)
+
+    print(f"Built listings: {len(idx_roles)} discipline, {len(idx_remote)} remote, {len(idx_city)} city "
+          f"pages indexable ({len(urls)} URLs); {len(CITY_PAGES) - len(idx_city)} city pages noindex")
     return urls
 
 
