@@ -7,6 +7,7 @@ Outputs:      data/jobs.jsonl, data/history.json, site/index.html, site/CNAME
 """
 import json, os, re, html, hashlib, urllib.request, urllib.error, concurrent.futures
 from datetime import date, datetime
+from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CFG, DATA, SITE = (os.path.join(HERE, d) for d in ("config", "data", "site"))
@@ -359,6 +360,7 @@ def fetch_greenhouse(slug):
                     "location": (j.get("location") or {}).get("name", ""),
                     "posted": (j.get("updated_at") or "")[:10],
                     "desc": strip_html(j.get("content") or "")[:3000],
+                    "html": clean_html(html.unescape(j.get("content") or "")),
                     "comp_min": cmin, "comp_max": cmax, "comp_display": disp})
     return out
 
@@ -381,6 +383,9 @@ def fetch_lever(slug):
                     "employment": cat.get("commitment", ""),
                     "posted": _ms_to_date(j.get("createdAt")),
                     "desc": (j.get("descriptionPlain") or strip_html(j.get("description") or ""))[:3000],
+                    "html": clean_html((j.get("description") or "") + "".join(
+                        f'<h3>{html.escape(l.get("text") or "")}</h3><ul>{l.get("content") or ""}</ul>'
+                        for l in (j.get("lists") or [])) + (j.get("additional") or "")),
                     **comp})
     return out
 
@@ -399,6 +404,7 @@ def fetch_ashby(slug):
                     "location": loc, "posted": (j.get("publishedAt") or "")[:10],
                     "employment": j.get("employmentType", ""),
                     "desc": (j.get("descriptionPlain") or strip_html(j.get("descriptionHtml") or ""))[:3000],
+                    "html": clean_html(j.get("descriptionHtml") or ""),
                     "comp_min": cmin, "comp_max": cmax, "comp_display": disp})
     return out
 
@@ -444,6 +450,94 @@ def seniority(title):
 
 def strip_html(s):
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html.unescape(s or ""))).strip()
+
+
+class _Cleaner(HTMLParser):
+    """Keep a job description's structure (paragraphs, lists, headings, bold)
+    and drop everything else: attributes, links, images, scripts, styling."""
+    INLINE = {"strong": "strong", "b": "strong", "em": "em", "i": "em"}
+    HEAD = {"h1": "h3", "h2": "h3", "h3": "h3", "h4": "h4", "h5": "h4", "h6": "h4"}
+    BLOCK = {"p", "div", "section", "article", "header", "footer", "tr", "blockquote"}
+    SKIP = {"script", "style", "noscript", "iframe", "svg", "button", "form"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out, self.inp, self.skip, self.head = [], False, 0, None
+
+    def _close_p(self):
+        if self.inp:
+            self.out.append("</p>")
+            self.inp = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag in self.SKIP:
+            self.skip += 1
+        elif self.skip:
+            return
+        elif tag in self.BLOCK:
+            self._close_p()
+            self.out.append("<p>")
+            self.inp = True
+        elif tag in ("ul", "ol"):
+            self._close_p()
+            self.out.append(f"<{tag}>")
+        elif tag == "li":
+            self._close_p()
+            self.out.append("<li>")
+        elif tag in self.HEAD:
+            self._close_p()
+            self.head = self.HEAD[tag]
+            self.out.append(f"<{self.head}>")
+        elif tag in self.INLINE:
+            self.out.append(f"<{self.INLINE[tag]}>")
+        elif tag == "br":
+            self.out.append("<br>")
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP:
+            self.skip = max(0, self.skip - 1)
+        elif self.skip:
+            return
+        elif tag in self.BLOCK:
+            self._close_p()
+        elif tag in ("ul", "ol"):
+            self._close_p()
+            self.out.append(f"</{tag}>")
+        elif tag == "li":
+            self._close_p()
+            self.out.append("</li>")
+        elif tag in self.HEAD and self.head:
+            self.out.append(f"</{self.head}>")
+            self.head = None
+        elif tag in self.INLINE:
+            self.out.append(f"</{self.INLINE[tag]}>")
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.out.append(html.escape(data, quote=False))
+
+
+def clean_html(raw, limit=20000):
+    if not raw or not raw.strip():
+        return ""
+    c = _Cleaner()
+    try:
+        c.feed(raw)
+        c.close()
+    except Exception:
+        return ""
+    c._close_p()
+    s = re.sub(r"\s+", " ", "".join(c.out))
+    s = s.replace("\u00a0", " ")
+    for _ in range(3):  # empty wrappers left behind by stripped tags
+        s = re.sub(r"<(p|li|strong|em|h3|h4)>\s*(?:<br>\s*)*</\1>", "", s)
+        s = re.sub(r"<(ul|ol)>\s*</\1>", "", s)
+    s = re.sub(r"(<br>\s*){2,}", "<br>", s)
+    s = re.sub(r"\s*(</?(?:p|ul|ol|li|h3|h4)>)\s*", r"\1", s).strip()
+    if len(s) > limit:  # cut on a block boundary, never mid-tag
+        cut = s.rfind("</p>", 0, limit)
+        s = s[:cut + 4] if cut > 0 else ""
+    return s
 
 
 # Roles that build the AGENCY'S OWN growth (new business, GTM, positioning, in-house
@@ -548,7 +642,8 @@ def main():
                 "comp_min": r.get("comp_min"), "comp_max": r.get("comp_max"),
                 "comp_bucket": comp_bucket(r.get("comp_min"), r.get("comp_max")),
                 "posted": r.get("posted") or "",
-                "first_seen": history[jid], "source": a["provider"]})
+                "first_seen": history[jid], "source": a["provider"],
+                "loc_raw": loc, "html": r.get("html") or ""})
 
     # Verify liveness for Lever/Ashby only. Their public pages resolve cleanly,
     # and Lever especially serves "phantom" postings that 404 while still in the
@@ -592,16 +687,18 @@ def main():
     os.makedirs(DATA, exist_ok=True)
     with open(os.path.join(DATA, "jobs.jsonl"), "w", encoding="utf-8") as f:
         for j in jobs:
-            f.write(json.dumps(j, ensure_ascii=False) + "\n")
+            f.write(json.dumps({k: v for k, v in j.items() if k != "html"}, ensure_ascii=False) + "\n")
     live_ids = {j["id"] for j in jobs}
     with open(os.path.join(DATA, "history.json"), "w", encoding="utf-8") as f:
         json.dump({k: v for k, v in history.items() if k in live_ids}, f, indent=0)
 
     groups = group_roles(jobs)
+    assign_job_paths(groups)
     build_site(groups, brand)
     agency_urls = build_agencies(jobs, groups, agencies, brand)
     agency_urls += build_digest(groups, brand)
     agency_urls += build_listings(groups, brand)
+    agency_urls += build_jobs(jobs, groups, brand)
     build_insights(jobs, groups, brand, agency_urls)
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
@@ -995,8 +1092,8 @@ function card(g){
   const empmeta=(emp&&emp!=="Full-time")?" · "+esc(emp):"";
   const main=`${mono(g.company)}<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?'<span class="new">New</span>':""}</div>
     <div class="jco">${esc(g.company)}</div>${g.focus?'<div><span class="ftag">Grows the agency</span></div>':""}<div class="jloc">${esc(loc)}${loc.toLowerCase().includes(work.toLowerCase())?"":" · "+esc(work)}${empmeta}</div></div>`;
-  if(single)return `<a class="jcard" href="${esc(g.url)}" target="_blank" rel="noopener">${main}${aside(g,"View role →")}</a>`;
-  const sub=g.roles.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
+  if(single)return `<a class="jcard" href="job/${esc(g.p)}/">${main}${aside(g,"View role →")}</a>`;
+  const sub=`<a href="job/${esc(g.p)}/"><span class="rl"><b>Read the full role</b></span><span class="ra">Details →</span></a>`+g.roles.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
   return `<div class="gwrap"><div class="jcard grp">${main}${aside(g,`View ${g.count} openings ▾`)}</div><div class="gsub" style="display:none">${sub}</div></div>`;}
 
 function renderAgencies(){const list=AGENCIES.map(a=>({...a,n:agSize[a.name]||0})).filter(a=>a.n).sort((x,y)=>y.n-x.n);
@@ -1015,7 +1112,7 @@ function fcard(g){
   if(!bits.length)bits.push("Location not listed");
   const tag=g.sponsored?'<span class="tag spon">Sponsored</span>':'<span class="tag">Featured</span>';
   const note=g.note?`<div class="fnote">${esc(g.note)}</div>`:"";
-  return `<a class="fcard${g.sponsored?" spon":""}" href="${esc(g.url)}" target="_blank" rel="noopener">${tag}
+  return `<a class="fcard${g.sponsored?" spon":""}" href="job/${esc(g.p)}/">${tag}
     <div class="ft">${esc(g.title)}</div><div class="fco">${esc(g.company)}</div>${note}
     <div class="fmeta">${bits.join(" · ")}</div></a>`;}
 function renderFeatured(){
@@ -1178,7 +1275,8 @@ def build_site(groups, brand):
 
     agencies = [{"name": c, "slug": agency_slug(c)} for c in sorted({g["company"] for g in groups})]
     itemlist = {"@context": "https://schema.org", "@type": "ItemList",
-                "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": g["url"],
+                "itemListElement": [{"@type": "ListItem", "position": i + 1,
+                                     "url": f"https://{domain}/job/{g['p']}/",
                                      "name": f'{g["title"]} at {g["company"]}'}
                                     for i, g in enumerate(groups[:50])]}
 
@@ -1437,7 +1535,7 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False,
         f'<meta property="og:url" content="{canonical}">\n<meta property="og:site_name" content="Agency Roles">\n'
         f'<meta property="og:image" content="https://{domain}/og.png">\n<meta name="twitter:card" content="summary_large_image">\n'
         + FONTS_LINK +
-        f'<script type="application/ld+json">{json.dumps(ld)}</script>\n'
+        '<script type="application/ld+json">' + json.dumps(ld).replace("</", "<\\/") + '</script>\n'
         + POSTHOG +
         "<style>\n" + ARTICLE_CSS + SIGNUP_CSS + "\n</style>\n</head>\n<body>\n"
         + nav_html(root, active, list_url)
@@ -1873,9 +1971,9 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
 
     Every agency on the roster gets a page, including ones with no open roles today,
     so URLs stay stable as hiring comes and goes (a page that 404s whenever an
-    agency pauses hiring loses its search history). No JobPosting markup: Google
-    wants that on one-job leaf pages with a full description, and we link out
-    instead of copying descriptions. Returns the URLs written, for the sitemap.
+    agency pauses hiring loses its search history). No JobPosting markup here:
+    that lives on the one-role pages build_jobs() writes under /job/. Returns the
+    URLs written, for the sitemap.
     """
     outdir = os.path.join(SITE, "agencies")
     os.makedirs(outdir, exist_ok=True)
@@ -1952,7 +2050,7 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
                 meta = " · ".join(html.escape(x) for x in parts)
                 pay = (f'<span class="rp">{html.escape(g["comp"])}</span>' if g["comp"]
                        else '<span class="rp none">Pay not listed</span>')
-                items.append(f'<li><a href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow">'
+                items.append(f'<li><a href="../../job/{g["p"]}/">'
                              f'<span><span class="rt">{html.escape(g["title"])}</span>'
                              f'<span class="rm" style="display:block">{meta}</span></span>{pay}</a></li>')
             disc_rows = "".join(f"<tr><td>{html.escape(k)}</td><td class='n'>{v:,}</td></tr>"
@@ -2002,7 +2100,7 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
         if n_open:
             ld["mainEntity"] = {"@type": "ItemList", "numberOfItems": len(gs),
                                 "itemListElement": [{"@type": "ListItem", "position": i + 1,
-                                                     "url": g["url"], "name": g["title"]}
+                                                     "url": f"https://{domain}/job/{g['p']}/", "name": g["title"]}
                                                     for i, g in enumerate(gs[:50])]}
         d = os.path.join(outdir, slug)
         os.makedirs(d, exist_ok=True)
@@ -2113,7 +2211,7 @@ def role_li(g, show_company=True, root="../../"):
               f'{html.escape(g["company"])}</a>')
     pay = (f'<span class="rp">{html.escape(g["comp"])}</span>' if g["comp"]
            else '<span class="rp none">Pay not listed</span>')
-    return (f'<li>{co}<a href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow">'
+    return (f'<li>{co}<a href="{root}job/{g["p"]}/">'
             f'<span><span class="rt">{html.escape(g["title"])}</span>'
             f'<span class="rm" style="display:block">{meta}</span></span>{pay}</a></li>')
 
@@ -2392,6 +2490,251 @@ def build_listings(groups, brand):
 
 # ---------- weekly digest (email + web copy) ----------
 
+
+# ---------- role pages (/job/<slug>/) ----------
+# One page per grouped listing, carrying the full description and JobPosting
+# markup so the role can show in Google's job search. Apply still goes to the
+# agency's own careers page. Pages are rebuilt every run; a role that closes is
+# simply not written again, so its URL 404s, which is what Google asks for.
+COUNTRY_ISO = {"United States": "US", "United Kingdom": "GB", "Canada": "CA", "Germany": "DE",
+               "France": "FR", "Spain": "ES", "Netherlands": "NL", "Ireland": "IE",
+               "Australia": "AU", "India": "IN", "Singapore": "SG", "Brazil": "BR", "Mexico": "MX",
+               "Japan": "JP", "Poland": "PL", "Portugal": "PT", "Sweden": "SE", "UAE": "AE",
+               "Italy": "IT", "Switzerland": "CH", "Belgium": "BE", "Argentina": "AR",
+               "Colombia": "CO", "Philippines": "PH", "China / HK": "HK", "Denmark": "DK",
+               "Norway": "NO", "Romania": "RO"}
+EMPLOYMENT_LD = {"Full-time": "FULL_TIME", "Part-time": "PART_TIME", "Contract": "CONTRACTOR",
+                 "Freelance": "CONTRACTOR", "Internship": "INTERN", "Temporary": "TEMPORARY"}
+JOB_MIN_TEXT = 400  # characters of description below which a page is too thin to index
+
+JOB_CSS = """<style>
+.jd{max-width:780px;font-size:16.5px;line-height:1.7}
+.jd h3{font:600 19px/1.3 var(--sans);margin:30px 0 10px}
+.jd h4{font:600 16.5px/1.3 var(--sans);margin:22px 0 8px}
+.jd ul,.jd ol{padding-left:22px;margin:0 0 18px}.jd li{margin:5px 0}
+.jd p{margin:0 0 14px}
+.jfacts{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.jfacts li{font:500 12.5px/1 var(--mono);letter-spacing:.03em;padding:8px 11px;border-radius:999px;
+ background:color-mix(in srgb,var(--on-dark) 10%,transparent);color:var(--on-dark)}
+.jfacts li.pay{background:var(--gold);color:#1b1404}
+.pagehead a.cta,.applybar a.cta{color:#1b1404}
+.applybar{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;margin:36px 0 8px;max-width:780px;
+ padding:22px 24px;border:1px solid var(--rule);border-radius:16px;background:var(--card)}
+.applybar p{margin:0;flex:1 1 260px;font-size:15px;color:var(--muted)}
+.applybar .cta{margin:0}
+.locs{list-style:none;padding:0;margin:0 0 28px;max-width:780px;border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--card)}
+.locs li+li{border-top:1px solid var(--rule)}
+.locs a{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;text-decoration:none;color:var(--ink)}
+.locs a:hover{background:var(--tint)}.locs .ra{color:var(--accent);font-weight:600;white-space:nowrap}
+</style>"""
+
+
+def _slugify(s, n=60):
+    s = re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")
+    return s[:n].rstrip("-") or "role"
+
+
+def assign_job_paths(groups):
+    """Give every grouped listing a stable path: <title>-<agency>-<id>."""
+    for g in groups:
+        g["p"] = f'{_slugify(g["title"], 50)}-{_slugify(g["company"], 24)}-{g["id"][:8]}'
+
+
+EXTRA_ISO = [(("brasil",), "BR"), (("hungary", "budapest"), "HU"), (("costa rica",), "CR"),
+             (("peru", "lima"), "PE"), (("finland", "helsinki"), "FI"), (("south africa", "cape town",
+             "johannesburg"), "ZA"), (("malaysia", "kuala lumpur"), "MY"), (("zürich", "zurich"), "CH"),
+             (("montréal", "québec", "quebec"), "CA"), (("florida", "texas", "california", "georgia",
+             "new jersey", "massachusetts", "illinois", "colorado", "virginia", "oregon"), "US"),
+             (("hilversum", "utrecht", "eindhoven"), "NL"), (("ahmedabad", "noida", "kolkata"), "IN"),
+             (("greece", "athens"), "GR"), (("czech", "prague"), "CZ"), (("austria", "vienna"), "AT"),
+             (("new zealand", "auckland"), "NZ"), (("chile", "santiago"), "CL"),
+             (("ukraine", "kyiv"), "UA"), (("serbia", "belgrade"), "RS"), (("vietnam",), "VN"),
+             (("thailand", "bangkok"), "TH"), (("egypt", "cairo"), "EG"), (("nigeria", "lagos"), "NG"),
+             (("kenya", "nairobi"), "KE"), (("israel", "tel aviv"), "IL"), (("turkey", "istanbul"), "TR")]
+_PLACE_NOISE = re.compile(r"\b(?:remote|hybrid|on-?site|office|in-office|anywhere|based)\b|[()\[\]]", re.I)
+
+
+def _iso_of(part):
+    """ISO country code for one location fragment, or None."""
+    toks = set(re.findall(r"\b[A-Z]{2,3}\b", part))
+    if toks & {"US", "USA"} or re.search(r"\bU\.S\.?", part):
+        return "US"
+    if toks & {"UK", "GB"}:
+        return "GB"
+    low = part.lower()
+    for kws, iso in EXTRA_ISO:
+        if any(k in low for k in kws):
+            return iso
+    return COUNTRY_ISO.get(detect_country(part))
+
+
+def _ld_places(raw_locs):
+    """JobPosting jobLocation entries (and remote country codes) from raw ATS location strings."""
+    places, remote_countries, seen = [], [], set()
+    for raw in raw_locs:
+        for part in re.split(r"\s*(?:;|\||/|\bor\b)\s*", raw or ""):
+            part = part.strip(" ,-")
+            if not part:
+                continue
+            iso = _iso_of(part)
+            if re.search(r"\bremote\b|\banywhere\b", part, re.I):
+                if iso and iso not in remote_countries:
+                    remote_countries.append(iso)
+                continue
+            if not iso:
+                continue  # no country we can name = not a usable address
+            place = re.sub(r"\s+", " ", _PLACE_NOISE.sub(" ", part)).strip(" ,-")
+            bits = [b.strip() for b in place.split(",") if b.strip()]
+            # drop a trailing country word so "Austin, TX, United States" -> locality + region
+            if bits and _iso_of(bits[-1]) == iso and len(bits) > 1 and len(bits[-1]) > 3:
+                bits = bits[:-1]
+            addr = {"@type": "PostalAddress", "addressCountry": iso}
+            single_country = len(bits) == 1 and (
+                bits[0].upper() in ("US", "USA", "UK", "GB") or
+                bits[0].lower() in {c.lower() for c in COUNTRY_ISO} | {"brasil", "united states of america"})
+            if bits and not single_country:
+                addr["addressLocality"] = bits[0]
+                if len(bits) >= 2:
+                    addr["addressRegion"] = bits[1]
+            key = json.dumps(addr, sort_keys=True)
+            if key in seen:
+                continue
+            seen.add(key)
+            places.append({"@type": "Place", "address": addr})
+            if len(places) >= 20:
+                return places, remote_countries
+    return places, remote_countries
+
+
+def build_jobs(jobs, groups, brand):
+    domain = brand.get("domain", "agencyroles.com")
+    build_date = datetime.utcnow().date().isoformat()
+    outdir = os.path.join(SITE, "job")
+    if os.path.isdir(outdir):  # local runs: clear yesterday's pages so closed roles 404
+        import shutil
+        shutil.rmtree(outdir)
+    os.makedirs(outdir, exist_ok=True)
+    by_id = {j["id"]: j for j in jobs}
+    by_url = {j["url"]: j for j in jobs}
+    by_co = collections.defaultdict(list)
+    by_cat = collections.defaultdict(list)
+    newest = sorted(groups, key=lambda g: (g["first_seen"], g["company"]), reverse=True)
+    for g in newest:
+        by_co[g["company"]].append(g)
+        by_cat[g["category"]].append(g)
+
+    urls, n_ld = [], 0
+    for g in groups:
+        lead_job = by_id.get(g["id"]) or {}
+        body_html = lead_job.get("html") or ""
+        text_len = len(strip_html(body_html))
+        indexable = text_len >= JOB_MIN_TEXT
+        co, title = g["company"], g["title"]
+        ag_href = f'../../agencies/{agency_slug(co)}/'
+        work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple workplaces"
+        loc = g["locations"][0] if len(g["locations"]) == 1 else (
+            f'{len(g["locations"])} locations' if g["locations"] else
+            next((c for c in g["countries"] if c not in ("Unspecified", "Other")), ""))
+        emp = g["employments"][0] if len(g["employments"]) == 1 else ""
+        facts = []
+        if g["comp"]:
+            facts.append(f'<li class="pay">{html.escape(g["comp"])}</li>')
+        for f_ in (loc, work if work.lower() not in (loc or "").lower() else "",
+                   g["seniority"] if g["seniority"] != "Not specified" else "", emp):
+            if f_:
+                facts.append(f"<li>{html.escape(f_)}</li>")
+        posted = g["posted"] or g["first_seen"]
+        try:
+            posted_h = datetime.strptime(posted, "%Y-%m-%d").strftime("%b %-d, %Y")
+        except ValueError:
+            posted_h = posted
+        track = (f"onclick=\"window.posthog&&posthog.capture('apply_click',"
+                 f"{{agency:{json.dumps(co)},role:{json.dumps(title)}}})\"")
+        apply_a = (f'<a class="cta" href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow" '
+                   f'{track}>Apply at {html.escape(co)} ↗</a>')
+        pay_line = (f'<b>{html.escape(g["comp"])}</b> · ' if g["comp"] else "")
+        head = (f'<p class="kicker"><a href="{ag_href}">{html.escape(co)}</a> · {html.escape(g["category"])}</p>'
+                f'<h1>{html.escape(title)}</h1>'
+                f'<ul class="jfacts">{"".join(facts)}</ul>'
+                f'<p class="lead" style="margin-top:18px">{pay_line}Posted {html.escape(posted_h)} on '
+                f'{html.escape(co)}\'s careers site. Agency Roles checks it every day.</p>' + apply_a)
+        parts = [head]
+        if g["count"] > 1:
+            parts.append(f'<h2>{g["count"]} openings</h2><ul class="locs">' + "".join(
+                f'<li><a href="{html.escape(r["url"])}" target="_blank" rel="noopener nofollow" {track}>'
+                f'<span>{html.escape(r["location"])} · {html.escape(r["workplace"])}</span>'
+                f'<span class="ra">Apply ↗</span></a></li>' for r in g["roles"]) + "</ul>")
+        if body_html:
+            parts.append(f'<h2>About the role</h2><div class="jd">{body_html}</div>')
+        else:
+            parts.append(f'<p>{html.escape(co)} hasn\'t shared the full description with job boards. '
+                         f'Read it on their careers site.</p>')
+        parts.append(f'<div class="applybar"><p>Applications go straight to {html.escape(co)}. '
+                     f'Agency Roles never sees or stores them.</p>{apply_a}</div>')
+        more = [x for x in by_co[co] if x is not g][:6]
+        if more:
+            parts.append(f'<h2>More roles at {html.escape(co)}</h2><ul class="rolelist">'
+                         + "".join(role_li(x, show_company=False) for x in more) + "</ul>"
+                         + f'<p><a href="{ag_href}">See every open role at {html.escape(co)} →</a></p>')
+        similar, seen_co = [], set()  # one role per agency, newest first
+        for x in by_cat[g["category"]]:
+            if x["company"] != co and x["company"] not in seen_co:
+                similar.append(x)
+                seen_co.add(x["company"])
+                if len(similar) == 6:
+                    break
+        if similar:
+            parts.append(f'<h2>Similar {html.escape(g["category"].lower())} roles at other agencies</h2>'
+                         '<ul class="rolelist">' + "".join(role_li(x) for x in similar) + "</ul>")
+        parts.append(JOB_CSS)
+
+        canonical = f"https://{domain}/job/{g['p']}/"
+        desc = (f"{title} at {co}"
+                + (f", {loc}" if loc else "") + (f". Pay: {g['comp']}" if g["comp"] else "")
+                + ". Read the full role and apply directly with the agency.")[:155]
+        ld = {"@context": "https://schema.org", "@type": "WebPage", "name": f"{title} at {co}",
+              "url": canonical, "dateModified": build_date}
+        if indexable:
+            raws = [by_url[r["url"]].get("loc_raw", "") for r in g["roles"] if r["url"] in by_url]
+            places, remote_iso = _ld_places(raws)
+            is_remote = "Remote" in g["workplaces"]
+            jp = {"@context": "https://schema.org", "@type": "JobPosting", "title": title,
+                  "description": body_html, "datePosted": posted,
+                  "identifier": {"@type": "PropertyValue", "name": co, "value": g["id"]},
+                  "hiringOrganization": {"@type": "Organization", "name": co,
+                                         "sameAs": f"https://{domain}/agencies/{agency_slug(co)}/"},
+                  "directApply": False, "url": canonical}
+            types = sorted({EMPLOYMENT_LD[e] for e in g["employments"] if e in EMPLOYMENT_LD})
+            if types:
+                jp["employmentType"] = types if len(types) > 1 else types[0]
+            if places:
+                jp["jobLocation"] = places if len(places) > 1 else places[0]
+            if is_remote and remote_iso:
+                jp["jobLocationType"] = "TELECOMMUTE"
+                jp["applicantLocationRequirements"] = [{"@type": "Country", "name": c} for c in remote_iso]
+            if g["comp_min"] and g["comp_max"]:
+                jp["baseSalary"] = {"@type": "MonetaryAmount", "currency": "USD",
+                                    "value": {"@type": "QuantitativeValue", "minValue": g["comp_min"],
+                                              "maxValue": g["comp_max"], "unitText": "YEAR"}}
+            if "jobLocation" in jp or "jobLocationType" in jp:  # Google rejects a posting with neither
+                ld = jp
+                n_ld += 1
+        page = _page(brand, g["p"], f"{title} at {co} | Agency Roles", desc,
+                     "".join(parts), build_date, section="job", ld=ld)
+        page = page.replace("</style>", AGENCY_CSS + LISTING_CSS + "</style>", 1)
+        if not indexable:
+            page = page.replace('<link rel="canonical"',
+                                '<meta name="robots" content="noindex,follow">\n<link rel="canonical"', 1)
+        d = os.path.join(outdir, g["p"])
+        os.makedirs(d, exist_ok=True)
+        with open(os.path.join(d, "index.html"), "w", encoding="utf-8") as f:
+            f.write(page)
+        if indexable:
+            urls.append(canonical)
+    print(f"Built role pages: {len(groups)} pages, {len(urls)} indexable, {n_ld} with JobPosting markup")
+    return urls
+
+
 def build_digest(groups, brand):
     """Write data/digest.json (subject, preview, email HTML) and /digest/ (web copy).
 
@@ -2454,7 +2797,7 @@ def build_digest(groups, brand):
                   f'style="color:{sub};text-decoration:underline">{E(g["company"])}</a>')
         return (f'<tr><td style="padding:14px 0;border-bottom:1px solid {line}">'
                 f'<div style="{font}font-size:13px;color:{sub}">{spon}{agency}</div>'
-                f'<a href="{E(g["url"])}" style="{font}font-size:17px;font-weight:700;color:{ink};text-decoration:none">{E(g["title"])}</a>'
+                f'<a href="{site}/job/{g["p"]}/?{utm}" style="{font}font-size:17px;font-weight:700;color:{ink};text-decoration:none">{E(g["title"])}</a>'
                 f'<div style="{font}font-size:14px;color:{sub};margin-top:2px">{meta}</div>{pay}</td></tr>')
 
     top_ag = "".join(
