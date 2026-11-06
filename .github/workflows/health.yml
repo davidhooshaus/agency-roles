@@ -1,0 +1,40 @@
+name: Board health check
+
+# Mondays: test every agency's job-board API. If any board is broken, open (or
+# update) one GitHub issue titled "Board health", which emails the repo owner.
+# Closes that issue automatically once everything passes again.
+
+on:
+  schedule:
+    - cron: "0 14 * * 1"      # Mondays 14:00 UTC (7am PT)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check boards
+        id: check
+        run: python3 check_boards.py
+      - name: Open or update the health issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          num=$(gh issue list --state open --search 'in:title "Board health"' --json number --jq '.[0].number')
+          if [ "${{ steps.check.outputs.broken }}" != "0" ]; then
+            if [ -n "$num" ]; then
+              gh issue comment "$num" --body-file data/health.md
+            else
+              gh issue create --title "Board health: broken agency boards" --body-file data/health.md
+            fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "All boards passing again. $(head -1 data/health.md)"
+          fi

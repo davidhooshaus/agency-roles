@@ -457,7 +457,9 @@
   {
     "name": "Sylvain",
     "provider": "greenhouse",
-    "slug": "sylvain"
+    "slug": "sylvain",
+    "paused": true,
+    "paused_note": "Moved to Scalis ATS (sylvain.co/careers), not readable. Checked 2026-11-06."
   },
   {
     "name": "Leveraged Media",
@@ -672,7 +674,7 @@
   {
     "name": "Artefact",
     "provider": "greenhouse",
-    "slug": "artefactus"
+    "slug": "artefact"
   },
   {
     "name": "OSEDEA",
@@ -1045,11 +1047,6 @@
     "slug": "inkhousehq"
   },
   {
-    "name": "Ace 1 Media",
-    "provider": "ashby",
-    "slug": "ace-1-media"
-  },
-  {
     "name": "Underscore Marketing",
     "provider": "greenhouse",
     "slug": "underscoremarketing"
@@ -1112,7 +1109,9 @@
   {
     "name": "Godfrey Dadich Partners",
     "provider": "greenhouse",
-    "slug": "godfreydadichpartners"
+    "slug": "godfreydadichpartners",
+    "paused": true,
+    "paused_note": "Rebranded GDP; gdp.studio/careers has no ATS. Recheck April. Checked 2026-11-06."
   },
   {
     "name": "Article Group",
@@ -1200,11 +1199,6 @@
     "slug": "poetic"
   },
   {
-    "name": "Community Boost",
-    "provider": "lever",
-    "slug": "CommunityBoost"
-  },
-  {
     "name": "Newfangled Studios",
     "provider": "greenhouse",
     "slug": "newfangled-studios"
@@ -1227,7 +1221,9 @@
   {
     "name": "Upstatement",
     "provider": "greenhouse",
-    "slug": "upstatement"
+    "slug": "upstatement",
+    "paused": true,
+    "paused_note": "upstatement.com/jobs: no openings, no ATS. Checked 2026-11-06."
   },
   {
     "name": "Ansira",

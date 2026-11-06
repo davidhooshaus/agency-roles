@@ -507,7 +507,7 @@ def main():
     jobs, errors = [], []
 
     for a in agencies:
-        if a.get("skip"):
+        if a.get("skip") or a.get("paused"):  # paused = page kept, board not polled
             continue
         name = a.get("name") or a.get("slug", "")
         fn = FETCHERS.get(a.get("provider"))
