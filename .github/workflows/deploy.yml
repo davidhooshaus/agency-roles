@@ -47,3 +47,20 @@ jobs:
           path: site
       - id: deploy
         uses: actions/deploy-pages@v4
+
+      # Tell Google about new and closed role pages (Indexing API, 200/day).
+      # Runs after deploy so the pages are live when Google fetches them.
+      # Skips quietly until the GOOGLE_INDEXING_KEY secret exists.
+      - name: Restore indexing state
+        uses: actions/cache@v4
+        with:
+          path: data/indexing.json
+          key: indexing-${{ github.run_id }}
+          restore-keys: |
+            indexing-
+      - name: Notify Google of role page changes
+        env:
+          GOOGLE_INDEXING_KEY: ${{ secrets.GOOGLE_INDEXING_KEY }}
+        run: |
+          if [ -n "$GOOGLE_INDEXING_KEY" ]; then pip install -q google-auth requests; fi
+          python3 index_ping.py
