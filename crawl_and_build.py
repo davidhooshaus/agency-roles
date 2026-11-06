@@ -631,139 +631,247 @@ POSTHOG = (
     '</script>\n'
 )
 
-CSS = """
-:root{--g:#263B28;--green:#416644;--mustard:#F0A202;--goldd:#8a5e12;--cream:#E7E5D9;--gline:#3a563d;
---bg:#ede9df;--ink:#292929;--sub:#5f6357;--cardline:#d9d3c4;--card2:#E2E3DD}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-a{color:inherit;text-decoration:none}
-.dark{background:var(--g);color:var(--cream)}
-.topnav{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:16px 22px}
-.brand{display:inline-block;font:700 20px Merriweather,Georgia,serif;letter-spacing:-.2px;color:var(--cream);text-decoration:none;line-height:1.05}
-.brand .byline{display:block;font:400 11px Inter,system-ui,sans-serif;color:var(--cream);opacity:.6;letter-spacing:.02em}
-.topnav nav{display:flex;gap:18px;align-items:center;font-size:14px}
-.topnav nav a{color:var(--cream);opacity:.8;cursor:pointer}
-.topnav nav a:hover,.topnav nav a.on{opacity:1;color:var(--mustard)}
-.topnav nav a.apply{opacity:1;color:var(--mustard);border:1px solid var(--mustard);padding:6px 12px;border-radius:8px}
-.topnav nav a.apply:hover{background:var(--mustard);color:var(--g)}
-.hero{max-width:1120px;margin:0 auto;padding:14px 22px 22px}
-.hero h1{font:700 34px/1.28 Merriweather,Georgia,serif;margin:0 0 12px;max-width:880px}
-.hero .lede{font-size:22px;margin:0 0 8px}
-.hero .sub{font-size:15.5px;opacity:.85;max-width:660px;margin:0 0 14px}
-.hero .stat{font-size:13.5px;opacity:.82;margin:0}
-.hero .stat b{color:var(--mustard)}
-.hero .stat a{color:var(--mustard)}
-.searchband{max-width:1120px;margin:0 auto;padding:0 22px 26px}
-#q{width:100%;max-width:660px;padding:13px 16px;border-radius:10px;border:0;font-size:16px;background:#fff;color:var(--ink)}
-.results{max-width:1120px;margin:0 auto;padding:26px 22px 70px;display:grid;grid-template-columns:250px 1fr;gap:34px}
-.sidebar{align-self:start;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow:auto;padding-right:6px}
-.fgroup{margin:0 0 22px}
-.fgroup h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);margin:0 0 10px}
-.cb{display:flex;align-items:center;gap:9px;font-size:14.5px;padding:7px 0;cursor:pointer;min-height:34px}
-.cb input{accent-color:var(--green);width:17px;height:17px;flex:0 0 auto;cursor:pointer}
-.cb .c{margin-left:auto;color:var(--sub);font-size:13px}
-.sidebar select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid var(--cardline);background:#fff;font-size:14px;color:var(--ink)}
-.reshead{display:flex;align-items:center;gap:12px;margin:0 0 12px;flex-wrap:wrap}
-.count{font-weight:600;font-size:15px}
-.sortwrap{margin-left:auto;font-size:13px;color:var(--sub)}
-.sortwrap select{margin-left:6px;padding:6px 8px;border-radius:7px;border:1px solid var(--cardline);background:#fff;color:var(--ink);font-size:13px}
-.filtbtn{display:none}
-.active{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
-.pill{display:inline-flex;align-items:center;gap:5px;background:#efece2;border:1px solid var(--cardline);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;color:var(--ink)}
-.pill:hover{border-color:var(--green)}.pill.clear{background:none;border:0;color:var(--green);font-weight:600}
-.gwrap{margin:0 0 10px}
-.jcard{display:flex;gap:16px;justify-content:space-between;background:#fff;border:1px solid var(--cardline);border-radius:12px;padding:15px 18px;transition:border-color .12s,box-shadow .12s;cursor:pointer}
-.gwrap .jcard{margin:0}a.jcard{margin:0 0 10px}
-.jcard:hover{border-color:var(--green);box-shadow:0 2px 14px rgba(20,40,30,.07)}
-.jmain{min-width:0}
-.jtitle{font-size:17px;font-weight:650;margin:0 0 2px}
-.jco{font-size:14.5px;font-weight:600}
-.ftag{display:inline-block;font-size:11px;font-weight:700;color:#1a1205;background:var(--mustard);border-radius:5px;padding:1px 7px;margin-top:4px}
-.jloc{color:var(--sub);font-size:14px;margin-top:2px}
-.jaside{flex:0 0 auto;text-align:right;display:flex;flex-direction:column;gap:3px;min-width:130px}
-.jpay{font-size:14.5px;font-weight:700;color:var(--green)}.jpay.none{color:var(--sub);font-weight:400;font-size:13px}
-.jlvl{font-size:13px;color:var(--ink)}
-.jdate{font-size:12px;color:var(--sub)}
-.jview{font-size:13px;color:var(--green);font-weight:600;margin-top:4px;white-space:nowrap}
-.gsub{background:#fbfaf6;border:1px solid var(--cardline);border-top:0;border-radius:0 0 12px 12px;margin-top:-6px;padding:6px 18px 12px}
-.gsub a{display:flex;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-top:1px solid var(--cardline)}
-.gsub a:hover{color:var(--green)}.gsub .rl{color:var(--ink)}.gsub .ra{color:var(--green);white-space:nowrap}
-.more{width:100%;padding:12px;background:#fff;border:1px solid var(--cardline);border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;margin:8px 0 0;color:var(--ink)}
-.more:hover{border-color:var(--green)}
-.empty{color:var(--sub);padding:40px 0;text-align:center}
-.agencies{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px}
-.acard{display:flex;gap:11px;align-items:center;background:#fff;text-decoration:none;color:inherit;border:1px solid var(--cardline);border-radius:12px;padding:13px;cursor:pointer}
-.acard:hover{border-color:var(--green)}
-.mono{flex:0 0 auto;width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--cream);background:var(--green)}
-.an{font-weight:600;font-size:14.5px}.ac{color:var(--sub);font-size:12.5px}
-.featband{max-width:1120px;margin:0 auto;padding:24px 22px 2px}
-.fhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 14px}
-.feyebrow{font:700 12.5px Inter;text-transform:uppercase;letter-spacing:.08em;color:var(--goldd)}
-.fsub{color:var(--sub);font-size:14px}
+FONTS_LINK = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
+              '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+              '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700'
+              '&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600'
+              '&display=swap" rel="stylesheet">\n')
+
+# Design tokens + shared chrome (nav, bands, buttons, footer). Used by every page.
+BASE_CSS = """
+:root{
+ --paper:#fbfaf6;--tint:#f1efe7;--card:#ffffff;--ink:#15181a;--muted:#5d6259;--rule:#e2ddd1;
+ --dark:#13241a;--dark-2:#1d3426;--dark-rule:#2d4535;--on-dark:#f3f1ea;--on-dark-muted:#b3bdb1;
+ --accent:#2f6b45;--accent-soft:#e4efe7;--gold:#e8a317;--gold-ink:#8a5e12;--gold-soft:#f8eed6;
+ --serif:"Newsreader",Georgia,"Times New Roman",serif;
+ --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+ --shadow:0 1px 2px rgba(20,30,24,.04),0 6px 20px -8px rgba(20,30,24,.12);
+ color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+ --paper:#0e1411;--tint:#131b16;--card:#18211c;--ink:#e9e8e2;--muted:#a3aba1;--rule:#28342c;
+ --dark:#0a110d;--dark-2:#16231b;--dark-rule:#263a2d;--on-dark:#efeee8;--on-dark-muted:#a8b3a7;
+ --accent:#80c79c;--accent-soft:#1c2e23;--gold:#f0b23a;--gold-ink:#e9b54d;--gold-soft:#2b2412;
+ --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -10px rgba(0,0,0,.6);color-scheme:dark}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.55 var(--sans);text-rendering:optimizeLegibility}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+.eyebrow{font:500 12px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 14px}
+.dark .eyebrow,.hero .eyebrow,.pagehead .eyebrow{color:var(--gold)}
+/* nav */
+.topbar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--dark) 94%,transparent);
+ -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--on-dark);border-bottom:1px solid var(--dark-rule)}
+.tb-in{max-width:1180px;margin:0 auto;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--on-dark)}
+.bmark{width:30px;height:30px;border-radius:8px;background:var(--gold);color:var(--dark);display:grid;place-items:center;font:600 13px var(--mono);letter-spacing:-.02em;flex:0 0 auto}
+.bname{font:600 20px/1 var(--serif);letter-spacing:-.01em;white-space:nowrap}
+.links a{white-space:nowrap}.links .sm{display:none}
+.bname small{display:block;font:400 10.5px/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--on-dark-muted);margin-top:3px}
+.links{display:flex;align-items:center;gap:22px;font-size:14.5px}
+.links a{color:var(--on-dark-muted);text-decoration:none;cursor:pointer;transition:color .12s}
+.links a:hover,.links a.on{color:var(--on-dark)}
+.links a.on{box-shadow:inset 0 -2px 0 var(--gold);padding:21px 0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;background:var(--accent);color:#fff;
+ font:600 14.5px/1 var(--sans);padding:13px 18px;cursor:pointer;text-decoration:none;white-space:nowrap;transition:filter .12s,transform .12s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:translateY(1px)}
+.btn.gold,.links a.apply{background:var(--gold);color:#1b1404}
+.links a.apply{padding:9px 14px;border-radius:9px;font-weight:600;color:#1b1404}
+.links a.apply:hover{filter:brightness(1.07);color:#1b1404}
+.btn.ghost{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 1px var(--rule)}
+@media (prefers-color-scheme:dark){.btn:not(.gold):not(.ghost){color:#0c1a11}}
+/* bands */
+.band{padding:72px 0}.band.tint{background:var(--tint)}.band.dark{background:var(--dark);color:var(--on-dark)}
+.in{max-width:1180px;margin:0 auto;padding:0 28px}
+.band h2{font:500 clamp(28px,3.4vw,40px)/1.1 var(--serif);letter-spacing:-.015em;margin:0 0 12px;max-width:24ch}
+.band .sub{color:var(--muted);font-size:17px;max-width:44em;margin:0 0 30px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tcard{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:24px;box-shadow:var(--shadow)}
+.tcard .num{font:500 12px var(--mono);letter-spacing:.08em;color:var(--gold-ink);margin:0 0 14px;display:block}
+.tcard h3{font:500 22px/1.2 var(--serif);margin:0 0 8px}
+.tcard p{margin:0;color:var(--muted);font-size:15.5px}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.chiprow a{display:inline-block;border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:6px 13px;font-size:14px;text-decoration:none;color:var(--ink);transition:border-color .12s,color .12s}
+.chiprow a:hover,.chiprow a.on{border-color:var(--accent);color:var(--accent)}
+.chiprow a .c{color:var(--muted);font:400 12px var(--mono);margin-left:4px}
+/* footer */
+.foot{background:var(--dark);color:var(--on-dark-muted);font-size:14px}
+.foot .in{padding-top:44px;padding-bottom:52px;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:28px}
+.foot h4{font:500 11.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--on-dark);margin:0 0 12px}
+.foot a{display:block;color:var(--on-dark-muted);text-decoration:none;margin:0 0 8px}.foot a:hover{color:var(--on-dark)}
+.foot p{margin:12px 0 0;line-height:1.55}
+.foot .brand{margin:0}
+@media(max-width:900px){.three{grid-template-columns:1fr}.foot .in{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){
+ .tb-in{padding:0 16px;height:58px}.links{gap:14px;font-size:14px}
+ .links .hide-sm{display:none}.links a.on{padding:18px 0}.links .lg{display:none}.links .sm{display:inline}
+ .bname small{display:none}.bname{font-size:18px}
+ .in{padding:0 16px}.band{padding:52px 0}
+}
+@media(max-width:420px){.links a.apply{padding:8px 10px;font-size:13px}.links{gap:12px}.bname{font-size:17px}.tb-in{gap:10px}}
+@media(max-width:360px){.links a[href$="agencies/"]{display:none}}
+"""
+
+
+def nav_html(root, active="", list_url="https://tally.so/r/gDVZkK", jobs_navlink=False):
+    """Shared top bar. `root` is the relative path to the site root ('' / '../' / '../../')."""
+    home = root or "/"
+    def on(k):
+        return ' class="on"' if active == k else ""
+    jobs = (f'<a class="navlink{" on" if active == "jobs" else ""}" data-v="roles" href="{home}">Jobs</a>'
+            if jobs_navlink else f'<a href="{home}"{on("jobs")}>Jobs</a>')
+    return ('<header class="topbar"><div class="tb-in">'
+            f'<a class="brand" href="{home}" title="Agency Roles home"><span class="bmark">AR</span>'
+            '<span class="bname">Agency Roles<small>by Haus Advisors</small></span></a>'
+            f'<nav class="links" aria-label="Main">{jobs}'
+            f'<a href="{root}agencies/"{on("agencies")}>Agencies</a>'
+            f'<a class="hide-sm" href="{root}insights/"{on("insights")}>Insights</a>'
+            f'<a class="hide-sm" href="{root}digest/"{on("digest")}>This week</a>'
+            f'<a class="apply" href="{html.escape(list_url)}" target="_blank" rel="noopener"><span class="lg">Apply for inclusion</span><span class="sm">Apply</span></a>'
+            '</nav></div></header>\n')
+
+
+def footer_html(root, credit_url="https://www.hausadvisors.com", list_url="https://tally.so/r/gDVZkK"):
+    r = root
+    return ('<footer class="foot"><div class="in">'
+            f'<div><a class="brand" href="{r or "/"}"><span class="bmark">AR</span><span class="bname">Agency Roles</span></a>'
+            '<p>Open roles at hand-picked agencies, checked every day. We link straight to each agency’s own '
+            f'careers page. Built by <a style="display:inline;color:var(--gold)" href="{credit_url}">Haus Advisors</a>.</p></div>'
+            f'<div><h4>Find work</h4><a href="{r or "/"}">All open roles</a><a href="{r}pay-disclosed/">Roles that list pay</a>'
+            f'<a href="{r}insights/remote-agency-jobs/">Remote agency jobs</a><a href="{r}digest/">New this week</a></div>'
+            f'<div><h4>Explore</h4><a href="{r}agencies/">Agency directory</a><a href="{r}roles/design/">Design jobs</a>'
+            f'<a href="{r}roles/engineering/">Engineering jobs</a><a href="{r}insights/">Hiring data</a></div>'
+            f'<div><h4>For agencies</h4><a href="{html.escape(list_url)}" target="_blank" rel="noopener">Apply for inclusion</a>'
+            f'<a href="{r}sponsor/">Sponsor the board</a><a href="https://www.hausadvisors.com/score">Free Bottleneck Score</a></div>'
+            '</div></footer>\n')
+
+
+CSS = BASE_CSS + """
+/* hero */
+.hero{background:var(--dark);color:var(--on-dark);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:auto -20% -60% auto;width:720px;height:720px;border-radius:50%;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--gold) 16%,transparent),transparent);pointer-events:none}
+.hero .in{position:relative;display:grid;grid-template-columns:1.35fr .65fr;gap:56px;align-items:center;padding-top:64px;padding-bottom:64px}
+.hero h1{font:500 clamp(38px,4.6vw,60px)/1.04 var(--serif);letter-spacing:-.02em;margin:0;max-width:19ch}
+.hero h1 em{font-style:italic;color:var(--gold);font-weight:400}
+.hero .lede{font-size:clamp(17px,1.6vw,19px);line-height:1.55;color:var(--on-dark-muted);max-width:36em;margin:22px 0 28px}
+.hero .lede b{color:var(--on-dark);font-weight:600}
+.search{position:relative;max-width:620px}
+.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:19px;height:19px;color:#7b867c;pointer-events:none}
+#q{width:100%;padding:17px 18px 17px 46px;border-radius:12px;border:1px solid transparent;font:400 17px var(--sans);background:#fff;color:#15181a;
+ box-shadow:0 10px 30px -12px rgba(0,0,0,.5)}
+#q::placeholder{color:#7b827a}#q:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 30%,transparent)}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.quick a{display:inline-block;font-size:13.5px;color:var(--on-dark);text-decoration:none;border:1px solid var(--dark-rule);background:var(--dark-2);border-radius:999px;padding:6px 12px;transition:border-color .12s}
+.quick a:hover{border-color:var(--gold)}
+.statpanel{background:var(--dark-2);border:1px solid var(--dark-rule);border-radius:18px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st{background:color-mix(in srgb,var(--dark) 55%,var(--dark-2));border-radius:12px;padding:18px 18px 16px}
+.st b{display:block;font:500 34px/1 var(--sans);letter-spacing:-.02em;color:var(--on-dark);font-variant-numeric:tabular-nums}
+.st span{display:block;font:400 11.5px/1.4 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--on-dark-muted);margin-top:9px}
+.st.gold b{color:var(--gold)}
+.statpanel .note{grid-column:1/-1;font:400 12px var(--mono);color:var(--on-dark-muted);padding:6px 10px 6px}
+.statpanel .note a{color:var(--gold)}
+/* featured */
+.featband{background:var(--tint);border-bottom:1px solid var(--rule)}
+.featband .in{padding-top:40px;padding-bottom:40px}
+.fhead{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:0 0 18px}
+.feyebrow{font:500 12px var(--mono);text-transform:uppercase;letter-spacing:.09em;color:var(--gold-ink)}
+.fsub{color:var(--muted);font-size:14.5px}
 .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.fcard{position:relative;display:flex;flex-direction:column;gap:7px;background:#fff;border:1px solid var(--cardline);border-radius:14px;padding:15px 17px;transition:border-color .12s,box-shadow .12s;cursor:pointer}
-.fcard:hover{border-color:var(--green);box-shadow:0 3px 18px rgba(20,40,30,.09)}
-.fcard.spon{border-color:#cbb98a;background:linear-gradient(#fff,#fffdf6)}
-.fcard .tag{align-self:flex-start;font:700 10px Inter;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:6px;background:#efece2;color:var(--goldd)}
-.fcard .tag.spon{background:var(--g);color:var(--mustard)}
-.fcard .ft{font-size:16px;font-weight:650;line-height:1.32}
-.fcard .fco{font-size:14px;font-weight:600;color:var(--green)}
-.fcard .fnote{font-size:12.5px;color:#54594d;font-style:italic}
-.fcard .fmeta{color:var(--sub);font-size:12.5px;margin-top:auto;padding-top:2px}
-.fcard .fmeta b{color:var(--green);font-weight:700}
-.browsehead{max-width:1120px;margin:0 auto;padding:22px 22px 0;font:700 15px Inter;color:var(--ink)}
-.browsehead.hide{display:none}
-@media(max-width:820px){.fgrid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.fgrid{grid-template-columns:1fr}}
-.curate{padding:44px 22px;background:#edefe6;border-top:1px solid #dfe2d6}
-.curate .in{max-width:760px;margin:0 auto}
-.curate h3{font:700 24px Merriweather,Georgia,serif;margin:0 0 14px}
-.curate p{font-size:15px;margin:0 0 11px;color:#2c3a32}
-.browse{background:#f4f2ea}.browse a{color:#416644}
-footer{max-width:1120px;margin:0 auto;padding:26px 22px 50px;color:var(--sub);font-size:13px}
-footer a{color:var(--green)}
-img,table{max-width:100%}
-.scrim{position:fixed;inset:0;background:rgba(18,28,20,.5);z-index:35;opacity:0;pointer-events:none;transition:opacity .18s}
+.fcard{position:relative;display:flex;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:18px 18px 16px;
+ text-decoration:none;box-shadow:var(--shadow);transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer}
+.fcard{box-shadow:inset 0 3px 0 var(--gold),var(--shadow)}
+.fcard:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--gold) 55%,var(--rule))}
+.fcard.spon{background:linear-gradient(var(--card),color-mix(in srgb,var(--gold-soft) 50%,var(--card)))}
+.fcard .tag{align-self:flex-start;font:500 10.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:var(--gold-soft);color:var(--gold-ink);margin-top:4px}
+.fcard .tag.spon{background:var(--dark);color:var(--gold)}
+.fcard .ft{font:500 19px/1.25 var(--serif);letter-spacing:-.005em;margin-top:4px}
+.fcard .fco{font-size:14px;font-weight:600;color:var(--accent)}
+.fcard .fnote{font-size:13px;color:var(--muted);font-style:italic}
+.fcard .fmeta{color:var(--muted);font-size:13px;margin-top:auto;padding-top:6px}
+.fcard .fmeta b{color:var(--accent);font-weight:600}
+/* results */
+.results{max-width:1180px;margin:0 auto;padding:36px 28px 80px;display:grid;grid-template-columns:248px 1fr;gap:40px}
+.col{min-width:0}
+.browsehead{font:500 24px var(--serif);margin:0 0 14px}.browsehead.hide{display:none}
+.sidebar{align-self:start;position:sticky;top:84px;max-height:calc(100vh - 100px);overflow:auto;padding-right:8px}
+.fgroup{margin:0 0 24px}
+.fgroup h4{font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+.cb{display:flex;align-items:center;gap:10px;font-size:14.5px;padding:6px 0;cursor:pointer;min-height:34px}
+.cb input{accent-color:var(--accent);width:16px;height:16px;flex:0 0 auto;cursor:pointer}
+.cb .c{margin-left:auto;color:var(--muted);font:400 12px var(--mono)}
+.sidebar select,.sortwrap select{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--rule);background:var(--card);font:14px var(--sans);color:var(--ink)}
+.reshead{display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+.count{font:500 13px var(--mono);color:var(--muted);letter-spacing:.02em}
+.sortwrap{margin-left:auto;font:500 12px var(--mono);color:var(--muted);display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.06em}
+.sortwrap select{width:auto;font-size:13.5px;padding:7px 9px;text-transform:none;letter-spacing:0}
+.filtbtn{display:none}
+.active{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}.active:empty{display:none}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border:1px solid transparent;border-radius:999px;padding:5px 11px;font:500 13px var(--sans);cursor:pointer;color:var(--accent)}
+.pill:hover{border-color:var(--accent)}.pill.clear{background:none;color:var(--muted)}
+.gwrap{margin:0 0 10px}
+.jcard{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:16px;align-items:start;background:var(--card);border:1px solid var(--rule);border-radius:14px;
+ padding:16px 18px;text-decoration:none;transition:border-color .12s,box-shadow .12s,transform .12s;cursor:pointer}
+.gwrap .jcard{margin:0}a.jcard{margin:0 0 10px}
+.jcard:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--rule));box-shadow:var(--shadow)}
+.jcard .mono{width:44px;height:44px;border-radius:11px;font-size:14px}
+.jmain{min-width:0}
+.jtitle{font:600 16.5px/1.3 var(--sans);margin:0 0 3px;letter-spacing:-.005em}
+.jtitle .new{display:inline-block;vertical-align:2px;font:500 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:5px;padding:2px 6px;margin-left:6px}
+.jco{font-size:14.5px;font-weight:500;color:var(--accent)}
+.ftag{display:inline-block;font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--gold-ink);background:var(--gold-soft);border-radius:5px;padding:2px 7px;margin-top:6px}
+.jloc{color:var(--muted);font-size:14px;margin-top:3px}
+.jaside{text-align:right;display:flex;flex-direction:column;gap:3px;min-width:140px}
+.jpay{font:600 14.5px var(--sans);color:var(--ink);font-variant-numeric:tabular-nums}
+.jpay.none{color:var(--muted);font-weight:400;font-size:13px}
+.jlvl{font-size:13px;color:var(--muted)}
+.jdate{font:400 11.5px var(--mono);color:var(--muted)}
+.jview{font-size:13.5px;color:var(--accent);font-weight:600;margin-top:5px;white-space:nowrap}
+.gsub{background:var(--tint);border:1px solid var(--rule);border-top:0;border-radius:0 0 14px 14px;margin-top:-8px;padding:8px 18px 12px 78px}
+.gsub a{display:flex;justify-content:space-between;gap:10px;padding:9px 0;font-size:14px;border-top:1px solid var(--rule);text-decoration:none}
+.gsub a:first-child{border-top:0}
+.gsub a:hover .ra{text-decoration:underline}.gsub .rl{color:var(--ink)}.gsub .ra{color:var(--accent);white-space:nowrap;font-weight:600}
+.more{width:100%;padding:14px;background:var(--card);border:1px solid var(--rule);border-radius:12px;cursor:pointer;font:600 14.5px var(--sans);margin:10px 0 0;color:var(--ink)}
+.more:hover{border-color:var(--accent);color:var(--accent)}
+.empty{color:var(--muted);padding:48px 0;text-align:center}
+.agencies{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.acard{display:flex;gap:12px;align-items:center;background:var(--card);text-decoration:none;color:inherit;border:1px solid var(--rule);border-radius:14px;padding:14px;cursor:pointer;transition:border-color .12s}
+.acard:hover{border-color:var(--accent)}
+.mono{flex:0 0 auto;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font:600 13px var(--mono);color:var(--on-dark);background:var(--dark-2)}
+.an{font-weight:600;font-size:14.5px}.ac{color:var(--muted);font:400 12px var(--mono);margin-top:2px}
+/* browse + curate */
+.browse .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.browse .tcard h3{font-size:20px;margin-bottom:14px}
+.browse .more-links{margin:22px 0 0;font-size:15px;color:var(--muted)}
+.browse .more-links a{color:var(--accent);font-weight:600;text-decoration:none;margin-right:18px}
+.scrim{position:fixed;inset:0;background:rgba(8,14,10,.55);z-index:35;opacity:0;pointer-events:none;transition:opacity .18s}
 .scrim.on{opacity:1;pointer-events:auto}
 .sbhead,.sbdone{display:none}
-@media(max-width:820px){
- .results{grid-template-columns:1fr;gap:0}
- .sidebar{position:fixed;top:0;left:0;bottom:0;height:100vh;height:100dvh;width:min(86vw,320px);max-height:none;background:var(--bg);z-index:40;padding:0;overflow:hidden;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.35)}
+img,table{max-width:100%}
+@media(max-width:1000px){.hero .in{grid-template-columns:1fr;gap:34px}.statpanel{grid-template-columns:repeat(4,1fr)}.statpanel .note{grid-column:1/-1}}
+@media(max-width:900px){.fgrid,.browse .cols{grid-template-columns:1fr 1fr}}
+@media(max-width:860px){
+ .results{grid-template-columns:1fr;gap:0;padding:26px 16px 64px}
+ .sidebar{position:fixed;top:0;left:0;bottom:0;height:100vh;height:100dvh;width:min(86vw,330px);max-height:none;background:var(--paper);z-index:40;padding:0;overflow:hidden;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.35)}
  .sidebar.open{transform:none}
- .sbhead{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:10px 8px 10px 20px;border-bottom:1px solid var(--cardline);font:700 16px Inter,system-ui,sans-serif}
- .sbx{border:0;background:none;color:var(--ink);font:400 30px/1 Inter,system-ui,sans-serif;width:44px;height:44px;cursor:pointer;border-radius:8px}
- .sbx:active{background:#dcd8ca}
+ .sbhead{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:10px 8px 10px 20px;border-bottom:1px solid var(--rule);font:600 16px var(--sans)}
+ .sbx{border:0;background:none;color:var(--ink);font:400 30px/1 var(--sans);width:44px;height:44px;cursor:pointer;border-radius:8px}
  .sbbody{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 20px 4px}
- .sbdone{display:block;flex:0 0 auto;width:100%;padding:15px;background:var(--g);color:var(--cream);border:0;font:600 15px Inter,system-ui,sans-serif;cursor:pointer}
- .filtbtn{display:inline-flex;align-items:center;background:var(--g);color:var(--cream);border:0;border-radius:8px;padding:9px 15px;font-size:14px;font-weight:600;cursor:pointer;min-height:40px}
- .hero h1{font-size:26px}.hero h1 br{display:none}.jaside{min-width:96px}
+ .sbdone{display:block;flex:0 0 auto;width:100%;padding:16px;background:var(--dark);color:var(--on-dark);border:0;font:600 15px var(--sans);cursor:pointer}
+ .filtbtn{display:inline-flex;align-items:center;gap:8px;background:var(--dark);color:var(--on-dark);border:0;border-radius:10px;padding:10px 16px;font:600 14px var(--sans);cursor:pointer;min-height:42px}
 }
-@media(max-width:700px){
- .topnav{flex-wrap:wrap;gap:12px;padding:14px 18px}
- .topnav .brand{font-size:19px}
- .topnav nav{width:100%;gap:10px 16px;font-size:13.5px;flex-wrap:wrap}
- .topnav nav a{white-space:nowrap}
- .topnav nav a.curatelink{display:none}
- .topnav nav a.apply{margin-left:auto;padding:6px 11px}
- .hero{padding:10px 18px 18px}
- .hero .sub{font-size:15px}
- .hero .stat{font-size:13px}
- .searchband{padding:0 18px 22px}
- .featband{padding:20px 18px 2px}
- .browsehead{padding:20px 18px 0}
- .results{padding:20px 18px 60px}
- .curate{padding:34px 18px}
- footer{padding:24px 18px 44px}
- .jcard{flex-direction:column;gap:9px;padding:14px 16px}
- .jtitle{font-size:16.5px}
- .jco{font-size:14px}
- .jaside{width:100%;min-width:0;text-align:left;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+@media(max-width:640px){
+ .hero .in{padding-top:40px;padding-bottom:40px}
+ .statpanel{grid-template-columns:1fr 1fr}.st b{font-size:28px}
+ .fgrid,.browse .cols{grid-template-columns:1fr}
+ .fgrid .fcard:nth-child(n+4){display:none}
+ .jcard{grid-template-columns:40px minmax(0,1fr);gap:12px;padding:14px}
+ .jcard .mono{width:40px;height:40px}
+ .jaside{grid-column:2;text-align:left;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:3px 12px;min-width:0}
  .jaside .jview{flex:1 0 100%;margin-top:2px}
- .gsub{padding:6px 16px 12px}
- .reshead{gap:10px}
- .sortwrap{margin-left:0;width:100%}
- .sortwrap select{width:auto}
- .acard{padding:12px}
+ .gsub{padding:8px 14px 12px}
+ .sortwrap{margin-left:auto}
 }
 """
 
@@ -775,11 +883,12 @@ const bt=Date.parse(BUILD);
 function ago(d){if(!d)return"";const n=Math.floor((bt-Date.parse(d))/864e5);
   if(n<=0)return"today";if(n===1)return"yesterday";if(n<7)return n+" days ago";
   if(n<14)return"1 week ago";if(n<56)return Math.floor(n/7)+" weeks ago";
-  if(n<365)return Math.floor(n/30)+" months ago";return Math.floor(n/365)+"y ago";}
+  if(n<365){const m=Math.floor(n/30);return m<=1?"1 month ago":m+" months ago";}return Math.floor(n/365)+"y ago";}
 const isNew=d=>d&&(bt-Date.parse(d))/864e5<=7;
 function hue(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h;}
+const DARKQ=matchMedia('(prefers-color-scheme: dark)').matches;
 function mono(n){const i=n.replace(/[^A-Za-z0-9 ]/g,"").split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"?";
-  return `<div class="mono">${i}</div>`;}
+  const h=hue(n);return `<div class="mono" style="background:hsl(${h} ${DARKQ?28:30}% ${DARKQ?24:30}%)">${i}</div>`;}
 
 const cnt={cat:{},sen:{},work:{},pay:{},emp:{}},ccount={},agSize={};
 J.forEach(g=>{cnt.cat[g.category]=(cnt.cat[g.category]||0)+1;cnt.sen[g.seniority]=(cnt.sen[g.seniority]||0)+1;
@@ -884,8 +993,8 @@ function card(g){
   const work=g.workplaces.length===1?g.workplaces[0]:"Multiple";
   const emps=g.employments||[];const emp=emps.length===1?emps[0]:(emps.length>1?"Multiple types":"");
   const empmeta=(emp&&emp!=="Full-time")?" · "+esc(emp):"";
-  const main=`<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?' <span style="color:var(--green);font-size:12px">· New</span>':""}</div>
-    <div class="jco">${esc(g.company)}</div>${g.focus?'<div><span class="ftag">Grows the agency</span></div>':""}<div class="jloc">${esc(loc)} · ${esc(work)}${empmeta}</div></div>`;
+  const main=`${mono(g.company)}<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?'<span class="new">New</span>':""}</div>
+    <div class="jco">${esc(g.company)}</div>${g.focus?'<div><span class="ftag">Grows the agency</span></div>':""}<div class="jloc">${esc(loc)}${loc.toLowerCase().includes(work.toLowerCase())?"":" · "+esc(work)}${empmeta}</div></div>`;
   if(single)return `<a class="jcard" href="${esc(g.url)}" target="_blank" rel="noopener">${main}${aside(g,"View role →")}</a>`;
   const sub=g.roles.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
   return `<div class="gwrap"><div class="jcard grp">${main}${aside(g,`View ${g.count} openings ▾`)}</div><div class="gsub" style="display:none">${sub}</div></div>`;}
@@ -933,7 +1042,7 @@ function render(){
 $("#q").oninput=e=>{st.q=e.target.value.toLowerCase();st.shown=PAGE;render();};
 $("#sort").onchange=e=>{st.sort=e.target.value;render();};
 $("#more").onclick=()=>{st.shown+=PAGE;render();};
-$$(".navlink").forEach(a=>a.onclick=()=>{st.view=a.dataset.v;st.shown=PAGE;if(window.innerWidth<=820)drawer(false);render();});
+$$(".navlink").forEach(a=>a.onclick=e=>{e.preventDefault();st.view=a.dataset.v;st.shown=PAGE;if(window.innerWidth<=820)drawer(false);render();});
 function drawer(open){$("#sidebar").classList.toggle("open",open);
   $("#scrim").classList.toggle("on",open);
   document.body.style.overflow=open?"hidden":"";}
@@ -1064,8 +1173,8 @@ def build_site(groups, brand):
     build_date = datetime.utcnow().date().isoformat()
     n_ag = len({g["company"] for g in groups})
     n_roles = len(groups)
-    desc = (f"Hand-picked openings at {n_ag} agencies worth knowing: independent, specialist and "
-            "rising shops plus a few standout global names. No reposts, no recruiters. Updated daily.")
+    desc = (f"Open roles at {n_ag} hand-picked agencies: independent, specialist and rising shops "
+            "plus a few global names. No recruiters. Updated daily.")
 
     agencies = [{"name": c, "slug": agency_slug(c)} for c in sorted({g["company"] for g in groups})]
     itemlist = {"@context": "https://schema.org", "@type": "ItemList",
@@ -1082,35 +1191,50 @@ def build_site(groups, brand):
         f'<meta property="og:title" content="{name}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         '<meta property="og:type" content="website">\n'
-        '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
-        '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
-        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">\n'
+        f'<meta property="og:url" content="https://{domain}/">\n<meta property="og:site_name" content="{name}">\n'
+        f'<meta property="og:image" content="https://{domain}/og.png">\n<meta name="twitter:card" content="summary_large_image">\n'
+        '<meta name="theme-color" content="#13241a">\n'
+        + FONTS_LINK +
         f'<script type="application/ld+json">{json.dumps(itemlist)}</script>\n'
+        f'<script type="application/ld+json">{json.dumps({"@context": "https://schema.org", "@type": "Organization", "name": name, "url": f"https://{domain}/", "logo": f"https://{domain}/og.png", "parentOrganization": {"@type": "Organization", "name": credit_name, "url": credit_url}})}</script>\n'
         + POSTHOG +
         "<style>\n" + CSS + SIGNUP_CSS + "\n</style>\n</head>\n<body>\n"
     )
+    n_pay = sum(1 for g in groups if g["comp"])
+    n_remote = sum(1 for g in groups if "Remote" in g["workplaces"])
+    wk = date.fromordinal(date.today().toordinal() - 7).isoformat()
+    n_new = sum(1 for g in groups if g["first_seen"] >= wk)
+    new_ok = n_roles and n_new / n_roles < 0.6
+    s4 = (f'<div class="st gold"><b>{n_new:,}</b><span>new this week</span></div>' if new_ok else
+          f'<div class="st gold"><b>{round(100 * n_remote / (n_roles or 1))}%</b><span>remote</span></div>')
+    quick = [("/insights/remote-agency-jobs/", "Remote"), ("/roles/design/", "Design"),
+             ("/roles/engineering/", "Engineering"), ("/roles/marketing/", "Marketing"),
+             ("/roles/strategy-account/", "Strategy & account"), ("/pay-disclosed/", "Pay listed"),
+             ("/city/new-york/", "New York"), ("/city/london/", "London")]
     top = (
-        '<div class="dark">\n'
-        f'<div class="topnav"><a href="/" class="brand" title="Home. Clear all filters">{name}'
-        '<span class="byline">by Haus Advisors</span></a>'
-        '<nav><a class="navlink" data-v="roles">Jobs</a>'
-        '<a class="navlink" data-v="agencies">Agencies</a>'
-        '<a href="/insights/">Insights</a>'
-        '<a class="curatelink" href="#curate">How we curate</a>'
-        f'<a class="apply" href="{list_url}" target="_blank" rel="noopener">Apply for inclusion</a></nav></div>\n'
-        '<header class="hero"><h1>Great jobs at agencies worth knowing, <br>'
-        'especially the ones you haven’t heard of yet.</h1>'
-        '<p class="sub">We track openings from independent, specialist and rising agencies, plus a '
-        'small number of standout global shops. No reposts, no recruiters; you apply directly at the source.</p>'
-        f'<p class="stat"><b>{n_ag} agencies</b> · {n_roles:,} open roles · Checked today · '
-        '<a href="#curate">How we curate →</a></p></header>\n'
-        '<div class="searchband"><input id="q" placeholder="Search roles, agencies, or locations…"></div>\n'
-        '</div>\n'
+        nav_html("/", "jobs", list_url, jobs_navlink=True).replace('href="/agencies/"', 'href="/agencies/"', 1)
+        + '<section class="hero"><div class="in"><div>'
+        '<p class="eyebrow">Hand-picked agencies · checked daily</p>'
+        '<h1>Great jobs at agencies worth knowing. <em>Especially the ones you haven’t heard of yet.</em></h1>'
+        '<p class="lede">Openings from <b>independent, specialist and rising agencies</b>, plus a few '
+        'standout global shops. No reposts, no recruiters. You apply directly at the source.</p>'
+        '<div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+        'stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>'
+        '<input id="q" type="search" placeholder="Search roles, agencies, or locations" aria-label="Search roles"></div>'
+        '<ul class="quick" aria-label="Popular searches">'
+        + "".join(f'<li><a href="{h}">{html.escape(t)}</a></li>' for h, t in quick) + '</ul></div>'
+        '<div class="statpanel" aria-label="Board at a glance">'
+        f'<div class="st"><b>{n_roles:,}</b><span>open roles</span></div>'
+        f'<div class="st"><b>{n_ag}</b><span>agencies hiring</span></div>'
+        f'<div class="st"><b>{round(100 * n_pay / (n_roles or 1))}%</b><span>list pay</span></div>'
+        + s4 +
+        f'<div class="note">Updated {build_date} · <a href="#curate">How we curate →</a></div></div>'
+        '</div></section>\n'
     )
     featband = (
         '<section class="featband" id="featband" hidden><div class="in">\n'
         '<div class="fhead"><span class="feyebrow">Featured roles</span>'
-        '<span class="fsub">A hand-picked handful worth a closer look — the full board is below.</span></div>\n'
+        '<span class="fsub">A handful worth a closer look. The full board is below.</span></div>\n'
         '<div class="fgrid" id="featured"></div>\n'
         '</div></section>\n'
     )
@@ -1131,22 +1255,19 @@ def build_site(groups, brand):
         '</section></main>\n'
     )
     curate = (
-        '<section id="curate" class="curate"><div class="in"><h3>How we curate</h3>'
-        '<p>Every agency here is selected by hand. We look for distinctive work, a clear point of '
-        'view and signs of real momentum, not simply the biggest name or the largest headcount.</p>'
-        '<p>We deliberately feature independent, specialist and rising agencies alongside a smaller '
-        'group of standout global shops. Agencies cannot pay to be included.</p>'
-        '<p>We link directly to each employer’s original careers page and verify every listing still '
-        'resolves before each build; dead links are dropped, not shown. '
-        'Inclusion means we believe the agency is worth knowing; it is not a guarantee about every '
-        'role, manager or workplace experience.</p></div></section>\n'
+        '<section id="curate" class="band curate"><div class="in">'
+        '<p class="eyebrow">How we curate</p><h2>A short list on purpose.</h2>'
+        '<p class="sub">Inclusion means we think the agency is worth knowing. It is not a guarantee about '
+        'every role, manager or workplace.</p><div class="three">'
+        '<div class="tcard"><span class="num">01</span><h3>Picked by hand</h3><p>We look for distinctive work, '
+        'a clear point of view and signs of momentum, not the biggest name or the largest headcount.</p></div>'
+        '<div class="tcard"><span class="num">02</span><h3>Nobody pays to get in</h3><p>Independent, specialist '
+        'and rising agencies sit beside a few standout global shops. Agencies cannot buy inclusion.</p></div>'
+        '<div class="tcard"><span class="num">03</span><h3>Straight to the source</h3><p>Every link goes to the '
+        'agency’s own careers page, and we check that it still works before each build. Dead links are dropped.</p></div>'
+        '</div></div></section>\n'
     )
-    footer = (
-        f'<footer>Built by <a href="{credit_url}">{credit_name}</a>. We curate open roles at '
-        f'agencies worth knowing and link out to each source. '
-        f'Run an agency? <a href="{list_url}" target="_blank" rel="noopener">Apply for inclusion →</a>'
-        f' · Interested in sponsoring? <a href="/sponsor">Learn more →</a></footer>\n'
-    )
+    footer = footer_html("", credit_url, list_url)
     scripts = (
         "<script>window.JOBS=" + json.dumps(_slim(groups), ensure_ascii=False, separators=(",", ":")) + ";\n"
         "window.FEATURED=" + json.dumps(featured, ensure_ascii=False) + ";\n"
@@ -1156,7 +1277,7 @@ def build_site(groups, brand):
         "<script>\n" + JS + "\n</script>\n</body>\n</html>\n"
     )
     with open(os.path.join(SITE, "index.html"), "w", encoding="utf-8") as f:
-        f.write(head + top + featband + body + signup_box("home") + browse_html(groups) + curate + footer + scripts)
+        f.write(head + top + featband + body + browse_html(groups) + signup_box("home") + curate + footer + scripts)
 
 
 # ---------- insights (SEO stats pages) ----------
@@ -1174,18 +1295,21 @@ SITE_PUBLISHED = "2026-08-05"
 DIGEST_CFG = {}
 
 SIGNUP_CSS = """
-.dsign{background:var(--g);color:var(--cream);padding:30px 22px;margin:0}
-.dsign .in{max-width:720px;margin:0 auto}
-.dsign h3{font:700 22px Merriweather,Georgia,serif;margin:0 0 6px;color:#fff}
-.dsign p{margin:0 0 14px;font-size:15px;color:var(--cream);opacity:.9}
-.dsign form{display:flex;gap:10px;flex-wrap:wrap}
-.dsign input{flex:1 1 220px;min-width:0;font:16px Inter,system-ui,sans-serif;padding:11px 13px;border-radius:9px;border:1px solid var(--cardline);background:#fff;color:#292929}
-.dsign button{font:700 15px Inter,system-ui,sans-serif;padding:11px 18px;border-radius:9px;border:0;background:var(--mustard);color:#1a1205;cursor:pointer}
-.dsign button:hover{filter:brightness(1.06)}
-.dsign .fine{font-size:12.5px;opacity:.7;margin:10px 0 0}
-@media(max-width:560px){.dsign{padding:26px 18px}.dsign h3{font-size:19px}}
+.dsign{background:var(--dark);color:var(--on-dark);border-top:1px solid var(--dark-rule)}
+.dsign .in{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;padding-top:60px;padding-bottom:60px}
+.dsign .eyebrow{color:var(--gold)}
+.dsign h3{font:500 clamp(28px,3.2vw,38px)/1.1 var(--serif);letter-spacing:-.015em;margin:0 0 12px;color:var(--on-dark)}
+.dsign p{margin:0;font-size:16.5px;color:var(--on-dark-muted);max-width:32em}
+.dsign form{display:flex;gap:10px}
+.dsign input{flex:1;min-width:0;font:400 16.5px var(--sans);padding:15px 16px;border-radius:11px;border:1px solid var(--dark-rule);background:var(--dark-2);color:var(--on-dark)}
+.dsign input::placeholder{color:#8b968b}
+.dsign input:focus{outline:2px solid var(--gold);outline-offset:1px}
+.dsign button{font:600 15px var(--sans);padding:15px 20px;border-radius:11px;border:0;background:var(--gold);color:#1b1404;cursor:pointer;white-space:nowrap}
+.dsign button:hover{filter:brightness(1.07)}
+.dsign .fine{font:400 12px var(--mono);color:var(--on-dark-muted);margin:12px 0 0}
+@media(max-width:860px){.dsign .in{grid-template-columns:1fr;gap:24px;padding-top:44px;padding-bottom:44px}}
+@media(max-width:480px){.dsign form{flex-direction:column}}
 """
-
 
 def signup_box(where):
     """Weekly digest signup (Kit form POST). Empty until a form id is configured."""
@@ -1194,81 +1318,82 @@ def signup_box(where):
         return ""
     day = DIGEST_CFG.get("send_day", "Tuesday")
     return (
-        '<section class="dsign" id="digest-signup"><div class="in">'
+        '<section class="dsign" id="digest-signup"><div class="in"><div>'
+        '<p class="eyebrow">The weekly digest</p>'
         '<h3>The best new agency jobs, every ' + html.escape(day) + '</h3>'
         '<p>One short email with hand-picked new roles from the agencies we track. '
-        'Pay shown where it is listed. No recruiters, no spam.</p>'
+        'Pay shown where it is listed. No recruiters, no spam.</p></div><div>'
         f'<form action="https://app.kit.com/forms/{html.escape(form_id)}/subscriptions" method="post" '
         f'onsubmit="window.posthog&&posthog.capture(\'digest_signup\',{{where:\'{where}\'}})">'
         '<input type="email" name="email_address" required placeholder="you@email.com" '
         'aria-label="Email address" autocomplete="email">'
         '<button type="submit">Get the digest</button></form>'
         '<p class="fine">Free. Unsubscribe in one click.</p>'
-        '</div></section>\n')
+        '</div></div></section>\n')
 
-ARTICLE_CSS = """
-:root{--g:#263B28;--cream:#E7E5D9;--mustard:#F0A202;--green:#416644;--bg:#ede9df;
---ink:#292929;--sub:#5f6357;--cardline:#d9d4c6;--card2:#E2E3DD;--goldd:#8a5e12}
-*{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:17px/1.65 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-a{color:var(--green)}
-.dark{background:var(--g);color:var(--cream)}
-.topnav{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:16px 22px}
-.brand{font:700 20px Merriweather,Georgia,serif;letter-spacing:-.3px;color:var(--cream);text-decoration:none;line-height:1.05}
-.brand .byline{display:block;font:400 11px Inter;color:var(--cream);opacity:.6;letter-spacing:.02em}
-.topnav nav{display:flex;gap:18px;align-items:center;font-size:14px}
-.topnav nav a{color:var(--cream);opacity:.82;text-decoration:none}
-.topnav nav a:hover,.topnav nav a.on{opacity:1;color:var(--mustard)}
-.topnav nav a.apply{opacity:1;color:var(--mustard);border:1px solid var(--mustard);padding:6px 12px;border-radius:8px}
-.wrap{max-width:720px;margin:0 auto;padding:40px 22px 80px}
-.kicker{color:var(--goldd);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px}
-h1{font:700 38px/1.15 Merriweather,Georgia,serif;letter-spacing:-.4px;margin:0 0 14px}
-h2{font:700 25px/1.2 Merriweather,Georgia,serif;margin:38px 0 12px}
-h3{font-size:18px;margin:26px 0 8px}
+ARTICLE_CSS = BASE_CSS + """
+/* old token names, kept so page bodies with inline var() still resolve */
+:root{--cardline:var(--rule);--sub:var(--muted);--green:var(--accent);--goldd:var(--gold-ink);--card2:var(--tint);
+ --g:var(--dark);--cream:var(--on-dark);--mustard:var(--gold);--bg:var(--paper)}
+body{font-size:17px;line-height:1.65}
+a{color:var(--accent)}
+.pagehead{background:var(--dark);color:var(--on-dark);position:relative;overflow:hidden}
+.pagehead:before{content:"";position:absolute;right:-180px;top:-260px;width:620px;height:620px;border-radius:50%;
+ background:radial-gradient(closest-side,color-mix(in srgb,var(--gold) 14%,transparent),transparent);pointer-events:none}
+.pagehead .wrap{position:relative;padding-top:52px;padding-bottom:48px}
+.pagehead a{color:var(--gold)}
+.pagehead .kicker{color:var(--gold)}
+.pagehead h1{color:var(--on-dark)}
+.pagehead .lead,.pagehead .meta{color:var(--on-dark-muted)}
+.pagehead .lead b{color:var(--on-dark);font-weight:600}
+.wrap{max-width:1180px;margin:0 auto;padding:40px 28px 72px}
+main.wrap>p,main.wrap>h2,main.wrap>h3,main.wrap>table,main.wrap>.method,main.wrap>.pull,main.wrap>.scope,main.wrap>.pitch,main.wrap>.owner,main.wrap>ul:not(.rolelist):not(.azlist){max-width:780px}
+main.wrap>.rolelist{max-width:920px}
+.kicker{font:500 12px/1.4 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 14px}
+.kicker a{text-decoration:none}
+h1{font:500 clamp(34px,4.6vw,54px)/1.06 var(--serif);letter-spacing:-.02em;margin:0 0 16px;max-width:22ch}
+h2{font:500 clamp(24px,2.6vw,30px)/1.2 var(--serif);letter-spacing:-.01em;margin:44px 0 14px}
+h3{font:600 18px/1.3 var(--sans);margin:28px 0 10px}
 p{margin:0 0 16px}
-.meta{color:var(--sub);font-size:14px;margin:0 0 6px}
-.live{color:var(--green);font-weight:700;letter-spacing:.02em}
-.lead{font-size:19px;color:#333}
-.stat{display:inline-block;font:700 15px Inter;color:var(--goldd)}
-table{width:100%;border-collapse:collapse;margin:16px 0 22px;font-size:15px}
-th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--cardline)}
-th{color:var(--sub);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
-td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-.cta{display:inline-block;background:var(--mustard);color:#1a1205;font-weight:700;text-decoration:none;padding:10px 16px;border-radius:9px;margin:4px 0 8px}
-.cta:hover{filter:brightness(1.06)}
-.bignum{font:700 44px Merriweather,Georgia,serif;color:var(--g);margin:0}
-.bignum span{display:block;font:600 14px Inter;color:var(--sub);letter-spacing:.03em}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin:18px 0 26px}
-.card{background:#fff;border:1px solid var(--cardline);border-radius:12px;padding:18px}
-.related{margin-top:44px;padding-top:22px;border-top:1px solid var(--cardline)}
-.related a{display:block;margin:6px 0}
-.method{background:var(--card2);border-radius:12px;padding:18px 20px;font-size:14.5px;color:#3a3a3a;margin:34px 0}
-.pull{font:700 24px/1.35 Merriweather,Georgia,serif;color:var(--g);border-left:4px solid var(--mustard);padding:2px 0 2px 20px;margin:26px 0}
-.pitch{background:var(--g);color:var(--cream);border-radius:14px;padding:24px 26px;margin:34px 0}
-.pitch h3{color:#fff;margin:0 0 10px;font:700 20px Merriweather,Georgia,serif}
-.pitch p{margin:0 0 12px;color:#e7e5d9}
-.pitch a.cta{margin-top:6px}
-.scope{border:1px solid var(--cardline);border-left:3px solid var(--green);border-radius:10px;padding:14px 18px;font-size:15px;line-height:1.55;color:#44483d;margin:22px 0 30px}
-footer{max-width:720px;margin:0 auto;padding:24px 22px 60px;color:var(--sub);font-size:13px}
-footer a{color:var(--goldd)}
+.meta{color:var(--muted);font:400 13px var(--mono);margin:0 0 8px}
+.live{color:var(--accent);font-weight:700}
+.lead{font-size:clamp(18px,1.8vw,20px);line-height:1.55;color:var(--ink);max-width:40em;margin:0}
+.stat{display:inline-block;font:600 15px var(--sans);color:var(--gold-ink)}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:16px 0 24px;font-size:15px;background:var(--card);border:1px solid var(--rule);border-radius:14px;overflow:hidden}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.07em;background:var(--tint)}
+td a{text-decoration:none;font-weight:500}td a:hover{text-decoration:underline}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.cta{display:inline-flex;align-items:center;background:var(--gold);color:#1b1404;font-weight:600;font-size:15px;text-decoration:none;padding:12px 18px;border-radius:10px;margin:22px 0 8px;transition:filter .12s}
+.cta:hover{filter:brightness(1.07)}
+.pagehead .cta{margin-top:26px}
+.bignum{font:500 38px/1 var(--sans);letter-spacing:-.02em;color:var(--ink);margin:0;font-variant-numeric:tabular-nums}
+.bignum span{display:block;font:400 11.5px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:20px;box-shadow:var(--shadow);position:relative}
+.card{box-shadow:inset 0 3px 0 var(--gold),var(--shadow)}
+.related{margin-top:48px;padding-top:24px;border-top:1px solid var(--rule)}
+.related a{display:block;margin:6px 0;text-decoration:none}
+.related a:hover{text-decoration:underline}
+.method{background:var(--tint);border:1px solid var(--rule);border-radius:14px;padding:20px 22px;font-size:15px;color:var(--muted);margin:36px 0}
+.pull{font:500 26px/1.3 var(--serif);color:var(--ink);border-left:3px solid var(--gold);padding:2px 0 2px 20px;margin:30px 0}
+.pitch{background:var(--dark);color:var(--on-dark);border-radius:18px;padding:28px 30px;margin:38px 0}
+.pitch h3{color:var(--on-dark);margin:0 0 10px;font:500 24px/1.2 var(--serif)}
+.pitch p{margin:0 0 12px;color:var(--on-dark-muted)}
+.pitch a{color:var(--gold)}.pitch a.cta{color:#1b1404;margin-top:6px}
+.scope{border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:12px;padding:14px 18px;font-size:15px;line-height:1.55;color:var(--muted);margin:22px 0 30px;background:var(--card)}
 img{max-width:100%;height:auto}
 @media(max-width:700px){
- .topnav{flex-wrap:wrap;gap:12px;padding:14px 18px}
- .topnav .brand{font-size:19px}
- .topnav nav{width:100%;gap:10px 16px;font-size:13.5px;flex-wrap:wrap}
- .topnav nav a{white-space:nowrap}
- .topnav nav a.apply{margin-left:auto;padding:6px 11px}
  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
- th,td{padding:8px}
- .pitch{padding:20px}.method{padding:16px 18px}
+ th,td{padding:9px 10px}
+ .pitch{padding:22px}.method{padding:16px 18px}
 }
-@media(max-width:560px){h1{font-size:30px}.wrap{padding:28px 18px 60px}
- body{font-size:16.5px}h2{font-size:21px}.lead{font-size:17.5px}
- .pull{font:700 20px/1.35 Merriweather,Georgia,serif;padding-left:15px}
- .bignum{font-size:36px}footer{padding:24px 18px 44px}
+@media(max-width:560px){
+ .wrap{padding:28px 16px 56px}.pagehead .wrap{padding-top:36px;padding-bottom:34px}
+ body{font-size:16.5px}.pull{font-size:21px;padding-left:15px}.bignum{font-size:32px}
 }
 """
-
 
 def _page(brand, slug, title, description, body, build_date, is_hub=False,
           section="insights", ld=None):
@@ -1293,6 +1418,15 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False,
     ag_hub = up if section == "agencies" else root + "agencies/"
     on_ag = ' class="on"' if section == "agencies" else ""
     on_in = ' class="on"' if section == "insights" else ""
+    # Pull the opening block (kicker, h1, meta, lead) into a dark page-head band.
+    m = re.search(r'<p class="lead"[^>]*>.*?</p>', body, re.S)
+    head_html, rest = (body[:m.end()], body[m.end():]) if m and m.start() < 1500 else ("", body)
+    if head_html:
+        # a CTA that immediately follows the lead belongs in the band too
+        c = re.match(r'\s*(<a class="cta"[^>]*>.*?</a>(?:\s*(?:&nbsp;)?\s*<a class="cta"[^>]*>.*?</a>)?)', rest, re.S)
+        if c:
+            head_html, rest = head_html + c.group(1), rest[c.end():]
+    active = {"agencies": "agencies", "insights": "insights", "digest": "digest"}.get(section, "")
     return (
         '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
@@ -1300,19 +1434,17 @@ def _page(brand, slug, title, description, body, build_date, is_hub=False,
         f'<link rel="canonical" href="{canonical}">\n'
         f'<meta property="og:title" content="{title}">\n'
         f'<meta property="og:description" content="{description}">\n<meta property="og:type" content="article">\n'
-        '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-        '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">\n'
+        f'<meta property="og:url" content="{canonical}">\n<meta property="og:site_name" content="Agency Roles">\n'
+        f'<meta property="og:image" content="https://{domain}/og.png">\n<meta name="twitter:card" content="summary_large_image">\n'
+        + FONTS_LINK +
         f'<script type="application/ld+json">{json.dumps(ld)}</script>\n'
         + POSTHOG +
         "<style>\n" + ARTICLE_CSS + SIGNUP_CSS + "\n</style>\n</head>\n<body>\n"
-        '<div class="dark"><div class="topnav">'
-        f'<a class="brand" href="{root}">{name}<span class="byline">by Haus Advisors</span></a>'
-        f'<nav><a href="{root}">Jobs</a><a href="{ag_hub}"{on_ag}>Agencies</a><a href="{hub}"{on_in}>Insights</a>'
-        f'<a class="apply" href="{list_url}" target="_blank" rel="noopener">Apply for inclusion</a></nav>'
-        '</div></div>\n<div class="wrap">\n' + body + "\n</div>\n"
-        + signup_box(section) +
-        f'<footer>Built by <a href="{credit_url}">Haus Advisors</a>. Data compiled from the '
-        f'<a href="{root}">Agency Roles</a> board. Open roles at hand-picked agencies, updated daily.</footer>\n'
+        + nav_html(root, active, list_url)
+        + (f'<section class="pagehead"><div class="wrap">{head_html}</div></section>\n' if head_html else "")
+        + '<main class="wrap">\n' + rest + "\n</main>\n"
+        + signup_box(section)
+        + footer_html(root, credit_url, list_url) +
         "</body>\n</html>\n"
     )
 
@@ -1720,10 +1852,11 @@ def agency_slug(name):
 
 AGENCY_CSS = """
 .rolelist{list-style:none;padding:0;margin:14px 0 26px}
-.rolelist li{background:#fff;border:1px solid var(--cardline);border-radius:12px;margin:0 0 10px}
+.rolelist li{background:var(--card);border:1px solid var(--cardline);border-radius:12px;margin:0 0 10px}
 .rolelist a{display:flex;justify-content:space-between;gap:14px;padding:14px 16px;text-decoration:none;color:var(--ink)}
-.rolelist a:hover{border-color:var(--green)}
-.rt{font-weight:600;font-size:16px}.rm{color:var(--sub);font-size:14px;margin-top:2px}
+.rolelist li:hover{border-color:var(--accent)}
+.rolelist li{transition:border-color .12s}
+.rt{font-weight:600;font-size:16px;color:var(--ink)}.rm{color:var(--sub);font-size:14px;margin-top:2px}
 .rp{font-weight:600;font-size:14px;color:var(--green);white-space:nowrap;text-align:right}
 .rp.none{color:var(--sub);font-weight:400}
 .owner{border:1px solid var(--cardline);border-radius:12px;padding:16px 18px;font-size:15px;margin:34px 0}
@@ -1841,7 +1974,8 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
             lead = (f'<p class="lead"><b>{en}</b> has no open roles posted right now. We check its careers '
                     'board every day, so new openings show up here as soon as they are posted.</p>')
             roles_html = '<a class="cta" href="../../">Browse open roles at other agencies →</a>'
-            desc = f"Jobs at {n}. No open roles today; Agency Roles checks {n}'s careers board daily."
+            desc = (f"Jobs at {n}. No open roles posted today. Agency Roles checks {n}'s careers board every "
+                    "day, so new openings show up here first. See similar agencies hiring now.")
             title = f"{n} Jobs | Agency Roles"
 
         sim = [m for m in roster if m != n and top_disc[n] and top_disc[m] == top_disc[n]]
@@ -1896,7 +2030,7 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
             '<a class="cta" href="../">Browse all open roles →</a>')
     ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": "Agencies on Agency Roles",
           "url": f"https://{domain}/agencies/", "dateModified": build_date}
-    page = _page(brand, "", "Agencies Hiring Now: Directory of Agencies Worth Knowing | Agency Roles",
+    page = _page(brand, "", "Agencies Hiring Now: The Directory | Agency Roles",
                  f"{len(roster)} hand-picked agencies and their open roles, updated daily. See who is hiring, "
                  "for what, how much is remote, and who publishes pay.",
                  body, build_date, is_hub=True, section="agencies", ld=ld)
@@ -1971,7 +2105,7 @@ def role_li(g, show_company=True, root="../../"):
         next((c for c in g["countries"] if c != "Unspecified"), "Location not listed"))
     work = g["workplaces"][0] if len(g["workplaces"]) == 1 else "Multiple"
     level = g["seniority"] if g["seniority"] != "Not specified" else g["category"]
-    parts = [loc] + ([work] if work.lower() != loc.lower() else []) + [level]
+    parts = [loc] + ([work] if work.lower() not in loc.lower() else []) + [level]
     meta = " · ".join(html.escape(x) for x in parts)
     co = ""
     if show_company:
@@ -2000,12 +2134,16 @@ def browse_html(groups):
     d = [(f"/roles/{s}/", n) for k, (s, n) in DISC_PAGES.items() if by_disc[k] >= LISTING_MIN_INDEX]
     r = [(f"/remote/{s}/", n) for k, (s, n) in DISC_PAGES.items() if rem[k] >= LISTING_MIN_INDEX]
     c = [(f"/city/{s}/", CITY_PAGES[s][0]) for s, v in cities.most_common() if v >= LISTING_MIN_INDEX]
-    return ('<section class="curate browse"><div class="in"><h3>Browse agency jobs</h3>'
-            f'<p><b>By discipline:</b> {links(d)}</p>'
-            f'<p><b>Remote:</b> {links(r)}</p>'
-            f'<p><b>By city:</b> {links(c)}</p>'
-            '<p><a href="/pay-disclosed/">Jobs that list pay</a> · <a href="/agencies/">All agencies</a> · '
-            '<a href="/digest/">This week\'s new roles</a> · <a href="/insights/">Hiring data</a></p>'
+    def chips(items):
+        return '<ul class="chiprow">' + "".join(f'<li><a href="{h}">{E(t)}</a></li>' for h, t in items) + "</ul>"
+    return ('<section class="band tint browse"><div class="in">'
+            '<p class="eyebrow">Browse</p><h2>Find your corner of agency work.</h2>'
+            '<div class="cols">'
+            f'<div class="tcard"><h3>By discipline</h3>{chips(d)}</div>'
+            f'<div class="tcard"><h3>Remote</h3>{chips(r)}</div>'
+            f'<div class="tcard"><h3>By city</h3>{chips(c)}</div></div>'
+            '<p class="more-links"><a href="/pay-disclosed/">Jobs that list pay →</a><a href="/agencies/">All agencies →</a>'
+            '<a href="/digest/">New this week →</a><a href="/insights/">Hiring data →</a></p>'
             '</div></section>\n')
 
 
@@ -2014,7 +2152,7 @@ LISTING_CSS = """
 .rolelist .rc{display:block;padding:12px 16px 0;font-size:13px;font-weight:600;color:var(--goldd);text-decoration:none}
 .rolelist .rc+a{padding-top:4px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 24px;padding:0;list-style:none}
-.chips a{display:inline-block;border:1px solid var(--cardline);background:#fff;border-radius:999px;padding:5px 12px;font-size:14px;text-decoration:none;color:var(--ink)}
+.chips a{display:inline-block;border:1px solid var(--cardline);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px;text-decoration:none;color:var(--ink)}
 .chips a:hover,.chips a.on{border-color:var(--green);color:var(--green)}
 """
 
@@ -2099,7 +2237,16 @@ def build_listings(groups, brand):
         ag_rows = "".join(f'<tr><td><a href="../../agencies/{agency_slug(c)}/">{E(c)}</a></td>'
                           f'<td class="n">{v:,}</td></tr>' for c, v in top_ag)
         newest = sorted(gs, key=lambda g: (g["first_seen"], g["company"]), reverse=True)
-        shown = newest[:LISTING_MAX_ITEMS]
+        lanes = collections.OrderedDict()
+        for g in newest:
+            lanes.setdefault(g["company"], []).append(g)
+        mixed = []
+        while lanes:
+            for co in list(lanes):
+                mixed.append(lanes[co].pop(0))
+                if not lanes[co]:
+                    del lanes[co]
+        shown = mixed[:LISTING_MAX_ITEMS]
         more = (f'<p><a class="cta" href="{board_href}">See all {n:,} on the board, with filters →</a></p>'
                 if n > len(shown) else "")
         empty = ('<p>No open roles match right now. We check every agency’s careers board daily, '
@@ -2108,7 +2255,7 @@ def build_listings(groups, brand):
                 f'<p class="lead">{lead}</p>'
                 + (f'<div class="grid">{"".join(cards)}</div>' if n else "")
                 + f'<a class="cta" href="{board_href}">Filter and sort these on the board →</a>'
-                + (f'<h2>Newest first</h2><ul class="rolelist">{"".join(role_li(g) for g in shown)}</ul>{more}' if n else empty)
+                + (f'<h2>Latest openings</h2><ul class="rolelist">{"".join(role_li(g) for g in shown)}</ul>{more}' if n else empty)
                 + (f'<h2>Agencies hiring the most</h2><table><thead><tr><th>Agency</th><th class="n">Roles</th></tr>'
                    f'</thead><tbody>{ag_rows}</tbody></table>' if n else "")
                 + extra_sections)
@@ -2350,8 +2497,11 @@ def build_digest(groups, brand):
     # web copy: same content, so a subscriber's forward or a search visitor sees it
     outdir = os.path.join(SITE, "digest")
     os.makedirs(outdir, exist_ok=True)
+    web_body = re.sub(r"[?&]" + re.escape(utm), "", body).replace("&amp;" + utm, "")
     web = (f'<p class="kicker">Weekly digest · {today.strftime("%B %-d, %Y")}</p>'
-           f'<h1>New agency jobs this week</h1>{body}')
+           f'<h1>New agency jobs this week</h1><p class="lead"><b>{n_new:,} new roles</b> opened this week at {n_ag_new} '
+           f'of the agencies we track. Here are the ones worth a look.</p>'
+           + re.sub(r'<p style="[^"]*"><b>[^<]*new roles</b>.*?</p>', '', web_body, count=1, flags=re.S))
     page = _page(brand, "", f"New Agency Jobs This Week: {n_new:,} Roles | Agency Roles",
                  f"{n_new:,} new roles opened this week at {n_ag_new} hand-picked agencies. The weekly Agency Roles digest.",
                  web, today.isoformat(), is_hub=True, section="digest",
