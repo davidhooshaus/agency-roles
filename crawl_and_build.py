@@ -329,7 +329,8 @@ def group_roles(jobs):
         if (j.get("posted") or "") > (g["posted"] or ""):
             g["posted"] = j.get("posted") or ""
         g["roles"].append({"location": dedash(j["location"]) or (j["country"] or "Location not listed"),
-                           "workplace": j["workplace"], "url": j["url"]})
+                           "workplace": j["workplace"], "url": j["url"],
+                           "href": apply_href(j["url"], j.get("source", ""))})
     out = []
     for g in groups.values():
         g["workplaces"] = sorted(g["workplaces"])
@@ -337,8 +338,29 @@ def group_roles(jobs):
         g["countries"] = sorted(g["countries"])
         g["count"] = len(g["roles"])
         g["url"] = g["roles"][0]["url"]
+        g["href"] = g["roles"][0]["href"]
         out.append(g)
     return out
+
+
+# ---------- apply-link source tags ----------
+# Every outbound apply link says it came from Agency Roles, so the agency sees us
+# as an applicant source in its own ATS reports (Greenhouse "gh_src", Lever
+# "lever-source", plain UTMs everywhere else). The raw url stays the job's
+# identity key (history, liveness, indexing); only the rendered href is tagged.
+APPLY_UTM = "utm_source=agencyroles&utm_medium=jobboard&utm_campaign=apply"
+ATS_SOURCE_PARAM = {"greenhouse": "gh_src=agencyroles", "lever": "lever-source=AgencyRoles"}
+
+
+def apply_href(url, provider=""):
+    if not url or "utm_source=agencyroles" in url:
+        return url
+    base, frag = (url.split("#", 1) + [""])[:2]
+    extra = APPLY_UTM
+    if provider in ATS_SOURCE_PARAM:
+        extra = ATS_SOURCE_PARAM[provider] + "&" + extra
+    out = base + ("&" if "?" in base else "?") + extra
+    return out + ("#" + frag if frag else "")
 
 
 # ---------- ATS fetchers (all public, no auth) ----------
@@ -843,6 +865,11 @@ POSTHOG = (
     'posthog.init("phc_hfsvpYP21P7urmVNZTQc2UOiMSStd8JcYFX5OCR0igu",'
     '{api_host:"https://us.i.posthog.com",person_profiles:"identified_only",'
     'capture_pageview:true,capture_pageleave:true});\n'
+    # One listener for every apply link on every page: a[data-ag] carries the
+    # agency and role. Feeds the monthly agency click report (agency_report.py).
+    'document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[data-ag]");'
+    'if(a&&window.posthog)posthog.capture("apply_click",{agency:a.dataset.ag,role:a.dataset.role||"",'
+    'page:location.pathname.split("/")[1]||"home",href:a.href})},true);\n'
     '</script>\n'
 )
 
@@ -1212,7 +1239,7 @@ function card(g){
   const main=`${mono(g.company)}<div class="jmain"><div class="jtitle">${esc(g.title)}${(showNew&&isNew(g.first_seen))?'<span class="new">New</span>':""}</div>
     <div class="jco">${esc(g.company)}</div>${g.focus?'<div><span class="ftag">Grows the agency</span></div>':""}<div class="jloc">${esc(loc)}${loc.toLowerCase().includes(work.toLowerCase())?"":" · "+esc(work)}${empmeta}</div></div>`;
   if(single)return `<a class="jcard" href="job/${esc(g.p)}/">${main}${aside(g,"View role →")}</a>`;
-  const sub=`<a href="job/${esc(g.p)}/"><span class="rl"><b>Read the full role</b></span><span class="ra">Details →</span></a>`+g.roles.map(r=>`<a href="${esc(r.url)}" target="_blank" rel="noopener"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
+  const sub=`<a href="job/${esc(g.p)}/"><span class="rl"><b>Read the full role</b></span><span class="ra">Details →</span></a>`+g.roles.map(r=>`<a href="${esc(r.href||r.url)}" target="_blank" rel="noopener" data-ag="${esc(g.company)}" data-role="${esc(g.title)}"><span class="rl">${esc(r.location)} · ${esc(r.workplace)}</span><span class="ra">Apply →</span></a>`).join("");
   return `<div class="gwrap"><div class="jcard grp">${main}${aside(g,`View ${g.count} openings ▾`)}</div><div class="gsub" style="display:none">${sub}</div></div>`;}
 
 function renderAgencies(){const list=AGENCIES.map(a=>({...a,n:agSize[a.name]||0})).filter(a=>a.n).sort((x,y)=>y.n-x.n);
@@ -1369,6 +1396,11 @@ def _slim(groups):
                 continue
             if k == "roles" and g.get("count", 1) <= 1:
                 continue
+            if k in ("url", "href"):  # cards link to /job/ pages; only roles link out
+                continue
+            if k == "roles":  # tagged href only; the raw url is a build-time key
+                v = [{"location": r["location"], "workplace": r["workplace"], "href": r["href"]}
+                     for r in v]
             j[k] = v
         out.append(j)
     return out
@@ -2843,9 +2875,8 @@ def build_jobs(jobs, groups, brand):
             posted_h = datetime.strptime(posted, "%Y-%m-%d").strftime("%b %-d, %Y")
         except ValueError:
             posted_h = posted
-        track = (f"onclick=\"window.posthog&&posthog.capture('apply_click',"
-                 f"{{agency:{json.dumps(co)},role:{json.dumps(title)}}})\"")
-        apply_a = (f'<a class="cta" href="{html.escape(g["url"])}" target="_blank" rel="noopener nofollow" '
+        track = f'data-ag="{html.escape(co)}" data-role="{html.escape(title)}"'
+        apply_a = (f'<a class="cta" href="{html.escape(g["href"])}" target="_blank" rel="noopener nofollow" '
                    f'{track}>Apply at {html.escape(co)} ↗</a>')
         pay_line = (f'<b>{html.escape(g["comp"])}</b> · ' if g["comp"] else "")
         head = (f'<p class="kicker"><a href="{ag_href}">{html.escape(co)}</a> · {html.escape(g["category"])}</p>'
@@ -2856,7 +2887,7 @@ def build_jobs(jobs, groups, brand):
         parts = [head]
         if g["count"] > 1:
             parts.append(f'<h2>{g["count"]} openings</h2><ul class="locs">' + "".join(
-                f'<li><a href="{html.escape(r["url"])}" target="_blank" rel="noopener nofollow" {track}>'
+                f'<li><a href="{html.escape(r["href"])}" target="_blank" rel="noopener nofollow" {track}>'
                 f'<span>{html.escape(r["location"])} · {html.escape(r["workplace"])}</span>'
                 f'<span class="ra">Apply ↗</span></a></li>' for r in g["roles"]) + "</ul>")
         if body_html:

@@ -13,6 +13,17 @@ Runs itself daily on GitHub Actions — no server, no Mac-awake dependency, ~$0/
 4. The GitHub Action (`.github/workflows/deploy.yml`) runs it daily, commits the refreshed
    data, and deploys `site/` to GitHub Pages.
 
+**Every apply link is tagged** (`apply_href` in `crawl_and_build.py`):
+`utm_source=agencyroles&utm_medium=jobboard&utm_campaign=apply`, plus `gh_src=agencyroles` on
+Greenhouse and `lever-source=AgencyRoles` on Lever. Agencies then see "agencyroles" as an
+applicant source in their own ATS. Each apply link also carries `data-ag` / `data-role`, and one
+listener in the PostHog snippet sends an `apply_click` event with the agency and role.
+
+**Monthly agency click report:** `python3 agency_report.py` (last full month; `--month YYYY-MM`,
+`--days N`). It needs a PostHog *personal* API key with query:read on project 361920, in
+`$POSTHOG_PERSONAL_API_KEY` or `~/.config/agency-roles/posthog_key`. It writes
+`agency-clicks-YYYY-MM.md` and `.json` to `~/Desktop/AI Chief of Staff/builds/agency-job-board/reports/`.
+
 **Reposting is legal-safe by design:** we show title, company, location, tags — and link out
 to the source. We never copy full job descriptions.
 
