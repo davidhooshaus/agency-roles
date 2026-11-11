@@ -699,6 +699,7 @@ def main():
     agency_urls += build_digest(groups, brand)
     agency_urls += build_listings(groups, brand)
     agency_urls += build_jobs(jobs, groups, brand)
+    agency_urls += build_hiring_index(jobs, brand, settings)
     build_insights(jobs, groups, brand, agency_urls)
     n_comp = sum(1 for j in jobs if j["comp"])
     n_ctry = len({j["country"] for j in jobs})
@@ -838,7 +839,8 @@ def footer_html(root, credit_url="https://www.hausadvisors.com", list_url="https
             f'<div><h4>Find work</h4><a href="{r or "/"}">All open roles</a><a href="{r}pay-disclosed/">Roles that list pay</a>'
             f'<a href="{r}insights/remote-agency-jobs/">Remote agency jobs</a><a href="{r}digest/">New this week</a></div>'
             f'<div><h4>Explore</h4><a href="{r}agencies/">Agency directory</a><a href="{r}roles/design/">Design jobs</a>'
-            f'<a href="{r}roles/engineering/">Engineering jobs</a><a href="{r}insights/">Hiring data</a></div>'
+            f'<a href="{r}roles/engineering/">Engineering jobs</a><a href="{r}hiring-index/">Agency Hiring Index</a>'
+            f'<a href="{r}insights/">Hiring data</a></div>'
             f'<div><h4>For agencies</h4><a href="{html.escape(list_url)}" target="_blank" rel="noopener">Apply for inclusion</a>'
             f'<a href="{r}sponsor/">Sponsor the board</a><a href="https://www.hausadvisors.com/score">Free Bottleneck Score</a></div>'
             '</div></footer>\n')
@@ -1964,6 +1966,48 @@ tells you something about how it treats people before you ever apply.</p>
 
 
 # ---------- agency pages (one per rostered agency + directory) ----------
+
+def build_hiring_index(jobs, brand, settings):
+    """/hiring-index/: monthly Agency Hiring Index (see hiring_index.py)."""
+    import hiring_index as hx
+    tax = settings.get("categories", {})
+    rules = {"categorize": categorize, "seniority": seniority, "workplace": classify_workplace,
+             "taxonomy": tax, "enabled": set(settings.get("enabled_categories", list(tax))),
+             "excl_titles": [x.lower() for x in settings.get("exclude_title_keywords", [])],
+             "excl_seniority": set(settings.get("exclude_seniority", []))}
+    cur = hx.snapshot(jobs, rules, TODAY)
+    hist = hx.load_history(os.path.join(HERE, "config", "hiring-index-seed.json"))
+    hist[TODAY[:7]] = cur
+    earlier = [hist[m] for m in sorted(hist) if m < TODAY[:7]]
+    outdir = os.path.join(SITE, "hiring-index")
+    os.makedirs(outdir, exist_ok=True)
+    with open(os.path.join(outdir, "snapshots.json"), "w", encoding="utf-8") as f:
+        json.dump([hist[m] for m in sorted(hist)], f, separators=(",", ":"))
+    if not earlier:
+        print("Hiring index: no earlier month yet; page skipped.")
+        return []
+    base = earlier[-1]
+    domain = brand.get("domain", "agencyroles.com")
+    lead, body, desc = hx.build_page(cur, base, DISC_PAGES,
+                                     lambda n: f"../agencies/{agency_slug(n)}/", html.escape)
+    month = datetime.utcnow().strftime("%B %Y")
+    url = f"https://{domain}/hiring-index/"
+    ld = {"@context": "https://schema.org", "@type": "Dataset",
+          "name": f"Agency Hiring Index, {month}",
+          "description": desc + " Open roles from the public careers boards of agencies tracked daily by Agency Roles.",
+          "url": url, "isAccessibleForFree": True, "temporalCoverage": f"{base['date']}/{cur['date']}",
+          "creator": {"@type": "Organization", "name": "Agency Roles by Haus Advisors", "url": f"https://{domain}/"},
+          "distribution": {"@type": "DataDownload", "encodingFormat": "application/json",
+                           "contentUrl": url + "snapshots.json"}}
+    page = _page(brand, "", f"Agency Hiring Index: {month} | Agency Roles", desc,
+                 f'<p class="kicker">Agency Hiring Index · {html.escape(month)}</p>'
+                 f'<h1>Agency hiring, month by month</h1><p class="lead">{html.escape(lead)}</p>' + body,
+                 TODAY, section="hiring-index", ld=ld)
+    with open(os.path.join(outdir, "index.html"), "w", encoding="utf-8") as f:
+        f.write(page)
+    print(f"Hiring index: {month} vs {base['date']}, {len(hist)} monthly snapshot(s).")
+    return [url]
+
 
 def agency_slug(name):
     """URL slug for an agency page. Stable across builds: derived from the name only."""
