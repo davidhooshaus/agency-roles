@@ -2109,8 +2109,14 @@ def build_hiring_index(jobs, brand, settings):
         return []
     base = earlier[-1]
     domain = brand.get("domain", "agencyroles.com")
+    own_path = os.path.join(HERE, "config", "ownership.json")
+    ownership = load_json(own_path, {}) or {}
+    ownership = {k: v for k, v in ownership.items() if not k.startswith("_")}
     lead, body, desc = hx.build_page(cur, base, DISC_PAGES,
-                                     lambda n: f"../agencies/{agency_slug(n)}/", html.escape)
+                                     lambda n: f"../agencies/{agency_slug(n)}/", html.escape, ownership)
+    if ownership:
+        with open(os.path.join(outdir, "ownership.json"), "w", encoding="utf-8") as f:
+            json.dump(ownership, f, indent=1, ensure_ascii=False)
     month = datetime.utcnow().strftime("%B %Y")
     url = f"https://{domain}/hiring-index/"
     ld = {"@context": "https://schema.org", "@type": "Dataset",

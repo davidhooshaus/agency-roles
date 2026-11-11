@@ -1,0 +1,1844 @@
+{
+ "_comment": "Ownership per rostered agency for the Agency Hiring Index independent cut. bucket: holdco | group | independent | unknown. 'verified' = month a public source was checked; null = small agency defaulted to independent, not individually checked. Group = part of a multi-agency group (even if PE-owned). Standalone PE-backed agencies count as independent with pe_backed true.",
+ "3Cloud": {
+  "bucket": "group",
+  "parent": "Cognizant",
+  "pe_backed": false,
+  "source_url": "https://news.cognizant.com/2026-01-02-Cognizant-completes-acquisition-of-3Cloud,-creating-one-of-the-worlds-most-credentialed-Microsoft-Azure-and-AI-partners",
+  "verified": "2026-11"
+ },
+ "5WPR": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "829 Studios": {
+  "bucket": "independent",
+  "parent": "AEA Investors",
+  "pe_backed": true,
+  "source_url": "https://www.aeainvestors.com/aea-elevate-partners-with-829-studios/",
+  "verified": "2026-11"
+ },
+ "8th Light": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "AKQA": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/companies/akqa",
+  "verified": "2026-11"
+ },
+ "AXON Communications": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "AbelsonTaylor": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Acceleration Partners": {
+  "bucket": "independent",
+  "parent": "Mountaingate Capital",
+  "pe_backed": true,
+  "source_url": "https://www.canaccordgenuity.com/capital-markets/transactions/2020/december/acceleration-partners/",
+  "verified": "2026-11"
+ },
+ "Access The Agency": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Active Theory": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Agency Eight": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Agile Six": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "AnalogFolk": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Anomaly": {
+  "bucket": "holdco",
+  "parent": "Stagwell",
+  "pe_backed": false,
+  "source_url": "https://www.stagwellglobal.com/four-stagwell-stgw-agencies-72andsunny-anomaly-code-and-theory-and-gale-awarded-2025-ad-age-agency-a-list-recognition-for-business-and-creative-transformation/",
+  "verified": "2026-11"
+ },
+ "Anovium": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Ansira": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Antenna Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Apex Growth": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Apply Digital": {
+  "bucket": "independent",
+  "parent": "Interlock Equity",
+  "pe_backed": true,
+  "source_url": "https://www.applydigital.com/insights/news/interlock-equity-invests-in-apply-digital/",
+  "verified": "2026-11"
+ },
+ "Appnovation": {
+  "bucket": "independent",
+  "parent": "CBGF, BGF (minority)",
+  "pe_backed": true,
+  "source_url": "https://www.appnovation.com/news/appnovation-receives-c15-million-equity-financing",
+  "verified": "2026-11"
+ },
+ "ArcTouch": {
+  "bucket": "holdco",
+  "parent": "WPP (AKQA)",
+  "pe_backed": false,
+  "source_url": "https://arctouch.com/company",
+  "verified": "2026-11"
+ },
+ "Artefact": {
+  "bucket": "independent",
+  "parent": "Cinven",
+  "pe_backed": true,
+  "source_url": "https://www.ardian.com/news-insights/press-releases/ardian-enters-exclusive-negotiations-sell-its-majority-stake-artefact",
+  "verified": "2026-11"
+ },
+ "Article Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Athletics": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Avalere Health": {
+  "bucket": "independent",
+  "parent": "Bridgepoint",
+  "pe_backed": true,
+  "source_url": "https://www.bridgepointgroup.com/investment-strategies/private-equity/portfolio/middle-market/healthcare/avalere-health",
+  "verified": "2026-11"
+ },
+ "Axicom": {
+  "bucket": "holdco",
+  "parent": "WPP (Burson)",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/companies/axicom",
+  "verified": "2026-11"
+ },
+ "BGBx": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://bgbx.com/about-us/",
+  "verified": "2026-11"
+ },
+ "Baunfire": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "BerlinRosen": {
+  "bucket": "group",
+  "parent": "Orchestra (O2 Investment Partners)",
+  "pe_backed": true,
+  "source_url": "https://o2investment.com/news/berlinrosen-holdings-rebrands-as-orchestra/",
+  "verified": "2026-11"
+ },
+ "Blue State": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.bluestate.co/who-we-are/",
+  "verified": "2026-11"
+ },
+ "Bounteous": {
+  "bucket": "independent",
+  "parent": "New Mountain Capital",
+  "pe_backed": true,
+  "source_url": "https://www.newmountaincapital.com/portfolio/bounteous/",
+  "verified": "2026-11"
+ },
+ "Brafton": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.brafton.com/about/brafton-leadership/",
+  "verified": "2026-11"
+ },
+ "Brainlabs": {
+  "bucket": "independent",
+  "parent": "Falfurrias Capital",
+  "pe_backed": true,
+  "source_url": "https://falfurrias.com/falfurrias-capital-partners-announces-growth-investment-in-brainlabs/",
+  "verified": "2026-11"
+ },
+ "Brand New School": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Brandtech+": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": "https://feeny.ai/job/integrated-project-manager-brandtech-bogota-3ryzz10r9znz",
+  "verified": "2026-11"
+ },
+ "Brooklyn Brothers": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Brunswick Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.brunswickgroup.com/legal-and-privacy/",
+  "verified": "2026-11"
+ },
+ "CASE Agency": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "CATORCE": {
+  "bucket": "holdco",
+  "parent": "Omnicom (DDB)",
+  "pe_backed": false,
+  "source_url": "https://lbbonline.com/companies/14",
+  "verified": "2026-11"
+ },
+ "CG Life": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Canvas Worldwide": {
+  "bucket": "holdco",
+  "parent": "Innocean",
+  "pe_backed": false,
+  "source_url": "https://www.businesswire.com/news/home/20220309005155/en/INNOCEAN-Worldwide-and-Horizon-Media-Announce-Change-in-Ownership-of-Canvas-Worldwide",
+  "verified": "2026-11"
+ },
+ "Casper Studios": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Codal": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://codal.com/about-us/",
+  "verified": "2026-11"
+ },
+ "Code and Theory": {
+  "bucket": "holdco",
+  "parent": "Stagwell",
+  "pe_backed": false,
+  "source_url": "https://www.stagwellglobal.com/agency/code-and-theory/",
+  "verified": "2026-11"
+ },
+ "Code3": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Codeword": {
+  "bucket": "independent",
+  "parent": "WE Communications",
+  "pe_backed": false,
+  "source_url": "https://www.codewordagency.com/the-feed/codewords-state-of-the-agency/",
+  "verified": "2026-11"
+ },
+ "Coegi": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Collectively": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": "https://www.linkedin.com/company/collectively-inc",
+  "verified": "2026-11"
+ },
+ "Common Thread Collective": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "CompassX": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "CourtAvenue": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.courtavenue.com/news-and-insights",
+  "verified": "2026-11"
+ },
+ "Critical Mass": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://www.mediapost.com/publications/article/415705/omnicom-precision-marketing-folds-agency-rapp-into.html",
+  "verified": "2026-11"
+ },
+ "Cuesta Partners": {
+  "bucket": "group",
+  "parent": "Riveron (Kohlberg)",
+  "pe_backed": true,
+  "source_url": "https://riveron.com/posts/kohlberg-and-riveron-announce-strategic-investment-in-cuesta-partners/",
+  "verified": "2026-11"
+ },
+ "DEPT": {
+  "bucket": "independent",
+  "parent": "The Carlyle Group",
+  "pe_backed": true,
+  "source_url": "https://www.carlyle.com/media-room/news-release-archive/carlyle-group-closes-investment-digital-agency-dept",
+  "verified": "2026-11"
+ },
+ "Darkroom": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.forbes.com/profile/darkroom/",
+  "verified": "2026-11"
+ },
+ "Deeplocal": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Derris": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Design Bridge and Partners": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.designbridge.com/news/design-bridge-partners-launch",
+  "verified": "2026-11"
+ },
+ "Digital Media Management": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Digital Reach Agency": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Directive Consulting": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://tracxn.com/d/companies/directive/__aWjkbtYpITJJSmK_SD5iNm3_nBxrgZAVM-3ZFOJSHBs",
+  "verified": "2026-11"
+ },
+ "Envision Horizons": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Ethnicity Matters": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Euphoric Global": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "FGS Global": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "FINN Partners": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.odwyerpr.com/story/public/7598/2016-09-21/finn-partners-stagwell-launch-joint-venture.html",
+  "verified": "2026-11"
+ },
+ "FIRST": {
+  "bucket": "group",
+  "parent": "Encore (Blackstone)",
+  "pe_backed": true,
+  "source_url": "https://meetings.skift.com/2025/12/02/encore-acquires-global-brand-experience-agency-first/",
+  "verified": "2026-11"
+ },
+ "Fantasy": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://fabric.so/de/best/ux-design-agencies-san-francisco",
+  "verified": "2026-11"
+ },
+ "FleishmanHillard": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/omnicom-public-relations-group",
+  "verified": "2026-11"
+ },
+ "Forthea": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Fueled": {
+  "bucket": "independent",
+  "parent": "Insignia Capital",
+  "pe_backed": true,
+  "source_url": "https://www.insigniacap.com/fueled-and-10up-join-to-form-leading-digital-transformation-services-agency/",
+  "verified": "2026-11"
+ },
+ "Full Funnel Growth": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "FuseGlobal": {
+  "bucket": "unknown",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.fuseglobal.com/about-us",
+  "verified": "2026-11"
+ },
+ "GCI Health": {
+  "bucket": "holdco",
+  "parent": "WPP (Burson)",
+  "pe_backed": false,
+  "source_url": "https://gcihealth.com/2025/07/08/new-health-matters-initiative-delivers-expert-insights-on-critical-health-policy-challenges/",
+  "verified": "2026-11"
+ },
+ "GR0": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Game Seven": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Global Strategy Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Godfrey Dadich Partners": {
+  "bucket": "holdco",
+  "parent": "Hakuhodo DY (Kyu)",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "Golin": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/omnicom-public-relations-group",
+  "verified": "2026-11"
+ },
+ "Goodway Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Green Room Communications": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Grey London": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/companies/grey",
+  "verified": "2026-11"
+ },
+ "HC2 Health": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "HCG": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Hamster Garage": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Hanover Communications": {
+  "bucket": "group",
+  "parent": "Avenir Global",
+  "pe_backed": false,
+  "source_url": "https://hanovercomms.com/about",
+  "verified": "2026-11"
+ },
+ "Hawke Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Headlight": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Highdive": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Highwire PR": {
+  "bucket": "independent",
+  "parent": "Shamrock Capital",
+  "pe_backed": true,
+  "source_url": "https://www.teamhighwire.com/insights/highwire-welcomes-bliss",
+  "verified": "2026-11"
+ },
+ "Hogarth": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/news/2026/01/wpp-launches-wpp-production-empowering-clients-to-reimagine-growth-with-world-class-content",
+  "verified": "2026-11"
+ },
+ "Hook": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Hovercraft": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Huge": {
+  "bucket": "independent",
+  "parent": "AEA Investors",
+  "pe_backed": true,
+  "source_url": "https://www.aeainvestors.com/huge-announces-acquisition-by-aea-investors-and-strategic-combination-with-hero-digital/",
+  "verified": "2026-11"
+ },
+ "Hush": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Hyperquake": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "IDEO": {
+  "bucket": "holdco",
+  "parent": "Hakuhodo DY (Kyu)",
+  "pe_backed": false,
+  "source_url": "https://www.hakuhodo-global.com/news/global-design-innovation-firm-ideo-to-join-kyu.html",
+  "verified": "2026-11"
+ },
+ "ITB Worldwide": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "In The Pocket": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.inthepocket.com/",
+  "verified": "2026-11"
+ },
+ "Inizio Evoke": {
+  "bucket": "group",
+  "parent": "Inizio (CD&R)",
+  "pe_backed": true,
+  "source_url": "https://www.cdr.com/portfolio/inizio",
+  "verified": "2026-11"
+ },
+ "Inkhouse": {
+  "bucket": "group",
+  "parent": "Orchestra (O2 Investment Partners)",
+  "pe_backed": true,
+  "source_url": "https://www.bostonglobe.com/2023/05/10/business/pr-firm-inkhouse-sold-nyc-communications-heavyweight-berlinrosen/",
+  "verified": "2026-11"
+ },
+ "Insomniac Design": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Instrument": {
+  "bucket": "holdco",
+  "parent": "Stagwell",
+  "pe_backed": false,
+  "source_url": "https://www.stagwellglobal.com/code-and-theory-network-expands-with-addition-of-instrument-and-left-field-labs/",
+  "verified": "2026-11"
+ },
+ "Interactive Strategies": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Interbrand": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://www.omc.com/newsroom/brands-turning-strength-into-action-pull-ahead-in-interbrands-best-global-brands-2026/",
+  "verified": "2026-11"
+ },
+ "Interdependence": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.odwyerpr.com/pr_firms_database/4560/interdependence.html",
+  "verified": "2026-11"
+ },
+ "January Digital": {
+  "bucket": "group",
+  "parent": "MSQ Group (One Equity Partners)",
+  "pe_backed": true,
+  "source_url": "https://www.adweek.com/agencies/msq-group-acquires-january-digital-to-build-out-media-offerings/",
+  "verified": "2026-11"
+ },
+ "JeffreyGroup": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Jellyfish": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": "https://thebrandtechgroup.com/",
+  "verified": "2026-11"
+ },
+ "Joele Frank": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Jordan Digital Marketing": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Kepler Group": {
+  "bucket": "holdco",
+  "parent": "Hakuhodo DY (Kyu)",
+  "pe_backed": false,
+  "source_url": "https://www.hakuhodo-global.com/news/kyu-acquires-u-s-digital-marketing-agency-kepler-group.html",
+  "verified": "2026-11"
+ },
+ "Ketchum": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/omnicom-public-relations-group",
+  "verified": "2026-11"
+ },
+ "Kettle": {
+  "bucket": "holdco",
+  "parent": "Stagwell",
+  "pe_backed": false,
+  "source_url": "https://www.wearekettle.com/blog/kettle-names-first-cco-and-cpo-amid-41-revenue-growth",
+  "verified": "2026-11"
+ },
+ "Known": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Konrad Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.konrad.com/",
+  "verified": "2026-11"
+ },
+ "Kyra": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Landor": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/companies/landor",
+  "verified": "2026-11"
+ },
+ "Lattice Partners": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "LaunchSquad": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Lazer": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Leveraged Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Livefront": {
+  "bucket": "independent",
+  "parent": "Rallyday Partners",
+  "pe_backed": true,
+  "source_url": "https://rallydaypartners.com/portfolio/livefront/",
+  "verified": "2026-11"
+ },
+ "Lovelytics": {
+  "bucket": "group",
+  "parent": "CDW",
+  "pe_backed": false,
+  "source_url": "https://investor.cdw.com/news/news-details/2026/CDW-Completes-Acquisition-of-Lovelytics/default.aspx",
+  "verified": "2026-11"
+ },
+ "Lunar Solar Group": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "M Booth": {
+  "bucket": "group",
+  "parent": "Next 15",
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/m-booth",
+  "verified": "2026-11"
+ },
+ "M Booth Health": {
+  "bucket": "group",
+  "parent": "Next 15",
+  "pe_backed": false,
+  "source_url": "https://www.next15.com/what-we-do/our-brands/m-booth-health/",
+  "verified": "2026-11"
+ },
+ "M+R": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "MERGE": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "MMC": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Made Thought": {
+  "bucket": "holdco",
+  "parent": "WPP (AKQA)",
+  "pe_backed": false,
+  "source_url": "https://www.businesswire.com/news/home/20211206005480/en/Creative-Studio-Made-Thought-Joins-WPP",
+  "verified": "2026-11"
+ },
+ "Man vs Machine": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Matchnode": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Media.Monks": {
+  "bucket": "holdco",
+  "parent": "S4 Capital",
+  "pe_backed": false,
+  "source_url": "https://finance.yahoo.com/media-advertising/articles/s4-capitals-monks-boosts-media-201900712.html",
+  "verified": "2026-11"
+ },
+ "Medialicious": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "MetaLab": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Method": {
+  "bucket": "group",
+  "parent": "GlobalLogic (Hitachi)",
+  "pe_backed": false,
+  "source_url": "https://www.method.com/",
+  "verified": "2026-11"
+ },
+ "Method Communications": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Milltown Partners": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.milltownpartners.com/en-us",
+  "verified": "2026-11"
+ },
+ "Mindgrub": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Mission North": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/bateman-group-pr-agency-profile",
+  "verified": "2026-11"
+ },
+ "Modus Create": {
+  "bucket": "independent",
+  "parent": "JLL Partners",
+  "pe_backed": true,
+  "source_url": "https://pitchbook.com/profiles/company/266829-04",
+  "verified": "2026-11"
+ },
+ "Movement Strategy": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.adweek.com/agencies/movement-strategy-acquires-newfangled-studios-to-create-a-social-marketing-powerhouse/",
+  "verified": "2026-11"
+ },
+ "Movers+Shakers": {
+  "bucket": "holdco",
+  "parent": "Stagwell",
+  "pe_backed": false,
+  "source_url": "https://www.stagwellglobal.com/stagwells-stgw-acquisition-momentum-continues-with-addition-of-fast-growing-creative-agency-moversshakers/",
+  "verified": "2026-11"
+ },
+ "MullenLowe": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://www.campaignlive.com/article/omnicom-consolidates-global-advertising-agencies-tbwa-mccann-bbdo/1941611",
+  "verified": "2026-11"
+ },
+ "NATIONAL Public Relations": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Nava PBC": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.navapbc.com/insights/why-nava-public-benefit-corporation",
+  "verified": "2026-11"
+ },
+ "Nearform": {
+  "bucket": "independent",
+  "parent": "Columbia Capital",
+  "pe_backed": true,
+  "source_url": "https://colcap.com/portfolio/nearform/",
+  "verified": "2026-11"
+ },
+ "Nen Creative": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "New Engen": {
+  "bucket": "independent",
+  "parent": "Insignia Capital",
+  "pe_backed": true,
+  "source_url": "https://www.prudentialprivatecapital.com/case-studies/new-engen",
+  "verified": "2026-11"
+ },
+ "New Era Digital Marketing": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Newfangled Studios": {
+  "bucket": "independent",
+  "parent": "Movement Strategy",
+  "pe_backed": false,
+  "source_url": "https://www.adweek.com/agencies/movement-strategy-acquires-newfangled-studios-to-create-a-social-marketing-powerhouse/",
+  "verified": "2026-11"
+ },
+ "Newform": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.newform.com/about",
+  "verified": "2026-11"
+ },
+ "NextLink Labs": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Nexus Marketing": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Noble Studios": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "OKTOBER": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "OLIVER": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": "https://www.oliver.agency/2022/01/12/oliver-holding-company-kicks-off-the-new-year-with-a-new-name-the-brandtech-group/",
+  "verified": "2026-11"
+ },
+ "OLIVER (APAC)": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": "https://thebrandtechgroup.com/brandtech-launches-global-data-and-ai-practice-to-help-major-brands-drive-ai-transformation/",
+  "verified": "2026-11"
+ },
+ "OLIVER (Argentina)": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "OLIVER (North America)": {
+  "bucket": "group",
+  "parent": "The Brandtech Group",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "OSEDEA": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://betakit.com/osedea-expands-consulting-footprint-with-ventriloc-acquisition/",
+  "verified": "2026-11"
+ },
+ "Obsidian Systems": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Oddball": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Ogilvy": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.wpp.com/en/companies/ogilvy",
+  "verified": "2026-11"
+ },
+ "Omnicom Health": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "Omniscient Digital": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://beomniscient.com/about/",
+  "verified": "2026-11"
+ },
+ "On Board Experiential": {
+  "bucket": "group",
+  "parent": "ADD Collective",
+  "pe_backed": false,
+  "source_url": "https://www.hollywoodreporter.com/business/business-news/add-collective-align-pr-blended-strategy-on-board-experiential-1236448675/",
+  "verified": "2026-11"
+ },
+ "OneSix": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Orchestra": {
+  "bucket": "group",
+  "parent": "O2 Investment Partners",
+  "pe_backed": true,
+  "source_url": "https://o2investment.com/news/berlinrosen-holdings-rebrands-as-orchestra/",
+  "verified": "2026-11"
+ },
+ "PMG": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.pmg.com/",
+  "verified": "2026-11"
+ },
+ "PR Consulting": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Padilla": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Passport Brand Design": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Pillar Technology": {
+  "bucket": "group",
+  "parent": "Accenture",
+  "pe_backed": false,
+  "source_url": "https://newsroom.accenture.com/news/2018/accenture-completes-acquisition-of-pillar-technology-to-expand-industry-x0-capabilities",
+  "verified": "2026-11"
+ },
+ "Platform Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Poetic": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Porter Novelli": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/omnicom-public-relations-group",
+  "verified": "2026-11"
+ },
+ "Portland Communications": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://en.wikipedia.org/wiki/Portland_Communications",
+  "verified": "2026-11"
+ },
+ "Power Digital": {
+  "bucket": "independent",
+  "parent": "Court Square Capital",
+  "pe_backed": true,
+  "source_url": "https://www.businesswire.com/news/home/20220315005245/en/Leading-Digital-Performance-Marketing-Services-Company-Announces-Strategic-Capital-Investment-from-Court-Square-Capital-Partners",
+  "verified": "2026-11"
+ },
+ "Praxent": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Precision AQ": {
+  "bucket": "group",
+  "parent": "Precision Medicine Group (Blackstone; McKesson deal pending)",
+  "pe_backed": true,
+  "source_url": "https://www.mckesson.com/about-us/newsroom/press-releases/2026/mckesson-signs-agreement-to-acquire-precision-medicine-group-llc/",
+  "verified": "2026-11"
+ },
+ "PressW": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Princeton10": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Prophet": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://en.wikipedia.org/wiki/Prophet_(company)",
+  "verified": "2026-11"
+ },
+ "Prosek Partners": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://everything-pr.com/profile-prosek-partners",
+  "verified": "2026-11"
+ },
+ "Purple Strategies": {
+  "bucket": "independent",
+  "parent": "WestView Capital",
+  "pe_backed": true,
+  "source_url": "https://en.wikipedia.org/wiki/Purple_Strategies",
+  "verified": "2026-11"
+ },
+ "R/GA": {
+  "bucket": "independent",
+  "parent": "Truelink Capital",
+  "pe_backed": true,
+  "source_url": "https://rga.com/news/rga-independent-management-private-equity-partnership",
+  "verified": "2026-11"
+ },
+ "RPA": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Railsware": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Rapt Studio": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Reaktor": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://group.reaktor.com/ipo",
+  "verified": "2026-11"
+ },
+ "Real Chemistry": {
+  "bucket": "independent",
+  "parent": "New Mountain Capital",
+  "pe_backed": true,
+  "source_url": "https://www.mmm-online.com/news/real-chemistry-posts-560m-in-global-revenue-in-2025/",
+  "verified": "2026-11"
+ },
+ "Red Door Interactive": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "RevHealth": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Right Side Up": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.rightsideup.com/",
+  "verified": "2026-11"
+ },
+ "Robots and Pencils": {
+  "bucket": "independent",
+  "parent": "Next Sparc",
+  "pe_backed": true,
+  "source_url": "https://horizonpartners.com/horizon-advises-robots-pencils-merger-recapitalization/",
+  "verified": "2026-11"
+ },
+ "Rogers & Cowan PMK": {
+  "bucket": "unknown",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://variety.com/2025/biz/news/rcpmk-michael-nyman-acc-cindi-berger-hollywood-pr-1236584373/",
+  "verified": "2026-11"
+ },
+ "SALT XC": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://digiday.com/media-buying/canadian-indie-salt-xc-expands-its-u-s-presence-with-purchase-of-craft-commerce/",
+  "verified": "2026-11"
+ },
+ "SBS Comms": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "SHADOW": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "SJR": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Saylor Agency": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Scorpion": {
+  "bucket": "independent",
+  "parent": "Bregal Sagemount",
+  "pe_backed": true,
+  "source_url": "https://www.sagemount.com/news/scorpion-raises-100-million-from-bregal-sagemount-to-expand-its-technology-and-services-bring-enterprise-grade-technology-and-opportunities-to-local-businesses",
+  "verified": "2026-11"
+ },
+ "Seer Interactive": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Serotonin": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Sid Lee": {
+  "bucket": "holdco",
+  "parent": "Hakuhodo DY (Kyu)",
+  "pe_backed": false,
+  "source_url": "https://kyu.com/companies/sid-lee",
+  "verified": "2026-11"
+ },
+ "Siege Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Silverback Strategies": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Simplistic": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "SixSpeed": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Social Scout": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "SociallyIn": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Something Special Studios": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.ziprecruiter.com/co/something-special-studios/Jobs/full-time",
+  "verified": "2026-11"
+ },
+ "Spotlight Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Struck": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Sunshine Sachs Morgan & Lylis": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://ssmandl.com/",
+  "verified": "2026-11"
+ },
+ "Superside": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.superside.com/blog/superside-30-million",
+  "verified": "2026-11"
+ },
+ "Swell Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Sylvain": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "TBWA\\Chiat\\Day": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "TBWA\\Media Arts Lab": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": null,
+  "verified": "2026-11 (by parent)"
+ },
+ "TDA Boulder": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "TXI": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Teal Media": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Teneo": {
+  "bucket": "independent",
+  "parent": "CVC Capital Partners",
+  "pe_backed": true,
+  "source_url": "https://www.ft.com/content/244ed21d-d9bc-456e-895a-6e58141bee06",
+  "verified": "2026-11"
+ },
+ "Terakeet": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Terra": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Thinkingbox": {
+  "bucket": "independent",
+  "parent": "Stern Partners",
+  "pe_backed": true,
+  "source_url": "https://www.privateequityinternational.com/3335996/",
+  "verified": "2026-11"
+ },
+ "Thrive Digital": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "TribalScale": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.tribalscale.com/press-release/tribalscale-ceo-sheetal-jaitly-named-one-of-the-top-10-leading-men-in-2025",
+  "verified": "2026-11"
+ },
+ "Tuff": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Underscore Marketing": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Upstatement": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "VCCP Group": {
+  "bucket": "group",
+  "parent": "Chime Group",
+  "pe_backed": false,
+  "source_url": "https://www.campaignasia.com/article/wpp-confirms-sale-of-stake-in-vccp-and-csm-owner-chime/axtxkh0dktzlpoobkc1zv72b6g",
+  "verified": "2026-11"
+ },
+ "VML Canada": {
+  "bucket": "holdco",
+  "parent": "WPP",
+  "pe_backed": false,
+  "source_url": "https://www.vml.com/news?office=canada",
+  "verified": "2026-11"
+ },
+ "VSA Partners": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Valtech": {
+  "bucket": "independent",
+  "parent": "BC Partners",
+  "pe_backed": true,
+  "source_url": "https://www.bcpartners.com/portfolio/valtech/",
+  "verified": "2026-11"
+ },
+ "VaynerMedia": {
+  "bucket": "independent",
+  "parent": "VaynerX",
+  "pe_backed": false,
+  "source_url": "https://vaynerx.com/",
+  "verified": "2026-11"
+ },
+ "Vested": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Vidsy": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Viget": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Viral Nation": {
+  "bucket": "independent",
+  "parent": "Eldridge, Maverix",
+  "pe_backed": true,
+  "source_url": "https://www.viralnation.com/about-us",
+  "verified": "2026-11"
+ },
+ "WE Communications": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.prweek.com/article/1899405/a-beautiful-time-midsize-management-owned-independent-agency-ceos-omnicom-ipg-deal",
+  "verified": "2026-11"
+ },
+ "WITHIN": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.within.co/about/",
+  "verified": "2026-11"
+ },
+ "Walker Sands": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "WebFX": {
+  "bucket": "independent",
+  "parent": "Trilantic North America",
+  "pe_backed": true,
+  "source_url": "https://www.trilanticnorthamerica.com/news/webfx-announces-strategic-investment-from-trilantic-north-america",
+  "verified": "2026-11"
+ },
+ "Weber Shandwick": {
+  "bucket": "holdco",
+  "parent": "Omnicom",
+  "pe_backed": false,
+  "source_url": "https://www.omc.com/newsroom/omnicom-completes-acquisition-of-interpublic-forming-the-worlds-leading-marketing-and-sales-company-built-for-intelligent-growth-in-the-next-era/",
+  "verified": "2026-11"
+ },
+ "Whalar": {
+  "bucket": "group",
+  "parent": "Accenture Song",
+  "pe_backed": false,
+  "source_url": "https://newsroom.accenture.com/news/2026/accenture-to-acquire-leading-creator-and-social-agency-whalar-from-whalar-group",
+  "verified": "2026-11"
+ },
+ "Wheelhouse DMG": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Wieden+Kennedy": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.wk.com/",
+  "verified": "2026-11"
+ },
+ "WongDoody": {
+  "bucket": "group",
+  "parent": "Infosys",
+  "pe_backed": false,
+  "source_url": "https://www.infosys.com/insights/digital-future/accelerating-digital-transformation.html",
+  "verified": "2026-11"
+ },
+ "Work in Progress": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Wpromote": {
+  "bucket": "independent",
+  "parent": "ZMC",
+  "pe_backed": true,
+  "source_url": "https://www.hauserprivateequity.com/2022/10/24/wpromote-partners-with-zmc/",
+  "verified": "2026-11"
+ },
+ "Wunderman Thompson": {
+  "bucket": "holdco",
+  "parent": "WPP (VML)",
+  "pe_backed": false,
+  "source_url": "https://www.vml.com/news/wunderman-thompson-and-vmly-r-unite-to-form-vml",
+  "verified": "2026-11"
+ },
+ "Zambezi": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "Zulu Alpha Kilo": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "another": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "attn:": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://www.axios.com/2026/02/10/candle-media-sells-attn",
+  "verified": "2026-11"
+ },
+ "co:collective": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "imre": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": null,
+  "verified": null
+ },
+ "inBeat Agency": {
+  "bucket": "independent",
+  "parent": null,
+  "pe_backed": false,
+  "source_url": "https://inbeat.agency/about",
+  "verified": "2026-11"
+ },
+ "phData": {
+  "bucket": "independent",
+  "parent": "Gryphon Investors",
+  "pe_backed": true,
+  "source_url": "https://www.gryphon-inv.com/news/gryphon-investors-announces-investment-in-phdata/",
+  "verified": "2026-11"
+ }
+}

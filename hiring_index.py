@@ -167,6 +167,8 @@ INDEX_CSS = """
 .hx-table{border-collapse:collapse;width:100%;max-width:780px;font-size:14.5px;margin:12px 0 0}
 .hx-table th,.hx-table td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:right}
 .hx-table th:first-child,.hx-table td:first-child{text-align:left}
+.hx-table small{color:var(--muted);font:500 12px var(--mono);margin-left:4px}
+.hx-own{margin-bottom:8px}.hx-own td+td{white-space:nowrap}
 details.hx-data{margin:14px 0 36px;max-width:780px}
 details.hx-data summary{cursor:pointer;font:500 14px var(--sans);color:var(--accent)}
 .hx-cite{background:var(--tint);border:1px solid var(--rule);border-radius:12px;padding:16px 18px;font:400 14.5px/1.55 var(--mono);max-width:780px}
@@ -193,7 +195,73 @@ def _pp(d):
     return f"{'+' if d > 0 else '−'}{abs(d):.1f} pts"
 
 
-def build_page(cur, base, disc_names, agency_href, esc):
+def _owner_section(cur, base, panel, ownership, esc, base_short):
+    """Independent vs network-owned comparison, same panel and dates."""
+    if not ownership:
+        return ""
+    indie = {n for n in panel if (ownership.get(n) or {}).get("bucket") == "independent"}
+    net = {n for n in panel if (ownership.get(n) or {}).get("bucket") in ("holdco", "group")}
+    if len(indie) < 20 or len(net) < 5:
+        return ""
+
+    def stats(names):
+        c, b = totals(cur, names), totals(base, names)
+        nc, nb = c["n"], b["n"]
+        cr = lambda t, n: _pct(t["cat"].get("Design/Creative", 0), n)
+        return {"agencies": c["agencies"], "nb": nb, "nc": nc, "chg": _pct(nc - nb, nb),
+                "ai": (_pct(b["ai"], nb), _pct(c["ai"], nc)), "cre": (cr(b, nb), cr(c, nc)),
+                "rem": (_pct(b["remote"], nb), _pct(c["remote"], nc)),
+                "pay": (_pct(b["paid"], nb), _pct(c["paid"], nc))}
+
+    i, n = stats(indie), stats(net)
+
+    def ex_top(names):
+        """Change with the single biggest mover (by absolute role change) removed."""
+        A, B = base["companies"], cur["companies"]
+        top = max(names, key=lambda x: abs(B[x]["n"] - A[x]["n"]))
+        rest = [x for x in names if x != top]
+        a = sum(A[x]["n"] for x in rest)
+        b = sum(B[x]["n"] for x in rest)
+        return top, B[top]["n"] - A[top]["n"], _pct(b - a, a)
+
+    def rc(v):
+        return f"{'+' if v >= 0 else '−'}{abs(v):,}"
+
+    def sgn(v):
+        return f"{'+' if v >= 0 else '−'}{abs(v):.0f}%"
+
+    def cell(pair):
+        a, b = pair
+        return f"{b:.1f}%<small> {_pp(b - a)}</small>"
+
+    rows = [
+        ("Agencies in the panel", f"{i['agencies']}", f"{n['agencies']}"),
+        ("Open roles", f"{i['nc']:,}<small> {sgn(i['chg'])}</small>", f"{n['nc']:,}<small> {sgn(n['chg'])}</small>"),
+        ("AI in the job title", cell(i["ai"]), cell(n["ai"])),
+        ("Design & Creative share", cell(i["cre"]), cell(n["cre"])),
+        ("Remote roles", cell(i["rem"]), cell(n["rem"])),
+        ("Pay listed", cell(i["pay"]), cell(n["pay"])),
+    ]
+    trs = "".join(f"<tr><td>{esc(a)}</td><td>{b}</td><td>{c}</td></tr>" for a, b, c in rows)
+    lead_i = "grew" if i["chg"] > 0.5 else "shrank" if i["chg"] < -0.5 else "held flat"
+    lead_n = "grew" if n["chg"] > 0.5 else "shrank" if n["chg"] < -0.5 else "held flat"
+    ti, di, ri = ex_top(indie)
+    tn, dn, rn = ex_top(net)
+    return (
+        '<h2>Independent agencies vs. the networks</h2>'
+        f'<p>Since {esc(base_short)}, open roles at independent agencies {lead_i} ({sgn(i["chg"])}) and at '
+        f'holding-company and group-owned agencies they {lead_n} ({sgn(n["chg"])}). '
+        f'<b>Check before you cite:</b> without the biggest single mover in each group, independents are '
+        f'{sgn(ri)} (without {esc(ti)}, {rc(di)} roles) and the networks are {sgn(rn)} '
+        f'(without {esc(tn)}, {rc(dn)} roles). Changes in points since {esc(base_short)} sit beside each share.</p>'
+        '<table class="hx-table hx-own"><thead><tr><th></th><th>Independent</th>'
+        '<th>Holding company or group</th></tr></thead><tbody>' + trs + '</tbody></table>'
+        '<p style="font-size:14px;color:var(--muted)">Ownership for each agency: '
+        '<a href="ownership.json">ownership.json</a>.</p>'
+    )
+
+
+def build_page(cur, base, disc_names, agency_href, esc, ownership=None):
     """Return (lead_sentence, body_html_after_lead, description) for the index page.
 
     cur/base: snapshots. disc_names: {category: (slug, display name)} in display order.
@@ -290,6 +358,7 @@ def build_page(cur, base, disc_names, agency_href, esc):
         '<table class="hx-table"><thead><tr><th>Discipline</th>'
         f'<th>Roles, {esc(base_short)}</th><th>Share</th><th>Roles now</th><th>Share</th><th>Change</th>'
         '</tr></thead><tbody>' + "".join(trows) + '</tbody></table></details>'
+        + _owner_section(cur, base, panel, ownership, esc, base_short) +
         '<h2>Hiring the most right now</h2>'
         f'<ol class="hx-top">{top_html}</ol>'
         '<h2>How the index works</h2><ul>'
@@ -303,6 +372,11 @@ def build_page(cur, base, disc_names, agency_href, esc):
         'agents. It counts roles built around AI, not every role that uses it.</li>'
         '<li><b>Pay:</b> share of roles that list a pay range. Median pay uses US roles with a listed range, '
         'at the midpoint of the range.</li>'
+        '<li><b>Independent:</b> not owned by an advertising holding company (WPP, Omnicom, Publicis, '
+        'Dentsu, Havas, Stagwell, Hakuhodo, S4) or by a consulting, IT or multi-agency group (such as '
+        'Accenture, Infosys, Brandtech or Next 15). Founder-owned and private-equity-backed agencies both count '
+        'as independent. Ownership was checked against public sources in November 2026 for the agencies behind '
+        '85% of open roles; smaller agencies count as independent unless a public source says otherwise.</li>'
         '<li><b>Limits:</b> agencies that hire without a public board are not counted. A role posted in '
         'several cities counts once per posting.</li></ul>'
         f'<p>The index updates with every daily crawl and rolls to a new month on the 1st. '
