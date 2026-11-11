@@ -91,35 +91,47 @@ def totals(snap, panel=None):
     return t
 
 
-def load_history(local_seed):
-    """Live snapshots merged over the committed seed (seed = pre-index baselines)."""
-    hist = {}
-    try:
-        with open(local_seed, encoding="utf-8") as f:
-            for s in json.load(f):
-                hist[s["date"][:7]] = s
-    except FileNotFoundError:
-        pass
-    # The live file IS the history. If it can't be read, stop the build rather than
-    # deploy a snapshots.json that has forgotten every month since the seed.
+def load_history(local_seed, cache_path=None):
+    """Merge three copies of the monthly history, newest snapshot per month wins:
+    the committed seed, the build-cache copy (data/hiring-index.json), and the
+    live file on the deployed site. Two live copies means one outage (GitHub
+    Pages down, cache evicted) can never erase months."""
     import time
     import urllib.error
+    hist = {}
+
+    def merge(snaps, src):
+        for s in snaps or []:
+            m = s["date"][:7]
+            if m not in hist or s["date"] >= hist[m]["date"]:
+                hist[m] = s
+        print(f"Index: {len(snaps or [])} snapshot(s) from {src}.")
+
+    for path, src in ((local_seed, "seed"), (cache_path, "build cache")):
+        if path:
+            try:
+                with open(path, encoding="utf-8") as f:
+                    merge(json.load(f), src)
+            except FileNotFoundError:
+                pass
     for attempt in range(3):
         try:
             req = urllib.request.Request(SNAP_URL, headers={"User-Agent": "agencyroles-build"})
             with urllib.request.urlopen(req, timeout=20) as r:
-                for s in json.load(r):
-                    hist[s["date"][:7]] = s
-            return hist
+                merge(json.load(r), "live site")
+            break
         except urllib.error.HTTPError as e:
-            if e.code == 404:  # never published yet
-                print("Index: no live snapshots yet; starting from seed.")
-                return hist
+            if e.code == 404:
+                print("Index: no live snapshots yet.")
+                break
             err = e
         except Exception as e:
             err = e
-        time.sleep(10 * (attempt + 1))
-    raise SystemExit(f"Index: could not read live snapshots ({err}); refusing to overwrite history.")
+        if attempt == 2:
+            print(f"Index: WARNING live snapshots unreadable ({err}); using seed + build cache.")
+        else:
+            time.sleep(10 * (attempt + 1))
+    return hist
 
 
 # ---------------------------------------------------------------- page

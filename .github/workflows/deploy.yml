@@ -38,6 +38,16 @@ jobs:
           restore-keys: |
             history-
 
+      # Second copy of the Agency Hiring Index monthly history (the first is
+      # the live hiring-index/snapshots.json). See hiring_index.load_history.
+      - name: Restore hiring index history
+        uses: actions/cache@v4
+        with:
+          path: data/hiring-index.json
+          key: hiring-index-${{ github.run_id }}
+          restore-keys: |
+            hiring-index-
+
       - name: Crawl agencies and build the site
         run: python3 crawl_and_build.py
 

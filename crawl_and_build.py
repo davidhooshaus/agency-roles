@@ -2094,8 +2094,11 @@ def build_hiring_index(jobs, brand, settings):
              "excl_titles": [x.lower() for x in settings.get("exclude_title_keywords", [])],
              "excl_seniority": set(settings.get("exclude_seniority", []))}
     cur = hx.snapshot(jobs, rules, TODAY)
-    hist = hx.load_history(os.path.join(HERE, "config", "hiring-index-seed.json"))
+    cache_path = os.path.join(DATA, "hiring-index.json")
+    hist = hx.load_history(os.path.join(HERE, "config", "hiring-index-seed.json"), cache_path)
     hist[TODAY[:7]] = cur
+    with open(cache_path, "w", encoding="utf-8") as f:
+        json.dump([hist[m] for m in sorted(hist)], f, separators=(",", ":"))
     earlier = [hist[m] for m in sorted(hist) if m < TODAY[:7]]
     outdir = os.path.join(SITE, "hiring-index")
     os.makedirs(outdir, exist_ok=True)
