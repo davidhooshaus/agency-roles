@@ -409,7 +409,124 @@ def fetch_ashby(slug):
     return out
 
 
-FETCHERS = {"greenhouse": fetch_greenhouse, "lever": fetch_lever, "ashby": fetch_ashby}
+def _loc(city="", state="", country="", remote=False):
+    """City, State, Country with a (Remote) tag, matching the Ashby convention."""
+    parts = []
+    for p in (city, state, country):
+        p = (p or "").strip()
+        if p and p not in parts:
+            parts.append(p)
+    loc = ", ".join(parts)
+    if remote and "remote" not in loc.lower():
+        loc = (loc + " (Remote)").strip() if loc else "Remote"
+    return loc
+
+
+def _usd_range(mn, mx, period="", currency="USD"):
+    """Structured pay -> comp dict, USD only, annualized from hourly."""
+    try:
+        mn, mx = float(mn), float(mx)
+    except (TypeError, ValueError):
+        return _blank_comp()
+    if "hour" in (period or "").lower():
+        mn, mx = mn * HOURS_PER_YEAR, mx * HOURS_PER_YEAR
+    elif "month" in (period or "").lower():
+        mn, mx = mn * 12, mx * 12
+    if (currency or "USD").upper() != "USD" or not (15000 <= mn <= mx <= 2000000):
+        return _blank_comp()
+    return {"comp_min": int(mn), "comp_max": int(mx), "comp_display": _fmt_range(mn, mx)}
+
+
+def fetch_workable(slug):
+    """Workable public widget feed: apply.workable.com/<slug>."""
+    data = json.loads(http_get(
+        f"https://apply.workable.com/api/v1/widget/accounts/{slug}?details=true", timeout=30))
+    out = []
+    for j in data.get("jobs", []):
+        body = j.get("description") or ""
+        cmin, cmax, disp = parse_money_range(body)
+        out.append({"title": j.get("title", ""),
+                    "url": j.get("url") or j.get("shortlink") or "",
+                    "location": _loc(j.get("city"), j.get("state"), j.get("country"),
+                                     bool(j.get("telecommuting"))),
+                    "employment": j.get("employment_type", ""),
+                    "posted": (j.get("published_on") or j.get("created_at") or "")[:10],
+                    "desc": strip_html(body)[:3000], "html": clean_html(body),
+                    "comp_min": cmin, "comp_max": cmax, "comp_display": disp})
+    return out
+
+
+def fetch_recruitee(slug):
+    """Recruitee public offers API: <slug>.recruitee.com."""
+    data = json.loads(http_get(f"https://{slug}.recruitee.com/api/offers/", timeout=30))
+    out = []
+    for j in data.get("offers", []):
+        if j.get("status") not in (None, "published"):
+            continue
+        body = (j.get("description") or "") + (j.get("requirements") or "")
+        sal = j.get("salary") or {}
+        comp = _usd_range(sal.get("min"), sal.get("max"), sal.get("period"), sal.get("currency"))
+        if not comp["comp_min"]:
+            cmin, cmax, disp = parse_money_range(body)
+            comp = {"comp_min": cmin, "comp_max": cmax, "comp_display": disp}
+        out.append({"title": j.get("title", ""), "url": j.get("careers_url", ""),
+                    "location": _loc(j.get("city"), j.get("state_name"), j.get("country"),
+                                     bool(j.get("remote"))),
+                    "employment": j.get("employment_type_code", ""),
+                    "posted": (j.get("published_at") or "")[:10],
+                    "desc": strip_html(body)[:3000], "html": clean_html(body), **comp})
+    return out
+
+
+def fetch_breezy(slug):
+    """Breezy HR public feed: <slug>.breezy.hr/json."""
+    data = json.loads(http_get(f"https://{slug}.breezy.hr/json?verbose=true", timeout=30))
+    out = []
+    for j in data or []:
+        loc = j.get("location") or {}
+        body = j.get("description") or ""
+        cmin, cmax, disp = parse_money_range((j.get("salary") or "") + " " + body)
+        out.append({"title": j.get("name", ""), "url": j.get("url", ""),
+                    "location": _loc(loc.get("city"), (loc.get("state") or {}).get("id"),
+                                     (loc.get("country") or {}).get("name"), bool(loc.get("is_remote"))),
+                    "employment": (j.get("type") or {}).get("name", ""),
+                    "posted": (j.get("published_date") or "")[:10],
+                    "desc": strip_html(body)[:3000], "html": clean_html(body),
+                    "comp_min": cmin, "comp_max": cmax, "comp_display": disp})
+    return out
+
+
+def fetch_bamboohr(slug, max_details=60):
+    """BambooHR public careers: <slug>.bamboohr.com/careers. The list has no
+    description or date, so each opening's detail is fetched (capped)."""
+    data = json.loads(http_get(f"https://{slug}.bamboohr.com/careers/list", timeout=30))
+    out = []
+    for j in (data.get("result") or [])[:max_details]:
+        jid = j.get("id")
+        try:
+            d = json.loads(http_get(f"https://{slug}.bamboohr.com/careers/{jid}/detail")).get(
+                "result", {}).get("jobOpening", {})
+        except Exception:
+            d = {}
+        loc, ats = j.get("location") or {}, j.get("atsLocation") or {}
+        remote = str(j.get("locationType")) == "1" or bool(j.get("isRemote"))
+        body = d.get("description") or ""
+        cmin, cmax, disp = parse_money_range((d.get("compensation") or "") + " " + body)
+        out.append({"title": j.get("jobOpeningName", ""),
+                    "url": d.get("jobOpeningShareUrl") or f"https://{slug}.bamboohr.com/careers/{jid}",
+                    "location": _loc(loc.get("city") or ats.get("city"),
+                                     loc.get("state") or ats.get("state") or ats.get("province"),
+                                     ats.get("country"), remote),
+                    "employment": j.get("employmentStatusLabel", ""),
+                    "posted": (d.get("datePosted") or "")[:10],
+                    "desc": strip_html(body)[:3000], "html": clean_html(body),
+                    "comp_min": cmin, "comp_max": cmax, "comp_display": disp})
+    return out
+
+
+FETCHERS = {"greenhouse": fetch_greenhouse, "lever": fetch_lever, "ashby": fetch_ashby,
+            "workable": fetch_workable, "recruitee": fetch_recruitee,
+            "breezy": fetch_breezy, "bamboohr": fetch_bamboohr}
 
 
 # ---------- classification ----------

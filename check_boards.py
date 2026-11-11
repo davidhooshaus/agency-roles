@@ -16,6 +16,10 @@ API = {
     "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
     "lever": "https://api.lever.co/v0/postings/{}?mode=json",
     "ashby": "https://api.ashbyhq.com/posting-api/job-board/{}",
+    "workable": "https://apply.workable.com/api/v1/widget/accounts/{}",
+    "recruitee": "https://{}.recruitee.com/api/offers/",
+    "breezy": "https://{}.breezy.hr/json",
+    "bamboohr": "https://{}.bamboohr.com/careers/list",
 }
 
 
@@ -25,7 +29,8 @@ def check(a):
         req = urllib.request.Request(url, headers={"User-Agent": "AgencyRolesHealth/1.0"})
         with urllib.request.urlopen(req, timeout=25) as r:
             d = json.loads(r.read().decode())
-        n = len(d) if isinstance(d, list) else len(d.get("jobs", []))
+        n = len(d) if isinstance(d, list) else len(
+            d.get("jobs") or d.get("offers") or d.get("result") or [])
         return a, ("zero" if n == 0 else "ok"), n
     except urllib.error.HTTPError as e:
         return a, f"HTTP {e.code}", 0

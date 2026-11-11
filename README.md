@@ -1,7 +1,7 @@
 # Agency Roles
 
 A curated, auto-updated job board of open roles at leading agencies. Crawls public ATS
-boards (Greenhouse, Lever, Ashby), filters/tags roles, and publishes a static site.
+boards (Greenhouse, Lever, Ashby, Workable, Recruitee, Breezy HR, BambooHR), filters/tags roles, and publishes a static site.
 Runs itself daily on GitHub Actions — no server, no Mac-awake dependency, ~$0/mo hosting.
 
 ## How it works
@@ -27,6 +27,10 @@ Add entries to `config/agencies.json`. The `slug` is the company token in the bo
 - Greenhouse → `boards.greenhouse.io/SLUG`
 - Lever → `jobs.lever.co/SLUG`
 - Ashby → `jobs.ashbyhq.com/SLUG`
+- Workable → `apply.workable.com/SLUG`
+- Recruitee → `SLUG.recruitee.com`
+- Breezy HR → `SLUG.breezy.hr`
+- BambooHR → `SLUG.bamboohr.com/careers` (one extra request per opening for the description; capped at 60)
 
 Set `"skip": true` to disable an entry without deleting it. Bad slugs fail quietly (logged, skipped).
 
