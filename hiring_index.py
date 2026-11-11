@@ -100,14 +100,26 @@ def load_history(local_seed):
                 hist[s["date"][:7]] = s
     except FileNotFoundError:
         pass
-    try:
-        req = urllib.request.Request(SNAP_URL, headers={"User-Agent": "agencyroles-build"})
-        with urllib.request.urlopen(req, timeout=20) as r:
-            for s in json.load(r):
-                hist[s["date"][:7]] = s
-    except Exception as e:  # first deploy, or site down: seed only
-        print(f"Index: live snapshots unavailable ({type(e).__name__}); using seed.")
-    return hist
+    # The live file IS the history. If it can't be read, stop the build rather than
+    # deploy a snapshots.json that has forgotten every month since the seed.
+    import time
+    import urllib.error
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(SNAP_URL, headers={"User-Agent": "agencyroles-build"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                for s in json.load(r):
+                    hist[s["date"][:7]] = s
+            return hist
+        except urllib.error.HTTPError as e:
+            if e.code == 404:  # never published yet
+                print("Index: no live snapshots yet; starting from seed.")
+                return hist
+            err = e
+        except Exception as e:
+            err = e
+        time.sleep(10 * (attempt + 1))
+    raise SystemExit(f"Index: could not read live snapshots ({err}); refusing to overwrite history.")
 
 
 # ---------------------------------------------------------------- page
