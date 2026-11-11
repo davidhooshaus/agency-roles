@@ -2095,7 +2095,8 @@ def build_hiring_index(jobs, brand, settings):
              "excl_seniority": set(settings.get("exclude_seniority", []))}
     cur = hx.snapshot(jobs, rules, TODAY)
     cache_path = os.path.join(DATA, "hiring-index.json")
-    hist = hx.load_history(os.path.join(HERE, "config", "hiring-index-seed.json"), cache_path)
+    hist = hx.load_history(os.path.join(HERE, "config", "hiring-index-seed.json"), cache_path,
+                           hx.rules_hash(rules))
     hist[TODAY[:7]] = cur
     with open(cache_path, "w", encoding="utf-8") as f:
         json.dump([hist[m] for m in sorted(hist)], f, separators=(",", ":"))

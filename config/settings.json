@@ -99,7 +99,6 @@
       "business development",
       "biz dev",
       " sales",
-      "account executive",
       "new business",
       "partnerships",
       "revenue"
@@ -112,7 +111,10 @@
       "account lead",
       "client partner",
       "engagement manager",
-      "planner"
+      "planner",
+      "account executive",
+      "account supervisor",
+      "account coordinator"
     ],
     "Operations/Leadership": [
       "operations",

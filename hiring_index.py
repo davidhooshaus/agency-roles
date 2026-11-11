@@ -51,7 +51,16 @@ def snapshot(jobs, rules, date):
     by_co = {}
     for r in rows:
         by_co.setdefault(r["company"], []).append(r)
-    return {"date": date, "companies": {c: _agg(rs) for c, rs in by_co.items()}}
+    return {"date": date, "rules": rules_hash(rules),
+            "companies": {c: _agg(rs) for c, rs in by_co.items()}}
+
+
+def rules_hash(rules):
+    """Short fingerprint of the classification rules a snapshot was counted under."""
+    import hashlib
+    key = json.dumps([rules["taxonomy"], sorted(rules["enabled"]), sorted(rules["excl_titles"]),
+                      sorted(rules["excl_seniority"])], sort_keys=True)
+    return hashlib.sha1(key.encode()).hexdigest()[:10]
 
 
 def _agg(rs):
@@ -91,7 +100,7 @@ def totals(snap, panel=None):
     return t
 
 
-def load_history(local_seed, cache_path=None):
+def load_history(local_seed, cache_path=None, current_rules=None):
     """Merge three copies of the monthly history, newest snapshot per month wins:
     the committed seed, the build-cache copy (data/hiring-index.json), and the
     live file on the deployed site. Two live copies means one outage (GitHub
@@ -100,10 +109,13 @@ def load_history(local_seed, cache_path=None):
     import urllib.error
     hist = {}
 
+    def rank(s):  # counted under today's rules beats newer-but-stale
+        return (s.get("rules") == current_rules, s["date"])
+
     def merge(snaps, src):
         for s in snaps or []:
             m = s["date"][:7]
-            if m not in hist or s["date"] >= hist[m]["date"]:
+            if m not in hist or rank(s) >= rank(hist[m]):
                 hist[m] = s
         print(f"Index: {len(snaps or [])} snapshot(s) from {src}.")
 
