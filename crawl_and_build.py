@@ -1356,15 +1356,16 @@ def build_site(groups, brand):
     )
     curate = (
         '<section id="curate" class="band curate"><div class="in">'
-        '<p class="eyebrow">How we curate</p><h2>A short list on purpose.</h2>'
+        f'<p class="eyebrow">How we curate</p><h2>{n_ag} agencies, picked one at a time.</h2>'
         '<p class="sub">Inclusion means we think the agency is worth knowing. It is not a guarantee about '
         'every role, manager or workplace.</p><div class="three">'
         '<div class="tcard"><span class="num">01</span><h3>Picked by hand</h3><p>We look for distinctive work, '
         'a clear point of view and signs of momentum, not the biggest name or the largest headcount.</p></div>'
-        '<div class="tcard"><span class="num">02</span><h3>Nobody pays to get in</h3><p>Independent, specialist '
-        'and rising agencies sit beside a few standout global shops. Agencies cannot buy inclusion.</p></div>'
-        '<div class="tcard"><span class="num">03</span><h3>Straight to the source</h3><p>Every link goes to the '
-        'agency’s own careers page, and we check that it still works before each build. Dead links are dropped.</p></div>'
+        '<div class="tcard"><span class="num">02</span><h3>Listing is free. Ads say so.</h3><p>Every agency here '
+        'was picked on merit, and none paid to be listed. Some featured spots are paid. Those always say Sponsored, '
+        'and only agencies already on the board can buy one.</p></div>'
+        '<div class="tcard"><span class="num">03</span><h3>Checked every day</h3><p>We read each agency’s own job '
+        'board every morning. A role leaves this board the day it closes, and Apply goes straight to the agency.</p></div>'
         '</div></div></section>\n'
     )
     footer = footer_html("", credit_url, list_url)
