@@ -504,13 +504,6 @@
   "source_url": null,
   "verified": null
  },
- "FuseGlobal": {
-  "bucket": "unknown",
-  "parent": null,
-  "pe_backed": false,
-  "source_url": "https://www.fuseglobal.com/about-us",
-  "verified": "2026-11"
- },
  "GCI Health": {
   "bucket": "holdco",
   "parent": "WPP (Burson)",

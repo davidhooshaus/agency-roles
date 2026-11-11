@@ -592,11 +592,6 @@
     "slug": "whalarinc"
   },
   {
-    "name": "FuseGlobal",
-    "provider": "greenhouse",
-    "slug": "fuseglobalpartners"
-  },
-  {
     "name": "Weber Shandwick",
     "provider": "greenhouse",
     "slug": "webershandwick"
