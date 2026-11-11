@@ -11,22 +11,129 @@
   "digest": {
     "_comment": "Weekly email digest. kit_form_id = the numeric id of the signup form in the Agency Roles Kit account (blank hides the signup box). Sending is controlled by the KIT_API_KEY secret and DIGEST_MODE repo variable, see send_digest.py.",
     "kit_form_id": "10150033",
-    "send_day": "Tuesday"
+    "send_day": "Tuesday",
+    "role_tags": {
+      "Design/Creative": "25732339",
+      "Strategy/Account": "25732358",
+      "Engineering": "25732359",
+      "Growth/Marketing": "25732360",
+      "Operations/Leadership": "25732373",
+      "BizDev/Sales": "25732380",
+      "Data/AI": "25732386",
+      "Product": "25732393"
+    },
+    "_role_tags_comment": "Kit tag id per board category (Agency Roles Kit account, tags named 'Role: ...'). Signup checkboxes post these as tags[]. Everyone still gets the one digest; tags are for later per-discipline sends."
   },
   "enabled_categories": [
-    "Engineering", "Data/AI", "Product", "Design/Creative",
-    "Growth/Marketing", "BizDev/Sales", "Strategy/Account", "Operations/Leadership"
+    "Engineering",
+    "Data/AI",
+    "Product",
+    "Design/Creative",
+    "Growth/Marketing",
+    "BizDev/Sales",
+    "Strategy/Account",
+    "Operations/Leadership"
   ],
   "exclude_seniority": [],
   "exclude_title_keywords": [],
   "categories": {
-    "Engineering": [" engineer", "developer", "full stack", "full-stack", "frontend", "front-end", "backend", "back-end", "devops", "software", "platform", " sre", "architect", " qa "],
-    "Data/AI": ["data scientist", "data engineer", "machine learning", " ml ", " ai ", "analytics", "data analyst"],
-    "Product": ["product manager", "product owner", "product lead", "technical product", "product designer"],
-    "Design/Creative": ["designer", " design ", "creative", "art director", "copywriter", " ux", " ui ", "motion", "illustrator"],
-    "Growth/Marketing": ["marketing", "growth", " seo", " ppc", "paid media", "paid search", "performance marketing", "demand gen", "content marketing", "social media", "email marketing", "lifecycle", " crm "],
-    "BizDev/Sales": ["business development", "biz dev", " sales", "account executive", "new business", "partnerships", "revenue"],
-    "Strategy/Account": ["strategist", "strategy", "account director", "account manager", "account lead", "client partner", "engagement manager", "planner"],
-    "Operations/Leadership": ["operations", " ops ", "project manager", "program manager", "delivery", "resource manager", "people ", "talent", "recruit", "finance", "chief", " coo", " ceo", " cto", " cfo", "managing director", "general manager", "president", "head of"]
+    "Engineering": [
+      " engineer",
+      "developer",
+      "full stack",
+      "full-stack",
+      "frontend",
+      "front-end",
+      "backend",
+      "back-end",
+      "devops",
+      "software",
+      "platform",
+      " sre",
+      "architect",
+      " qa "
+    ],
+    "Data/AI": [
+      "data scientist",
+      "data engineer",
+      "machine learning",
+      " ml ",
+      " ai ",
+      "analytics",
+      "data analyst"
+    ],
+    "Product": [
+      "product manager",
+      "product owner",
+      "product lead",
+      "technical product",
+      "product designer"
+    ],
+    "Design/Creative": [
+      "designer",
+      " design ",
+      "creative",
+      "art director",
+      "copywriter",
+      " ux",
+      " ui ",
+      "motion",
+      "illustrator"
+    ],
+    "Growth/Marketing": [
+      "marketing",
+      "growth",
+      " seo",
+      " ppc",
+      "paid media",
+      "paid search",
+      "performance marketing",
+      "demand gen",
+      "content marketing",
+      "social media",
+      "email marketing",
+      "lifecycle",
+      " crm "
+    ],
+    "BizDev/Sales": [
+      "business development",
+      "biz dev",
+      " sales",
+      "account executive",
+      "new business",
+      "partnerships",
+      "revenue"
+    ],
+    "Strategy/Account": [
+      "strategist",
+      "strategy",
+      "account director",
+      "account manager",
+      "account lead",
+      "client partner",
+      "engagement manager",
+      "planner"
+    ],
+    "Operations/Leadership": [
+      "operations",
+      " ops ",
+      "project manager",
+      "program manager",
+      "delivery",
+      "resource manager",
+      "people ",
+      "talent",
+      "recruit",
+      "finance",
+      "chief",
+      " coo",
+      " ceo",
+      " cto",
+      " cfo",
+      "managing director",
+      "general manager",
+      "president",
+      "head of"
+    ]
   }
 }

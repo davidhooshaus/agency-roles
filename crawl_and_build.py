@@ -1398,7 +1398,15 @@ SIGNUP_CSS = """
 .dsign .eyebrow{color:var(--gold)}
 .dsign h3{font:500 clamp(28px,3.2vw,38px)/1.1 var(--serif);letter-spacing:-.015em;margin:0 0 12px;color:var(--on-dark)}
 .dsign p{margin:0;font-size:16.5px;color:var(--on-dark-muted);max-width:32em}
-.dsign form{display:flex;gap:10px}
+.dsign .row{display:flex;gap:10px}
+.dsign fieldset{border:0;margin:16px 0 0;padding:0}
+.dsign legend{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--on-dark-muted);padding:0;margin:0 0 10px}
+.dsign .chips{display:flex;flex-wrap:wrap;gap:8px}
+.dsign .chips label{cursor:pointer}
+.dsign .chips input{position:absolute;opacity:0;width:1px;height:1px}
+.dsign .chips span{display:inline-block;font:500 13.5px/1 var(--sans);padding:9px 12px;border-radius:999px;border:1px solid var(--dark-rule);color:var(--on-dark);background:var(--dark-2)}
+.dsign .chips input:checked+span{background:var(--gold);border-color:var(--gold);color:#1b1404}
+.dsign .chips input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
 .dsign input{flex:1;min-width:0;font:400 16.5px var(--sans);padding:15px 16px;border-radius:11px;border:1px solid var(--dark-rule);background:var(--dark-2);color:var(--on-dark)}
 .dsign input::placeholder{color:#8b968b}
 .dsign input:focus{outline:2px solid var(--gold);outline-offset:1px}
@@ -1406,8 +1414,23 @@ SIGNUP_CSS = """
 .dsign button:hover{filter:brightness(1.07)}
 .dsign .fine{font:400 12px var(--mono);color:var(--on-dark-muted);margin:12px 0 0}
 @media(max-width:860px){.dsign .in{grid-template-columns:1fr;gap:24px;padding-top:44px;padding-bottom:44px}}
-@media(max-width:480px){.dsign form{flex-direction:column}}
+@media(max-width:480px){.dsign .row{flex-direction:column}}
 """
+
+def _role_chips():
+    """Optional 'roles you care about' checkboxes. Each posts a Kit tag id as tags[]."""
+    tags = DIGEST_CFG.get("role_tags") or {}
+    chips = []
+    for cat, (_slug, name) in DISC_PAGES.items():
+        tid = str(tags.get(cat) or "").strip()
+        if tid:
+            chips.append(f'<label><input type="checkbox" name="tags[]" value="{html.escape(tid)}">'
+                         f'<span>{html.escape(name)}</span></label>')
+    if not chips:
+        return ""
+    return ('<fieldset><legend>Roles you care about (optional)</legend>'
+            '<div class="chips">' + "".join(chips) + '</div></fieldset>')
+
 
 def signup_box(where):
     """Weekly digest signup (Kit form POST). Empty until a form id is configured."""
@@ -1423,9 +1446,9 @@ def signup_box(where):
         'Pay shown where it is listed. No recruiters, no spam.</p></div><div>'
         f'<form action="https://app.kit.com/forms/{html.escape(form_id)}/subscriptions" method="post" '
         f'onsubmit="window.posthog&&posthog.capture(\'digest_signup\',{{where:\'{where}\'}})">'
-        '<input type="email" name="email_address" required placeholder="you@email.com" '
+        '<div class="row"><input type="email" name="email_address" required placeholder="you@email.com" '
         'aria-label="Email address" autocomplete="email">'
-        '<button type="submit">Get the digest</button></form>'
+        '<button type="submit">Get the digest</button></div>' + _role_chips() + '</form>'
         '<p class="fine">Free. Unsubscribe in one click.</p>'
         '</div></div></section>\n')
 
