@@ -5,8 +5,8 @@ Stdlib only (no pip installs) so it runs anywhere, including a bare GitHub Actio
 Run locally:  python3 crawl_and_build.py
 Outputs:      data/jobs.jsonl, data/history.json, site/index.html, site/CNAME
 """
-import json, os, re, html, hashlib, urllib.request, urllib.error, concurrent.futures
-from datetime import date, datetime
+import json, os, re, html, hashlib, urllib.request, urllib.error, urllib.parse, concurrent.futures
+from datetime import date, datetime, timedelta
 from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -310,7 +310,7 @@ def group_roles(jobs):
                  "workplaces": set(), "employments": set(), "countries": set(), "locations": [],
                  "comp": None, "comp_min": None, "comp_max": None, "comp_bucket": None,
                  "first_seen": j["first_seen"], "posted": j.get("posted") or "",
-                 "focus": "", "verified": True, "roles": []}
+                 "focus": "", "verified": True, "roles": [], "source": j.get("source", "")}
             groups[key] = g
         g["verified"] = g["verified"] and bool(j.get("verified"))
         g["workplaces"].add(j["workplace"])
@@ -361,6 +361,35 @@ def apply_href(url, provider=""):
         extra = ATS_SOURCE_PARAM[provider] + "&" + extra
     out = base + ("&" if "?" in base else "?") + extra
     return out + ("#" + frag if frag else "")
+
+
+# ---------- roles submitted by agencies (no ATS) ----------
+# Small agencies that post on their own site or LinkedIn send a role through the
+# Tally form https://tally.so/r/Ar2xPB. David approves it; the row then goes into
+# config/submitted.json and shows for SUBMITTED_DAYS from its approval date.
+# Apply links are liveness-checked every build like Lever/Ashby, so a filled role
+# whose page 404s drops off on its own.
+SUBMITTED_DAYS = 45
+SUBMITTED_CATEGORY = {  # form label -> taxonomy key
+    "design and creative": "Design/Creative", "strategy and account": "Strategy/Account",
+    "engineering": "Engineering", "marketing and media": "Growth/Marketing",
+    "operations and leadership": "Operations/Leadership", "data and ai": "Data/AI",
+    "sales and new business": "BizDev/Sales", "product": "Product"}
+
+
+def load_submitted(today_iso):
+    rows = load_json(os.path.join(CFG, "submitted.json"), []) or []
+    out = []
+    for r in rows:
+        try:
+            approved = datetime.strptime(r["approved"], "%Y-%m-%d").date()
+        except (KeyError, ValueError):
+            continue
+        expires = approved + timedelta(days=int(r.get("days", SUBMITTED_DAYS)))
+        if r.get("removed") or not (approved.isoformat() <= today_iso < expires.isoformat()):
+            continue
+        out.append(r)
+    return out
 
 
 # ---------- ATS fetchers (all public, no auth) ----------
@@ -784,6 +813,31 @@ def main():
                 "first_seen": history[jid], "source": a["provider"],
                 "loc_raw": loc, "html": r.get("html") or ""})
 
+    for r in load_submitted(TODAY):
+        title, url, name = r["title"].strip(), r["url"].strip(), r["company"].strip()
+        cat = SUBMITTED_CATEGORY.get((r.get("category") or "").strip().lower()) \
+            or categorize(title, taxonomy)
+        if cat not in enabled:
+            continue
+        loc = (r.get("location") or "").strip()
+        country = detect_country(loc)
+        cmin, cmax, disp = parse_money_range(r.get("pay") or "")
+        jid = job_id(url)
+        history.setdefault(jid, r["approved"])
+        desc = (r.get("description") or "").strip()
+        body = "".join(f"<p>{html.escape(par.strip())}</p>" for par in desc.split("\n") if par.strip())
+        wp = (r.get("workplace") or "").strip() or classify_workplace(loc)
+        jobs.append({
+            "id": jid, "company": name, "title": title, "url": url,
+            "location": normalize_location(loc, country),
+            "category": cat, "seniority": seniority(title), "workplace": wp,
+            "focus": "Agency growth" if focus_agency_growth(title, desc) else "",
+            "employment": normalize_employment(r.get("employment"), title, desc),
+            "country": country, "comp": disp, "comp_min": cmin, "comp_max": cmax,
+            "comp_bucket": comp_bucket(cmin, cmax),
+            "posted": r["approved"], "first_seen": history[jid], "source": "submitted",
+            "loc_raw": loc, "html": body})
+
     # Verify liveness for Lever/Ashby only. Their public pages resolve cleanly,
     # and Lever especially serves "phantom" postings that 404 while still in the
     # feed - the bug that put a dead link on the board. A hard 404/410 is dropped.
@@ -798,7 +852,7 @@ def main():
     #
     # Guard: if an implausible share of the checked set looks dead, assume the
     # verifier/network broke, not the board, and keep everything.
-    http_jobs = [j for j in jobs if j["source"] in ("lever", "ashby")]
+    http_jobs = [j for j in jobs if j["source"] in ("lever", "ashby", "submitted")]
     status = verify_liveness([j["url"] for j in http_jobs])
     n_dead_raw = sum(1 for j in http_jobs if status.get(j["url"]) == "dead")
     dead_share = n_dead_raw / (len(http_jobs) or 1)
@@ -986,6 +1040,7 @@ def footer_html(root, credit_url="https://www.hausadvisors.com", list_url="https
             f'<a href="{r}roles/engineering/">Engineering jobs</a><a href="{r}hiring-index/">Agency Hiring Index</a>'
             f'<a href="{r}insights/">Hiring data</a></div>'
             f'<div><h4>For agencies</h4><a href="{html.escape(list_url)}" target="_blank" rel="noopener">Apply for inclusion</a>'
+            '<a href="https://tally.so/r/Ar2xPB" target="_blank" rel="noopener">Submit a single role</a>'
             f'<a href="{r}sponsor/">Sponsor the board</a><a href="https://www.hausadvisors.com/score">Free Bottleneck Score</a></div>'
             '</div></footer>\n')
 
@@ -1395,6 +1450,8 @@ def _slim(groups):
             if k in ("focus", "verified", "employments") and not v:
                 continue
             if k == "roles" and g.get("count", 1) <= 1:
+                continue
+            if k == "source" and v != "submitted":
                 continue
             if k in ("url", "href"):  # cards link to /job/ pages; only roles link out
                 continue
@@ -2176,6 +2233,10 @@ def agency_slug(name):
 
 
 AGENCY_CSS = """
+.verified{display:inline-block;font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--gold-soft,#f6ecd0);color:var(--gold-ink,#6b4e00);margin-left:8px;vertical-align:2px}
+.about{border-left:3px solid var(--gold,#F0A202);padding:6px 0 6px 16px;margin:18px 0 22px;max-width:760px}
+.about p{margin:0 0 6px;font-size:17px;line-height:1.55}
+.about .src{font-size:13px;color:var(--muted)}
 .rolelist{list-style:none;padding:0;margin:14px 0 26px}
 .rolelist li{background:var(--card);border:1px solid var(--cardline);border-radius:12px;margin:0 0 10px}
 .rolelist a{display:flex;justify-content:space-between;gap:14px;padding:14px 16px;text-decoration:none;color:var(--ink)}
@@ -2215,6 +2276,12 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
     by_ag_groups = collections.defaultdict(list)
     for g in groups:
         by_ag_groups[g["company"]].append(g)
+    sub_cos = {j["company"] for j in jobs if j.get("source") == "submitted"}
+    roster = sorted(set(roster) | sub_cos, key=str.lower)
+    # Claimed pages (Tally form o9eo61, approved by David): {agency: {verified,
+    # about, hiring_url}}. Unclaimed pages carry a link to claim them.
+    claims = load_json(os.path.join(CFG, "claims.json"), {}) or {}
+    claim_form = "https://tally.so/r/o9eo61"
     slugs = {n: agency_slug(n) for n in roster}
 
     # top discipline per agency, used for the "similar agencies" links
@@ -2311,13 +2378,28 @@ def build_agencies(jobs, groups, agencies_cfg, brand):
                         + "".join(f'<a href="../{slugs[m]}/">{html.escape(m)} '
                                   f'<span class="meta">({len(by_ag_groups[m])} open)</span></a>' for m in sim[:8])
                         + '<a href="../">All agencies →</a></div>')
-        owner = ('<div class="owner"><p><b>Run this agency?</b> This page updates from your public careers '
-                 'board every day. To fix a detail or feature a role, '
-                 f'<a href="{html.escape(list_url)}" target="_blank" rel="noopener">get in touch</a>.</p>'
-                 '<p>Wondering whether growth still depends on you? '
-                 '<a href="https://www.hausadvisors.com/score">Get your free Bottleneck Score →</a></p></div>')
+        cl = claims.get(n) or {}
+        score = ('<p>Wondering whether growth still depends on you? '
+                 '<a href="https://www.hausadvisors.com/score">Get your free Bottleneck Score →</a></p>')
+        if cl.get("verified"):
+            hire = cl.get("hiring_url") or ""
+            hire_a = (f' Questions about a role? <a href="{html.escape(hire)}" target="_blank" rel="noopener">'
+                      'Contact their hiring team</a>.' if hire.startswith(("https://", "mailto:")) else "")
+            owner = (f'<div class="owner"><p><b>Verified by {en}.</b> This page updates from their careers '
+                     f'board every day.{hire_a}</p>{score}</div>')
+            badge = '<span class="verified">&#10003; Verified by the agency</span>'
+            about = (f'<div class="about"><p>{html.escape(cl["about"])}</p>'
+                     f'<p class="src">In their words · verified {html.escape(cl["verified"])}</p></div>'
+                     if cl.get("about") else "")
+        else:
+            claim_url = claim_form + "?agency=" + urllib.parse.quote(n)
+            owner = ('<div class="owner"><p><b>Run this agency?</b> This page updates from your public careers '
+                     'board every day. <a href="' + html.escape(claim_url) + '" target="_blank" rel="noopener">'
+                     'Claim it for free</a> to add a verified badge, a line on why people should work with you, '
+                     'and a link for hiring questions.</p>' + score + '</div>')
+            badge = about = ""
         body = (f'<p class="kicker"><a href="../">Agencies</a> · Updated {build_date}</p>'
-                f'<h1>Jobs at {en}</h1>{lead}{roles_html}{owner}{sim_html}')
+                f'<h1>Jobs at {en}{badge}</h1>{about}{lead}{roles_html}{owner}{sim_html}')
         canonical = f"https://{domain}/agencies/{slug}/"
         ld = {"@context": "https://schema.org", "@type": "CollectionPage", "name": f"Jobs at {n}",
               "description": desc, "url": canonical, "dateModified": build_date,
@@ -2740,6 +2822,7 @@ JOB_CSS = """<style>
 .jd h4{font:600 16.5px/1.3 var(--sans);margin:22px 0 8px}
 .jd ul,.jd ol{padding-left:22px;margin:0 0 18px}.jd li{margin:5px 0}
 .jd p{margin:0 0 14px}
+.lead .live{color:var(--accent)}
 .jfacts{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
 .jfacts li{font:500 12.5px/1 var(--mono);letter-spacing:.03em;padding:8px 11px;border-radius:999px;
  background:color-mix(in srgb,var(--on-dark) 10%,transparent);color:var(--on-dark)}
@@ -2879,11 +2962,17 @@ def build_jobs(jobs, groups, brand):
         apply_a = (f'<a class="cta" href="{html.escape(g["href"])}" target="_blank" rel="noopener nofollow" '
                    f'{track}>Apply at {html.escape(co)} ↗</a>')
         pay_line = (f'<b>{html.escape(g["comp"])}</b> · ' if g["comp"] else "")
+        build_h = datetime.utcnow().strftime("%b %-d, %Y")
         head = (f'<p class="kicker"><a href="{ag_href}">{html.escape(co)}</a> · {html.escape(g["category"])}</p>'
                 f'<h1>{html.escape(title)}</h1>'
                 f'<ul class="jfacts">{"".join(facts)}</ul>'
-                f'<p class="lead" style="margin-top:18px">{pay_line}Posted {html.escape(posted_h)} on '
-                f'{html.escape(co)}\'s careers site. Agency Roles checks it every day.</p>' + apply_a)
+                f'<p class="lead" style="margin-top:18px">{pay_line}'
+                + (f'Sent to Agency Roles by {html.escape(co)} on {html.escape(posted_h)}. '
+                   if g.get("source") == "submitted" else
+                   f'Posted {html.escape(posted_h)} on {html.escape(co)}\'s careers site. ')
+                + (f'<span class="live">&#9679;</span> Link checked live {html.escape(build_h)}.'
+                   if g.get("verified") else 'Agency Roles checks it every day.')
+                + '</p>' + apply_a)
         parts = [head]
         if g["count"] > 1:
             parts.append(f'<h2>{g["count"]} openings</h2><ul class="locs">' + "".join(

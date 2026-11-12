@@ -24,6 +24,18 @@ listener in the PostHog snippet sends an `apply_click` event with the agency and
 `$POSTHOG_PERSONAL_API_KEY` or `~/.config/agency-roles/posthog_key`. It writes
 `agency-clicks-YYYY-MM.md` and `.json` to `~/Desktop/AI Chief of Staff/builds/agency-job-board/reports/`.
 
+**Agencies without a job system** submit one role at a time: https://tally.so/r/Ar2xPB.
+Approve one by adding a row to `config/submitted.json`:
+`{"company", "title", "url", "location", "workplace", "employment", "category", "pay", "description", "approved": "YYYY-MM-DD"}`
+(`category` is the form's label, e.g. "Design and creative"; optional `"days"` overrides the 45-day life;
+`"removed": true` takes it down). Submitted roles get liveness-checked daily like Lever/Ashby, show
+"Sent to Agency Roles by …" on their page, and give the agency a page if it isn't on the roster.
+
+**Claimed agency pages:** every unclaimed `/agencies/<slug>/` page links to https://tally.so/r/o9eo61?agency=Name.
+Approve a claim (work-email domain matches the agency's site) by adding to `config/claims.json`:
+`{"Agency Name": {"verified": "YYYY-MM-DD", "about": "their 1-2 sentences", "hiring_url": "https://... or mailto:"}}`.
+The page then shows a "Verified by the agency" badge, their line, and the hiring link.
+
 **Reposting is legal-safe by design:** we show title, company, location, tags — and link out
 to the source. We never copy full job descriptions.
 
